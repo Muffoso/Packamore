@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Packarizer</title>
-    <link href="https://fonts.googleapis.com/css2?family=Righteous:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Righteous:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -13,11 +13,11 @@
         }
 
         body {
-            font-family: 'Righteous', sans-serif;
-            background: #ededed;
+            font-family: 'Inter', sans-serif;
+            background: #f2f0e4;
             padding: 10px;
             padding-bottom: 100px;
-            color: #102937;
+            color: #045149;
         }
 
         .auth-screen {
@@ -25,11 +25,11 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #102937 0%, #091d26 100%);
+            background: linear-gradient(135deg, #045149 0%, #003a37 100%);
         }
 
         .auth-container {
-            background: #ededed;
+            background: #f2f0e4;
             padding: 30px;
             border-radius: 10px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3);
@@ -40,8 +40,11 @@
         .auth-container h1 {
             text-align: center;
             margin-bottom: 30px;
-            color: #102937;
+            color: #045149;
             font-size: 32px;
+            font-family: 'Righteous', sans-serif;
+            font-weight: 700;
+            letter-spacing: 2px;
         }
 
         .auth-form {
@@ -52,18 +55,19 @@
 
         .auth-form input {
             padding: 12px;
-            border: 2px solid #102937;
+            border: 2px solid #045149;
             border-radius: 5px;
             font-size: 16px;
             width: 100%;
-            background: #ffffff;
-            color: #102937;
+            background: #e6eaef;
+            color: #045149;
+            font-family: 'Inter', sans-serif;
         }
 
         .auth-form input:focus {
             outline: none;
-            border-color: #f9744b;
-            box-shadow: 0 0 0 3px rgba(249, 116, 75, 0.1);
+            border-color: #bfdbdd;
+            box-shadow: 0 0 0 3px rgba(191, 219, 221, 0.3);
         }
 
         .auth-buttons {
@@ -80,62 +84,64 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            font-family: 'Righteous', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .auth-btn.primary {
-            background: #102937;
-            color: #ededed;
+            background: #045149;
+            color: #f2f0e4;
         }
 
         .auth-btn.primary:hover {
-            background: #091d26;
+            background: #003a37;
             transform: translateY(-2px);
         }
 
         .auth-btn.secondary {
-            background: #f9744b;
-            color: white;
+            background: #bfdbdd;
+            color: #045149;
         }
 
         .auth-btn.secondary:hover {
-            background: #d84f2a;
+            background: #9ec5c6;
             transform: translateY(-2px);
         }
 
         .auth-btn.google {
-            background: #ffffff;
-            color: #102937;
-            border: 2px solid #102937;
+            background: #e6eaef;
+            color: #045149;
+            border: 2px solid #045149;
         }
 
         .auth-btn.google:hover {
-            background: #102937;
-            color: #ffffff;
+            background: #dae0e5;
+            border-color: #045149;
         }
 
         .auth-toggle {
             text-align: center;
             margin-top: 20px;
-            color: #102937;
+            color: #045149;
             font-size: 14px;
+            font-family: 'Inter', sans-serif;
         }
 
         .auth-toggle button {
             background: none;
             border: none;
-            color: #f9744b;
+            color: #21664d;
             cursor: pointer;
             text-decoration: underline;
             padding: 0;
             font-size: 14px;
-            font-family: 'Righteous', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .auth-error {
-            color: #d84f2a;
+            color: #045149;
             font-size: 14px;
             text-align: center;
+            font-family: 'Inter', sans-serif;
         }
 
         .auth-hidden {
@@ -157,8 +163,8 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            background: linear-gradient(135deg, #102937 0%, #091d26 100%);
-            color: #ededed;
+            background: linear-gradient(135deg, #045149 0%, #003a37 100%);
+            color: #f2f0e4;
             padding: 15px 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
@@ -168,7 +174,9 @@
             margin: 0 0 10px 0;
             font-weight: 700;
             text-align: center;
-            color: #f9744b;
+            color: #bfdbdd;
+            font-family: 'Righteous', sans-serif;
+            letter-spacing: 2px;
         }
 
         .header-content {
@@ -182,7 +190,8 @@
         .user-section {
             text-align: center;
             font-size: 13px;
-            color: #ededed;
+            color: #e6eaef;
+            font-family: 'Inter', sans-serif;
         }
 
         .header-controls {
@@ -200,53 +209,55 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s ease;
-            font-family: 'Righteous', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .toggle-filter {
-            background: #124d54;
-            color: white;
+            background: #21664d;
+            color: #f2f0e4;
             padding: 8px 15px;
             font-size: 13px;
         }
 
         .toggle-filter:hover {
-            background: #094044;
+            background: #15543c;
         }
 
         .toggle-filter.active {
-            background: #f9744b;
+            background: #bfdbdd;
+            color: #045149;
         }
 
         .toggle-edit {
-            background: #124d54;
-            color: white;
+            background: #21664d;
+            color: #f2f0e4;
             padding: 8px 15px;
             font-size: 13px;
         }
 
         .toggle-edit:hover {
-            background: #094044;
+            background: #15543c;
         }
 
         .toggle-edit.active {
-            background: #f9744b;
+            background: #bfdbdd;
+            color: #045149;
         }
 
         .logout-btn {
             padding: 8px 15px;
-            background: #f9744b;
-            color: white;
+            background: #bfdbdd;
+            color: #045149;
             border: none;
             border-radius: 5px;
             cursor: pointer;
             font-size: 13px;
             transition: all 0.3s ease;
-            font-family: 'Righteous', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .logout-btn:hover {
-            background: #d84f2a;
+            background: #9ec5c6;
         }
 
         .container {
@@ -255,7 +266,7 @@
         }
 
         .location-section {
-            background: #ffffff;
+            background: #e6eaef;
             border-radius: 10px;
             margin-bottom: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -263,8 +274,8 @@
         }
 
         .location-header {
-            background: linear-gradient(135deg, #102937 0%, #091d26 100%);
-            color: #f9744b;
+            background: linear-gradient(135deg, #045149 0%, #003a37 100%);
+            color: #bfdbdd;
             padding: 15px;
             font-weight: 600;
             font-size: 18px;
@@ -273,6 +284,7 @@
             align-items: center;
             cursor: pointer;
             user-select: none;
+            font-family: 'Inter', sans-serif;
         }
 
         .location-header.edit-mode {
@@ -289,8 +301,8 @@
         }
 
         .arrow-btn {
-            background: rgba(249, 116, 75, 0.2);
-            color: #f9744b;
+            background: rgba(191, 219, 221, 0.2);
+            color: #bfdbdd;
             padding: 5px 10px;
             border-radius: 5px;
             font-size: 14px;
@@ -300,12 +312,12 @@
         }
 
         .arrow-btn:hover {
-            background: rgba(249, 116, 75, 0.4);
+            background: rgba(191, 219, 221, 0.4);
         }
 
         .delete-location-btn {
-            background: #d84f2a;
-            color: white;
+            background: #21664d;
+            color: #f2f0e4;
             padding: 5px 10px;
             border-radius: 5px;
             font-size: 14px;
@@ -315,7 +327,7 @@
         }
 
         .delete-location-btn:hover {
-            background: #b53a1f;
+            background: #15543c;
         }
 
         .items-list {
@@ -331,7 +343,7 @@
             display: flex;
             align-items: center;
             padding: 12px;
-            border-bottom: 1px solid #e1d9cf;
+            border-bottom: 1px solid #dae0e5;
             gap: 10px;
             transition: background 0.2s;
         }
@@ -341,15 +353,15 @@
         }
 
         .item.active {
-            background: #124d54;
+            background: #21664d;
         }
 
         .item:hover {
-            background: #f5f5f5;
+            background: #f2f0e4;
         }
 
         .item.edit-mode:hover {
-            background: #f0f0f0;
+            background: #e6eaef;
         }
 
         .item-button {
@@ -357,28 +369,28 @@
             padding: 12px;
             text-align: left;
             background: none;
-            border: 2px solid #102937;
+            border: 2px solid #045149;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             transition: all 0.2s;
-            color: #102937;
-            font-family: 'Righteous', sans-serif;
+            color: #045149;
+            font-family: 'Inter', sans-serif;
         }
 
         .item.active .item-button {
-            background: #124d54;
-            color: #ededed;
-            border-color: #124d54;
+            background: #21664d;
+            color: #f2f0e4;
+            border-color: #21664d;
         }
 
         .item-button:hover {
-            border-color: #f9744b;
+            border-color: #bfdbdd;
         }
 
         .item.edit-mode .item-button {
             cursor: grab;
-            border: 2px dashed #102937;
+            border: 2px dashed #045149;
         }
 
         .item.edit-mode .item-button:active {
@@ -399,8 +411,8 @@
         }
 
         .item-arrow-btn {
-            background: #124d54;
-            color: white;
+            background: #21664d;
+            color: #f2f0e4;
             padding: 8px 12px;
             border-radius: 5px;
             font-size: 14px;
@@ -410,12 +422,12 @@
         }
 
         .item-arrow-btn:hover {
-            background: #094044;
+            background: #15543c;
         }
 
         .delete-item-btn {
-            background: #d84f2a;
-            color: white;
+            background: #bfdbdd;
+            color: #045149;
             padding: 8px 12px;
             border-radius: 5px;
             font-size: 14px;
@@ -425,12 +437,12 @@
         }
 
         .delete-item-btn:hover {
-            background: #b53a1f;
+            background: #9ec5c6;
         }
 
         .add-item-btn {
-            background: #124d54;
-            color: white;
+            background: #21664d;
+            color: #f2f0e4;
             padding: 8px 12px;
             border-radius: 5px;
             font-size: 14px;
@@ -439,16 +451,16 @@
             transition: background 0.2s;
             width: 100%;
             margin-top: 10px;
-            font-family: 'Righteous', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .add-item-btn:hover {
-            background: #094044;
+            background: #15543c;
         }
 
         .add-location-btn {
-            background: #124d54;
-            color: white;
+            background: #21664d;
+            color: #f2f0e4;
             padding: 12px 20px;
             border-radius: 8px;
             font-size: 16px;
@@ -457,11 +469,11 @@
             transition: background 0.2s;
             width: 100%;
             margin-top: 20px;
-            font-family: 'Righteous', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .add-location-btn:hover {
-            background: #094044;
+            background: #15543c;
         }
 
         .input-dialog {
@@ -482,7 +494,7 @@
         }
 
         .dialog-content {
-            background: #ededed;
+            background: #f2f0e4;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 20px 25px rgba(0,0,0,0.15);
@@ -492,18 +504,20 @@
 
         .dialog-content h2 {
             margin-bottom: 15px;
-            color: #102937;
+            color: #045149;
+            font-family: 'Inter', sans-serif;
         }
 
         .dialog-content input {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
-            border: 2px solid #102937;
+            border: 2px solid #045149;
             border-radius: 5px;
             font-size: 16px;
-            background: #ffffff;
-            color: #102937;
+            background: #e6eaef;
+            color: #045149;
+            font-family: 'Inter', sans-serif;
         }
 
         .dialog-buttons {
@@ -514,25 +528,25 @@
         .dialog-buttons button {
             flex: 1;
             padding: 10px;
-            font-family: 'Righteous', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
 
         .dialog-buttons .cancel-btn {
-            background: #124d54;
-            color: white;
+            background: #21664d;
+            color: #f2f0e4;
         }
 
         .dialog-buttons .cancel-btn:hover {
-            background: #094044;
+            background: #15543c;
         }
 
         .dialog-buttons .confirm-btn {
-            background: #f9744b;
-            color: white;
+            background: #bfdbdd;
+            color: #045149;
         }
 
         .dialog-buttons .confirm-btn:hover {
-            background: #d84f2a;
+            background: #9ec5c6;
         }
 
         .filter-active-only {
@@ -564,14 +578,14 @@
     <!-- Auth Screen -->
     <div class="auth-screen" id="authScreen">
         <div class="auth-container">
-            <h1>Packarizer</h1>
+            <h1>PACKARIZER</h1>
 
             <div id="loginForm">
                 <div class="auth-form">
                     <input type="email" id="email" placeholder="Email" />
                     <input type="password" id="password" placeholder="Lösenord" />
                     <button class="auth-btn primary" onclick="appLogin()">Logga in</button>
-                    <button class="auth-btn google" onclick="appGoogleSignIn()">Logga in med Google</button>
+                    <button class="auth-btn secondary" onclick="appGoogleSignIn()">Logga in med Google</button>
                     <div class="auth-error" id="authError"></div>
                 </div>
                 <div class="auth-toggle">
@@ -585,7 +599,7 @@
                     <input type="password" id="regPassword" placeholder="Lösenord (minst 6 tecken)" />
                     <input type="password" id="regPasswordConfirm" placeholder="Bekräfta lösenord" />
                     <button class="auth-btn primary" onclick="appRegister()">Skapa konto</button>
-                    <button class="auth-btn google" onclick="appGoogleSignIn()">Registrera med Google</button>
+                    <button class="auth-btn secondary" onclick="appGoogleSignIn()">Registrera med Google</button>
                     <div class="auth-error" id="authError2"></div>
                 </div>
                 <div class="auth-toggle">
@@ -598,7 +612,7 @@
     <!-- App Screen -->
     <div class="app-screen" id="appScreen">
         <div class="header">
-            <h1>Packarizer</h1>
+            <h1>PACKARIZER</h1>
             <div class="header-content">
                 <div class="user-section">
                     <div id="userEmail"></div>
