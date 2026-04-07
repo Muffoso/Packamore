@@ -541,12 +541,12 @@
                 <div class="auth-form">
                     <input type="email" id="email" placeholder="Email" />
                     <input type="password" id="password" placeholder="Lösenord" />
-                    <button class="auth-btn primary" onclick="login()">Logga in</button>
-                    <button class="auth-btn google" onclick="googleSignIn()">🔐 Logga in med Google</button>
+                    <button class="auth-btn primary" onclick="appLogin()">Logga in</button>
+                    <button class="auth-btn google" onclick="appGoogleSignIn()">🔐 Logga in med Google</button>
                     <div class="auth-error" id="authError"></div>
                 </div>
                 <div class="auth-toggle">
-                    Inget konto? <button onclick="toggleForm()">Registrera</button>
+                    Inget konto? <button onclick="appToggleForm()">Registrera</button>
                 </div>
             </div>
 
@@ -555,12 +555,12 @@
                     <input type="email" id="regEmail" placeholder="Email" />
                     <input type="password" id="regPassword" placeholder="Lösenord (minst 6 tecken)" />
                     <input type="password" id="regPasswordConfirm" placeholder="Bekräfta lösenord" />
-                    <button class="auth-btn primary" onclick="register()">Skapa konto</button>
-                    <button class="auth-btn google" onclick="googleSignIn()">🔐 Registrera med Google</button>
+                    <button class="auth-btn primary" onclick="appRegister()">Skapa konto</button>
+                    <button class="auth-btn google" onclick="appGoogleSignIn()">🔐 Registrera med Google</button>
                     <div class="auth-error" id="authError2"></div>
                 </div>
                 <div class="auth-toggle">
-                    Redan konto? <button onclick="toggleForm()">Logga in</button>
+                    Redan konto? <button onclick="appToggleForm()">Logga in</button>
                 </div>
             </div>
         </div>
@@ -572,7 +572,7 @@
             <h1>Packarizer</h1>
             <div class="user-info">
                 <span id="userEmail"></span>
-                <button class="logout-btn" onclick="logout()">Logga ut</button>
+                <button class="logout-btn" onclick="appLogout()">Logga ut</button>
             </div>
         </div>
 
@@ -588,18 +588,18 @@
                 <h2 id="dialogTitle"></h2>
                 <input type="text" id="dialogInput" placeholder="Namn">
                 <div class="dialog-buttons">
-                    <button class="cancel-btn" onclick="closeDialog()">Avbryt</button>
-                    <button class="confirm-btn" onclick="confirmDialog()">OK</button>
+                    <button class="cancel-btn" onclick="appCloseDialog()">Avbryt</button>
+                    <button class="confirm-btn" onclick="appConfirmDialog()">OK</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
 
+    <script>
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyB0H8p6i8-ygCsTdMnY6Aj5yMCLPNVG-84",
@@ -611,10 +611,23 @@
             appId: "1:81001000065:web:59987941208afe5aff3180"
         };
 
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const database = getDatabase(app);
+        // Wait for Firebase to load
+        let maxWait = 0;
+        const waitForFirebase = setInterval(() => {
+            maxWait++;
+            if (typeof firebase !== 'undefined' && firebase.app) {
+                clearInterval(waitForFirebase);
+                initializeApp();
+            } else if (maxWait > 50) {
+                clearInterval(waitForFirebase);
+                console.error('Firebase failed to load');
+            }
+        }, 100);
+
+        function initializeApp() {
+            firebase.initializeApp(firebaseConfig);
+            setupFirebaseListeners();
+        }
 
         // State
         let editMode = false;
@@ -622,9 +635,10 @@
         let locations = [];
         let dialogCallback = null;
         let currentUser = null;
-        let dbRef = null;
+        let auth = null;
+        let database = null;
 
-        // Default locations and items for new users
+        // Default locations
         const DEFAULT_LOCATIONS = {
             "Packa inför resor": { order: 0, items: { "Kudde": { active: false, order: 0 }, "Earpods": { active: false, order: 1 }, "Mobilladdare": { active: false, order: 2 }, "Tandborste": { active: false, order: 3 }, "Tandkräm": { active: false, order: 4 }, "Öronproppar": { active: false, order: 5 }, "Deo": { active: false, order: 6 }, "Voltaren": { active: false, order: 7 } } },
             "Arbetsrum": { order: 1, items: { "Fjöngar": { active: false, order: 0 }, "Verktyg": { active: false, order: 1 }, "Längdskidglasögon": { active: false, order: 2 }, "Headset": { active: false, order: 3 }, "Sykit": { active: false, order: 4 }, "Pass": { active: false, order: 5 }, "Privat dator": { active: false, order: 6 }, "Jobbdator": { active: false, order: 7 }, "Powerbank": { active: false, order: 8 }, "Datorpowerbank +sladd": { active: false, order: 9 }, "Datormus": { active: false, order: 10 } } },
@@ -643,129 +657,52 @@
             "Husvagn": { order: 14, items: { "Tvättlina": { active: false, order: 0 }, "Campingbord": { active: false, order: 1 }, "Vattendunkar": { active: false, order: 2 }, "Campingstol": { active: false, order: 3 }, "Grenkontakt": { active: false, order: 4 } } }
         };
 
-        // Auth functions (global scope)
-        window.toggleForm = function() {
-            document.getElementById('loginForm').classList.toggle('auth-hidden');
-            document.getElementById('registerForm').classList.toggle('auth-hidden');
-            clearAuthErrors();
-        };
+        function setupFirebaseListeners() {
+            auth = firebase.auth();
+            database = firebase.database();
 
-        function clearAuthErrors() {
-            document.getElementById('authError').textContent = '';
-            document.getElementById('authError2').textContent = '';
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    currentUser = user;
+                    document.getElementById('authScreen').classList.add('auth-hidden');
+                    document.getElementById('appScreen').classList.add('show');
+                    document.getElementById('userEmail').textContent = user.email;
+                    initializeNewUserData(user);
+                    listenToDataChanges(user);
+                    editMode = false;
+                    filterActive = false;
+                    document.getElementById('toggleFilter').classList.remove('active');
+                    document.getElementById('toggleEdit').classList.remove('active');
+                } else {
+                    currentUser = null;
+                    locations = [];
+                    document.getElementById('authScreen').classList.remove('auth-hidden');
+                    document.getElementById('appScreen').classList.remove('show');
+                    document.getElementById('email').value = '';
+                    document.getElementById('password').value = '';
+                    document.getElementById('regEmail').value = '';
+                    document.getElementById('regPassword').value = '';
+                    document.getElementById('regPasswordConfirm').value = '';
+                }
+            });
         }
 
-        window.login = function() {
-            const email = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-
-            if (!email || !password) {
-                document.getElementById('authError').textContent = 'Fyll i email och lösenord';
-                return;
-            }
-
-            signInWithEmailAndPassword(auth, email, password)
-                .catch(error => {
-                    document.getElementById('authError').textContent = 'Fel email eller lösenord';
-                    console.error(error);
-                });
-        };
-
-        window.register = function() {
-            const email = document.getElementById('regEmail').value.trim();
-            const password = document.getElementById('regPassword').value;
-            const passwordConfirm = document.getElementById('regPasswordConfirm').value;
-
-            if (!email || !password || !passwordConfirm) {
-                document.getElementById('authError2').textContent = 'Fyll i alla fält';
-                return;
-            }
-
-            if (password !== passwordConfirm) {
-                document.getElementById('authError2').textContent = 'Lösenorden stämmer inte överens';
-                return;
-            }
-
-            if (password.length < 6) {
-                document.getElementById('authError2').textContent = 'Lösenordet måste vara minst 6 tecken';
-                return;
-            }
-
-            createUserWithEmailAndPassword(auth, email, password)
-                .catch(error => {
-                    document.getElementById('authError2').textContent = 'Email redan registrerat eller felaktig email';
-                    console.error(error);
-                });
-        };
-
-        window.googleSignIn = function() {
-            const provider = new GoogleAuthProvider();
-            signInWithPopup(auth, provider)
-                .catch(error => {
-                    document.getElementById('authError').textContent = 'Google-inloggning misslyckades';
-                    console.error(error);
-                });
-        };
-
-        window.logout = function() {
-            signOut(auth);
-        };
-
-        // Initialize new user with default data or empty
-        function initializeNewUserData() {
-            const uid = auth.currentUser.uid;
-            const email = auth.currentUser.email;
-
-            const userLocationsRef = ref(database, `users/${uid}/locations`);
-            onValue(userLocationsRef, snapshot => {
+        function initializeNewUserData(user) {
+            const uid = user.uid;
+            const email = user.email;
+            database.ref(`users/${uid}/locations`).once('value', snapshot => {
                 if (!snapshot.exists()) {
-                    // Check if this is the special user - load default data
                     if (email === 'stallberg.anders@gmail.com') {
-                        set(userLocationsRef, DEFAULT_LOCATIONS);
+                        database.ref(`users/${uid}/locations`).set(DEFAULT_LOCATIONS);
                     } else {
-                        // New user - empty locations
-                        set(userLocationsRef, {});
+                        database.ref(`users/${uid}/locations`).set({});
                     }
                 }
-            }, { onlyOnce: true });
+            });
         }
 
-        // Auth state listener
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                currentUser = user;
-                dbRef = ref(database, `users/${user.uid}/locations`);
-
-                document.getElementById('authScreen').classList.add('auth-hidden');
-                document.getElementById('appScreen').classList.add('show');
-                document.getElementById('userEmail').textContent = user.email;
-
-                initializeNewUserData();
-                listenToDataChanges();
-
-                // Reset edit and filter
-                editMode = false;
-                filterActive = false;
-                document.getElementById('toggleFilter').classList.remove('active');
-                document.getElementById('toggleEdit').classList.remove('active');
-            } else {
-                currentUser = null;
-                dbRef = null;
-                locations = [];
-
-                document.getElementById('authScreen').classList.remove('auth-hidden');
-                document.getElementById('appScreen').classList.remove('show');
-                document.getElementById('email').value = '';
-                document.getElementById('password').value = '';
-                document.getElementById('regEmail').value = '';
-                document.getElementById('regPassword').value = '';
-                document.getElementById('regPasswordConfirm').value = '';
-            }
-        });
-
-        // Real-time database listener
-        function listenToDataChanges() {
-            onValue(dbRef, snapshot => {
+        function listenToDataChanges(user) {
+            database.ref(`users/${user.uid}/locations`).on('value', snapshot => {
                 const data = snapshot.val();
                 if (data) {
                     locations = Object.entries(data).map(([name, locationData]) => ({
@@ -784,9 +721,61 @@
             });
         }
 
-        window.saveAllData = async function() {
-            if (!dbRef) return;
+        // Auth functions
+        function appToggleForm() {
+            document.getElementById('loginForm').classList.toggle('auth-hidden');
+            document.getElementById('registerForm').classList.toggle('auth-hidden');
+            document.getElementById('authError').textContent = '';
+            document.getElementById('authError2').textContent = '';
+        }
 
+        function appLogin() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            if (!email || !password) {
+                document.getElementById('authError').textContent = 'Fyll i email och lösenord';
+                return;
+            }
+            auth.signInWithEmailAndPassword(email, password).catch(error => {
+                document.getElementById('authError').textContent = 'Fel email eller lösenord';
+            });
+        }
+
+        function appRegister() {
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+            if (!email || !password || !passwordConfirm) {
+                document.getElementById('authError2').textContent = 'Fyll i alla fält';
+                return;
+            }
+            if (password !== passwordConfirm) {
+                document.getElementById('authError2').textContent = 'Lösenorden stämmer inte överens';
+                return;
+            }
+            if (password.length < 6) {
+                document.getElementById('authError2').textContent = 'Lösenordet måste vara minst 6 tecken';
+                return;
+            }
+            auth.createUserWithEmailAndPassword(email, password).catch(error => {
+                document.getElementById('authError2').textContent = 'Email redan registrerat eller felaktig email';
+            });
+        }
+
+        function appGoogleSignIn() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(error => {
+                document.getElementById('authError').textContent = 'Google-inloggning misslyckades';
+            });
+        }
+
+        function appLogout() {
+            auth.signOut();
+        }
+
+        // App functions
+        function saveAllData() {
+            if (!currentUser) return;
             const data = {};
             locations.forEach(location => {
                 data[location.name] = {
@@ -800,9 +789,8 @@
                     };
                 });
             });
-
-            await set(dbRef, data);
-        };
+            database.ref(`users/${currentUser.uid}/locations`).set(data);
+        }
 
         function render() {
             const container = document.getElementById('container');
@@ -814,14 +802,13 @@
 
                 const header = document.createElement('div');
                 header.className = `location-header ${editMode ? 'edit-mode' : ''}`;
-                header.draggable = editMode;
 
                 header.innerHTML = `
                     <span>${location.name}</span>
                     <div class="location-controls ${editMode ? '' : 'edit-hidden'}">
-                        <button class="arrow-btn" onclick="moveLocation(${locIndex}, -1)" ${locIndex === 0 ? 'disabled' : ''}>⬆️</button>
-                        <button class="arrow-btn" onclick="moveLocation(${locIndex}, 1)" ${locIndex === locations.length - 1 ? 'disabled' : ''}>⬇️</button>
-                        <button class="delete-location-btn" onclick="deleteLocation(${locIndex})">✕</button>
+                        <button class="arrow-btn" onclick="appMoveLocation(${locIndex}, -1)" ${locIndex === 0 ? 'disabled' : ''}>⬆️</button>
+                        <button class="arrow-btn" onclick="appMoveLocation(${locIndex}, 1)" ${locIndex === locations.length - 1 ? 'disabled' : ''}>⬇️</button>
+                        <button class="delete-location-btn" onclick="appDeleteLocation(${locIndex})">✕</button>
                     </div>
                 `;
 
@@ -840,11 +827,11 @@
                     itemDiv.className = `item ${item.active ? 'active' : ''} ${editMode ? 'edit-mode' : ''}`;
 
                     itemDiv.innerHTML = `
-                        <button class="item-button" onclick="toggleItem(${locIndex}, ${itemIndex})">${item.name}</button>
+                        <button class="item-button" onclick="appToggleItem(${locIndex}, ${itemIndex})">${item.name}</button>
                         <div class="item-controls edit-hidden">
-                            <button class="item-arrow-btn" onclick="moveItem(${locIndex}, ${itemIndex}, -1)" ${itemIndex === 0 ? 'disabled' : ''}>⬆️</button>
-                            <button class="item-arrow-btn" onclick="moveItem(${locIndex}, ${itemIndex}, 1)" ${itemIndex === location.items.length - 1 ? 'disabled' : ''}>⬇️</button>
-                            <button class="delete-item-btn" onclick="deleteItem(${locIndex}, ${itemIndex})">✕</button>
+                            <button class="item-arrow-btn" onclick="appMoveItem(${locIndex}, ${itemIndex}, -1)" ${itemIndex === 0 ? 'disabled' : ''}>⬆️</button>
+                            <button class="item-arrow-btn" onclick="appMoveItem(${locIndex}, ${itemIndex}, 1)" ${itemIndex === location.items.length - 1 ? 'disabled' : ''}>⬇️</button>
+                            <button class="delete-item-btn" onclick="appDeleteItem(${locIndex}, ${itemIndex})">✕</button>
                         </div>
                     `;
 
@@ -855,7 +842,7 @@
                     const addItemBtn = document.createElement('button');
                     addItemBtn.className = 'add-item-btn';
                     addItemBtn.textContent = '+ Lägg till sak';
-                    addItemBtn.onclick = () => showAddItemDialog(locIndex);
+                    addItemBtn.onclick = () => appShowAddItemDialog(locIndex);
                     itemsList.appendChild(addItemBtn);
                 }
 
@@ -867,11 +854,10 @@
                 const addLocationBtn = document.createElement('button');
                 addLocationBtn.className = 'add-location-btn';
                 addLocationBtn.textContent = '+ Lägg till plats';
-                addLocationBtn.onclick = () => showAddLocationDialog();
+                addLocationBtn.onclick = () => appShowAddLocationDialog();
                 container.appendChild(addLocationBtn);
             }
 
-            // Apply filter and edit mode classes
             if (filterActive) {
                 container.classList.add('show-active-only');
             } else {
@@ -885,12 +871,11 @@
             }
         }
 
-        window.toggleItem = function(locIndex, itemIndex) {
+        function appToggleItem(locIndex, itemIndex) {
             if (!editMode) {
                 locations[locIndex].items[itemIndex].active = !locations[locIndex].items[itemIndex].active;
-                window.saveAllData();
+                saveAllData();
 
-                // Scroll to item if not in filter mode
                 if (!filterActive) {
                     setTimeout(() => {
                         const items = document.querySelectorAll('.item');
@@ -918,60 +903,60 @@
                     }, 0);
                 }
             }
-        };
+        }
 
-        window.moveLocation = function(locIndex, direction) {
+        function appMoveLocation(locIndex, direction) {
             const newIndex = locIndex + direction;
             if (newIndex >= 0 && newIndex < locations.length) {
                 [locations[locIndex], locations[newIndex]] = [locations[newIndex], locations[locIndex]];
                 locations.forEach((loc, i) => loc.order = i);
-                window.saveAllData();
+                saveAllData();
             }
-        };
+        }
 
-        window.moveItem = function(locIndex, itemIndex, direction) {
+        function appMoveItem(locIndex, itemIndex, direction) {
             const newIndex = itemIndex + direction;
             const items = locations[locIndex].items;
             if (newIndex >= 0 && newIndex < items.length) {
                 [items[itemIndex], items[newIndex]] = [items[newIndex], items[itemIndex]];
                 items.forEach((item, i) => item.order = i);
-                window.saveAllData();
+                saveAllData();
             }
-        };
+        }
 
-        window.deleteLocation = function(locIndex) {
+        function appDeleteLocation(locIndex) {
             if (confirm(`Vill du ta bort "${locations[locIndex].name}"?`)) {
                 locations.splice(locIndex, 1);
                 locations.forEach((loc, i) => loc.order = i);
-                window.saveAllData();
+                saveAllData();
             }
-        };
+        }
 
-        window.deleteItem = function(locIndex, itemIndex) {
+        function appDeleteItem(locIndex, itemIndex) {
             const itemName = locations[locIndex].items[itemIndex].name;
             if (confirm(`Vill du ta bort "${itemName}"?`)) {
                 locations[locIndex].items.splice(itemIndex, 1);
                 locations[locIndex].items.forEach((item, i) => item.order = i);
-                window.saveAllData();
+                saveAllData();
             }
-        };
+        }
 
-        window.showAddLocationDialog = function() {
+        function appShowAddLocationDialog() {
             dialogCallback = (name) => {
                 locations.push({
                     name,
                     order: locations.length,
                     items: []
                 });
-                window.saveAllData();
+                saveAllData();
             };
             document.getElementById('dialogTitle').textContent = 'Lägg till ny plats';
             document.getElementById('dialogInput').value = '';
             document.getElementById('inputDialog').classList.add('show');
             document.getElementById('dialogInput').focus();
-        };
+        }
 
-        window.showAddItemDialog = function(locIndex) {
+        function appShowAddItemDialog(locIndex) {
             dialogCallback = (name) => {
                 const location = locations[locIndex];
                 location.items.push({
@@ -979,29 +964,29 @@
                     active: false,
                     order: location.items.length
                 });
-                window.saveAllData();
+                saveAllData();
             };
             document.getElementById('dialogTitle').textContent = `Lägg till ny sak i "${locations[locIndex].name}"`;
             document.getElementById('dialogInput').value = '';
             document.getElementById('inputDialog').classList.add('show');
             document.getElementById('dialogInput').focus();
-        };
+        }
 
-        window.closeDialog = function() {
+        function appCloseDialog() {
             document.getElementById('inputDialog').classList.remove('show');
             dialogCallback = null;
-        };
+        }
 
-        window.confirmDialog = function() {
+        function appConfirmDialog() {
             const input = document.getElementById('dialogInput').value.trim();
             if (input && dialogCallback) {
                 dialogCallback(input);
-                window.closeDialog();
+                appCloseDialog();
             }
-        };
+        }
 
         document.getElementById('dialogInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') window.confirmDialog();
+            if (e.key === 'Enter') appConfirmDialog();
         });
 
         document.getElementById('toggleFilter').addEventListener('click', () => {
