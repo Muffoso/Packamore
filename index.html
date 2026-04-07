@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Packarizer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding: 10px;
+            padding-bottom: 100px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: linear-gradient(135deg, #c9b8a8 0%, #a89f8f 100%);
+            color: #3d3d3d;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 0;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+
+        button {
+            padding: 12px 20px;
+            font-size: 16px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
+            transition: all 0.3s ease;
+        }
+
+        .toggle-filter {
+            background: #9d8b7e;
+            color: white;
+        }
+
+        .toggle-filter:hover {
+            background: #8a7968;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(157, 139, 126, 0.4);
+        }
+
+        .toggle-filter.active {
+            background: #7a9b76;
+        }
+
+        .toggle-edit {
+            background: #c4a878;
+            color: white;
+        }
+
+        .toggle-edit:hover {
+            background: #b39666;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(196, 168, 120, 0.4);
+        }
+
+        .toggle-edit.active {
+            background: #b39666;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .location-section {
+            background: white;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .location-header {
+            background: linear-gradient(135deg, #9d8b7e 0%, #8a7968 100%);
+            color: white;
+            padding: 15px;
+            font-weight: 600;
+            font-size: 18px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .location-header.edit-mode {
+            cursor: grab;
+        }
+
+        .location-header.edit-mode:active {
+            cursor: grabbing;
+        }
+
+        .location-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .arrow-btn {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .arrow-btn:hover {
+            background: rgba(255,255,255,0.4);
+        }
+
+        .delete-location-btn {
+            background: #ef4444;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .delete-location-btn:hover {
+            background: #dc2626;
+        }
+
+        .items-list {
+            padding: 10px;
+            display: none;
+        }
+
+        .items-list.show {
+            display: block;
+        }
+
+        .item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+            gap: 10px;
+            transition: background 0.2s;
+        }
+
+        .item:last-child {
+            border-bottom: none;
+        }
+
+        .item.active {
+            background: #e8f0e5;
+        }
+
+        .item:hover {
+            background: #f9fafb;
+        }
+
+        .item.edit-mode:hover {
+            background: #f0f0f0;
+        }
+
+        .item-button {
+            flex: 1;
+            padding: 12px;
+            text-align: left;
+            background: none;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+
+        .item.active .item-button {
+            background: #7a9b76;
+            color: white;
+            border-color: #7a9b76;
+        }
+
+        .item-button:hover {
+            border-color: #9d8b7e;
+        }
+
+        .item.edit-mode .item-button {
+            cursor: grab;
+            border: 2px dashed #999;
+        }
+
+        .item.edit-mode .item-button:active {
+            cursor: grabbing;
+        }
+
+        .item-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .edit-hidden {
+            display: none;
+        }
+
+        .edit-mode .edit-hidden {
+            display: flex;
+        }
+
+        .item-arrow-btn {
+            background: #9d8b7e;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .item-arrow-btn:hover {
+            background: #8a7968;
+        }
+
+        .delete-item-btn {
+            background: #ef4444;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .delete-item-btn:hover {
+            background: #dc2626;
+        }
+
+        .add-item-btn {
+            background: #7a9b76;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .add-item-btn:hover {
+            background: #6a8b66;
+        }
+
+        .add-location-btn {
+            background: #7a9b76;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .add-location-btn:hover {
+            background: #6a8b66;
+        }
+
+        .input-dialog {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .input-dialog.show {
+            display: flex;
+        }
+
+        .dialog-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 20px 25px rgba(0,0,0,0.15);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .dialog-content h2 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .dialog-content input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .dialog-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .dialog-buttons button {
+            flex: 1;
+            padding: 10px;
+        }
+
+        .dialog-buttons .cancel-btn {
+            background: #9d8b7e;
+            color: white;
+        }
+
+        .dialog-buttons .confirm-btn {
+            background: #7a9b76;
+            color: white;
+        }
+
+        .filter-active-only {
+            display: none;
+        }
+
+        .show-active-only .filter-active-only {
+            display: block;
+        }
+
+        .show-active-only .item:not(.active) {
+            display: none;
+        }
+
+        .show-active-only .location-section {
+            display: none;
+        }
+
+        .show-active-only .location-section .item.active {
+            display: flex;
+        }
+
+        .show-active-only .location-section:has(.item.active) {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Packarizer</h1>
+    </div>
+
+    <div class="container" id="container"></div>
+
+    <div class="controls">
+        <button class="toggle-filter" id="toggleFilter" title="Visa endast aktiva saker">📋 Aktiva</button>
+        <button class="toggle-edit" id="toggleEdit" title="Redigeringsläge">✏️ Redigera</button>
+    </div>
+
+    <div class="input-dialog" id="inputDialog">
+        <div class="dialog-content">
+            <h2 id="dialogTitle"></h2>
+            <input type="text" id="dialogInput" placeholder="Namn">
+            <div class="dialog-buttons">
+                <button class="cancel-btn" onclick="closeDialog()">Avbryt</button>
+                <button class="confirm-btn" onclick="confirmDialog()">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB0H8p6i8-ygCsTdMnY6Aj5yMCLPNVG-84",
+            authDomain: "packarizer.firebaseapp.com",
+            databaseURL: "https://packarizer-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "packarizer",
+            storageBucket: "packarizer.firebasestorage.app",
+            messagingSenderId: "81001000065",
+            appId: "1:81001000065:web:59987941208afe5aff3180"
+        };
+
+        // State
+        let editMode = false;
+        let filterActive = false;
+        let locations = [];
+        let dialogCallback = null;
+
+        // Firebase helper functions
+        async function fetchData(path) {
+            const url = `${firebaseConfig.databaseURL}/${path}.json`;
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error('Fetch failed');
+                return await response.json();
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                return null;
+            }
+        }
+
+        async function saveData(path, data) {
+            const url = `${firebaseConfig.databaseURL}/${path}.json`;
+            try {
+                const response = await fetch(url, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) throw new Error('Save failed');
+                return await response.json();
+            } catch (error) {
+                console.error('Error saving data:', error);
+            }
+        }
+
+        // Initialize with default data if needed
+        async function initializeData() {
+            const existingData = await fetchData('locations');
+            if (!existingData) {
+                const defaultData = {
+                    "Packa inför resor": { order: 0, items: { "Kudde": { active: false, order: 0 }, "Earpods": { active: false, order: 1 }, "Mobilladdare": { active: false, order: 2 }, "Tandborste": { active: false, order: 3 }, "Tandkräm": { active: false, order: 4 }, "Öronproppar": { active: false, order: 5 }, "Deo": { active: false, order: 6 }, "Voltaren": { active: false, order: 7 } } },
+                    "Arbetsrum": { order: 1, items: { "Fjöngar": { active: false, order: 0 }, "Verktyg": { active: false, order: 1 }, "Längdskidglasögon": { active: false, order: 2 }, "Headset": { active: false, order: 3 }, "Sykit": { active: false, order: 4 }, "Pass": { active: false, order: 5 }, "Privat dator": { active: false, order: 6 }, "Jobbdator": { active: false, order: 7 }, "Powerbank": { active: false, order: 8 }, "Datorpowerbank +sladd": { active: false, order: 9 }, "Datormus": { active: false, order: 10 } } },
+                    "Tvättstuga": { order: 2, items: { "Flipbelt": { active: false, order: 0 }, "Löparskor": { active: false, order: 1 }, "Skotork": { active: false, order: 2 }, "Terrexskor": { active: false, order: 3 }, "Löparkeps": { active: false, order: 4 }, "Kängor": { active: false, order: 5 }, "Flipflop": { active: false, order: 6 }, "Formgjutna sulor": { active: false, order: 7 } } },
+                    "Trappförråd": { order: 3, items: { "Löparryggsäck": { active: false, order: 0 }, "Vätskebälte": { active: false, order: 1 }, "Pannlampa": { active: false, order: 2 }, "Regnjacka gallon": { active: false, order: 3 }, "Packpåsar": { active: false, order: 4 }, "Vattentäta packpåsar": { active: false, order: 5 } } },
+                    "Klädkammare uppe": { order: 4, items: { "Vindjacka": { active: false, order: 0 }, "Vindstopper tröja": { active: false, order: 1 }, "Underställ byxor": { active: false, order: 2 }, "Underställströja ull": { active: false, order: 3 }, "Underställströja brynja": { active: false, order: 4 }, "Underställsbyxor trekvarts houdini": { active: false, order: 5 }, "Underställströjor": { active: false, order: 6 }, "Norröna byxor": { active: false, order: 7 }, "Flipflop": { active: false, order: 8 }, "Regnbyxor tunna": { active: false, order: 9 }, "Regnjacka goretex": { active: false, order: 10 }, "Inneskor": { active: false, order: 11 }, "T-shirts funktion": { active: false, order: 12 }, "Haglöfs ull T-shirt": { active: false, order: 13 }, "Dunbyxor": { active: false, order: 14 }, "Kalsonger träning": { active: false, order: 15 }, "Strumpor träning": { active: false, order: 16 }, "Badskor": { active: false, order: 17 } } },
+                    "Sovrum": { order: 5, items: { "Houdini tröja": { active: false, order: 0 }, "Chinos": { active: false, order: 1 }, "Tjock fintröja": { active: false, order: 2 }, "Skjorta": { active: false, order: 3 }, "Badbyxor": { active: false, order: 4 }, "Soltröja": { active: false, order: 5 }, "Shorts": { active: false, order: 6 }, "Haglöfs tunna byxor grå": { active: false, order: 7 }, "Tjock soltröja": { active: false, order: 8 }, "Kalsonger": { active: false, order: 9 }, "Strumpor": { active: false, order: 10 }, "T-shirts": { active: false, order: 11 } } },
+                    "Badrum nere": { order: 6, items: { "Pappaplåster": { active: false, order: 0 }, "Solskyddsmedel": { active: false, order: 1 } } },
+                    "Nere": { order: 7, items: { "Datorunderlägg": { active: false, order: 0 }, "Laddsladd dator": { active: false, order: 1 }, "Mössa": { active: false, order: 2 }, "Vantar": { active: false, order: 3 }, "Snorkel": { active: false, order: 4 }, "Cyklop": { active: false, order: 5 }, "Simglasögon": { active: false, order: 6 }, "Dunjacka": { active: false, order: 7 }, "Vattenflaska": { active: false, order: 8 } } },
+                    "Uppe": { order: 8, items: { "Lakan": { active: false, order: 0 }, "Handduk": { active: false, order: 1 }, "Handhanduk": { active: false, order: 2 } } },
+                    "Längdskidor": { order: 9, items: { "Skateskidor": { active: false, order: 0 }, "Klassiska skidor": { active: false, order: 1 }, "Klassiska stavar": { active: false, order: 2 }, "Skatestavar": { active: false, order: 3 }, "Klassiska pjäxor": { active: false, order: 4 }, "Skatepjäxor": { active: false, order: 5 }, "Valla": { active: false, order: 6 }, "Extra plupp till skatepjäxor": { active: false, order: 7 } } },
+                    "Urförskidor": { order: 10, items: { "Alpina skidor": { active: false, order: 0 }, "Alpina stavar": { active: false, order: 1 }, "Lavinsändare": { active: false, order: 2 }, "Lavinsond": { active: false, order: 3 }, "Lavinspade": { active: false, order: 4 }, "Liftsittunderlag": { active: false, order: 5 }, "Ryggskydd": { active: false, order: 6 }, "Stighudar": { active: false, order: 7 }, "Skidhjälm": { active: false, order: 8 }, "Liftkort": { active: false, order: 9 }, "Skidglasögon": { active: false, order: 10 } } },
+                    "Orientering": { order: 11, items: { "Orienteringstights": { active: false, order: 0 }, "Orienteringströja": { active: false, order: 1 }, "Sportidentpinne och kompass": { active: false, order: 2 }, "Orienteringsskor": { active: false, order: 3 }, "Extra kompass": { active: false, order: 4 }, "Laddare gps-klocka": { active: false, order: 5 }, "GPS-klocka": { active: false, order: 6 }, "Tensmaskin": { active: false, order: 7 } } },
+                    "Cykel": { order: 12, items: { "Cykelverktyg": { active: false, order: 0 }, "Cykelbyxor": { active: false, order: 1 }, "Cykeltröja": { active: false, order: 2 }, "Cykelhjälm": { active: false, order: 3 }, "Cykellås": { active: false, order: 4 }, "Cykelskor": { active: false, order: 5 } } },
+                    "Tältning": { order: 13, items: { "Sovsäck": { active: false, order: 0 }, "Liggunderlag": { active: false, order: 1 }, "Presenning": { active: false, order: 2 }, "Tält": { active: false, order: 3 } } },
+                    "Husvagn": { order: 14, items: { "Tvättlina": { active: false, order: 0 }, "Campingbord": { active: false, order: 1 }, "Vattendunkar": { active: false, order: 2 }, "Campingstol": { active: false, order: 3 }, "Grenkontakt": { active: false, order: 4 } } }
+                };
+                await saveData('locations', defaultData);
+            }
+            await loadData();
+        }
+
+        async function loadData() {
+            const data = await fetchData('locations');
+            if (data) {
+                locations = Object.entries(data).map(([name, locationData]) => ({
+                    name,
+                    order: locationData.order,
+                    items: Object.entries(locationData.items || {}).map(([itemName, itemData]) => ({
+                        name: itemName,
+                        active: itemData.active,
+                        order: itemData.order
+                    })).sort((a, b) => a.order - b.order)
+                })).sort((a, b) => a.order - b.order);
+                render();
+            }
+        }
+
+        async function saveAllData() {
+            const data = {};
+            locations.forEach(location => {
+                data[location.name] = {
+                    order: location.order,
+                    items: {}
+                };
+                location.items.forEach(item => {
+                    data[location.name].items[item.name] = {
+                        active: item.active,
+                        order: item.order
+                    };
+                });
+            });
+            await saveData('locations', data);
+        }
+
+        function render() {
+            const container = document.getElementById('container');
+            container.innerHTML = '';
+
+            locations.forEach((location, locIndex) => {
+                const section = document.createElement('div');
+                section.className = 'location-section';
+
+                const header = document.createElement('div');
+                header.className = `location-header ${editMode ? 'edit-mode' : ''}`;
+                header.draggable = editMode;
+
+                header.innerHTML = `
+                    <span>${location.name}</span>
+                    <div class="location-controls ${editMode ? '' : 'edit-hidden'}">
+                        <button class="arrow-btn" onclick="moveLocation(${locIndex}, -1)" ${locIndex === 0 ? 'disabled' : ''}>⬆️</button>
+                        <button class="arrow-btn" onclick="moveLocation(${locIndex}, 1)" ${locIndex === locations.length - 1 ? 'disabled' : ''}>⬇️</button>
+                        <button class="delete-location-btn" onclick="deleteLocation(${locIndex})">✕</button>
+                    </div>
+                `;
+
+                header.addEventListener('click', () => {
+                    const itemsList = section.querySelector('.items-list');
+                    itemsList.classList.toggle('show');
+                });
+
+                section.appendChild(header);
+
+                const itemsList = document.createElement('div');
+                itemsList.className = 'items-list show';
+
+                location.items.forEach((item, itemIndex) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = `item ${item.active ? 'active' : ''} ${editMode ? 'edit-mode' : ''}`;
+
+                    itemDiv.innerHTML = `
+                        <button class="item-button" onclick="toggleItem(${locIndex}, ${itemIndex})">${item.name}</button>
+                        <div class="item-controls edit-hidden">
+                            <button class="item-arrow-btn" onclick="moveItem(${locIndex}, ${itemIndex}, -1)" ${itemIndex === 0 ? 'disabled' : ''}>⬆️</button>
+                            <button class="item-arrow-btn" onclick="moveItem(${locIndex}, ${itemIndex}, 1)" ${itemIndex === location.items.length - 1 ? 'disabled' : ''}>⬇️</button>
+                            <button class="delete-item-btn" onclick="deleteItem(${locIndex}, ${itemIndex})">✕</button>
+                        </div>
+                    `;
+
+                    itemsList.appendChild(itemDiv);
+                });
+
+                if (editMode) {
+                    const addItemBtn = document.createElement('button');
+                    addItemBtn.className = 'add-item-btn';
+                    addItemBtn.textContent = '+ Lägg till sak';
+                    addItemBtn.onclick = () => showAddItemDialog(locIndex);
+                    itemsList.appendChild(addItemBtn);
+                }
+
+                section.appendChild(itemsList);
+                container.appendChild(section);
+            });
+
+            if (editMode) {
+                const addLocationBtn = document.createElement('button');
+                addLocationBtn.className = 'add-location-btn';
+                addLocationBtn.textContent = '+ Lägg till plats';
+                addLocationBtn.onclick = () => showAddLocationDialog();
+                container.appendChild(addLocationBtn);
+            }
+
+            // Apply filter and edit mode classes
+            if (filterActive) {
+                container.classList.add('show-active-only');
+            } else {
+                container.classList.remove('show-active-only');
+            }
+
+            if (editMode) {
+                container.classList.add('edit-mode');
+            } else {
+                container.classList.remove('edit-mode');
+            }
+        }
+
+        function toggleItem(locIndex, itemIndex) {
+            if (!editMode) {
+                locations[locIndex].items[itemIndex].active = !locations[locIndex].items[itemIndex].active;
+                saveAllData();
+                render();
+
+                // Scroll to item if not in filter mode
+                if (!filterActive) {
+                    setTimeout(() => {
+                        const items = document.querySelectorAll('.item');
+                        let itemElement = null;
+                        let itemCount = 0;
+
+                        for (let i = 0; i < locations.length; i++) {
+                            for (let j = 0; j < locations[i].items.length; j++) {
+                                if (i === locIndex && j === itemIndex) {
+                                    itemElement = items[itemCount];
+                                    break;
+                                }
+                                itemCount++;
+                            }
+                            if (itemElement) break;
+                        }
+
+                        if (itemElement) {
+                            const rect = itemElement.getBoundingClientRect();
+                            const windowHeight = window.innerHeight;
+                            const targetPosition = windowHeight * 0.25;
+                            const offset = rect.top - targetPosition;
+                            window.scrollBy({ top: offset, behavior: 'smooth' });
+                        }
+                    }, 0);
+                }
+            }
+        }
+
+        function moveLocation(locIndex, direction) {
+            const newIndex = locIndex + direction;
+            if (newIndex >= 0 && newIndex < locations.length) {
+                [locations[locIndex], locations[newIndex]] = [locations[newIndex], locations[locIndex]];
+                locations.forEach((loc, i) => loc.order = i);
+                saveAllData();
+                render();
+            }
+        }
+
+        function moveItem(locIndex, itemIndex, direction) {
+            const newIndex = itemIndex + direction;
+            const items = locations[locIndex].items;
+            if (newIndex >= 0 && newIndex < items.length) {
+                [items[itemIndex], items[newIndex]] = [items[newIndex], items[itemIndex]];
+                items.forEach((item, i) => item.order = i);
+                saveAllData();
+                render();
+            }
+        }
+
+        function deleteLocation(locIndex) {
+            if (confirm(`Vill du ta bort "${locations[locIndex].name}"?`)) {
+                locations.splice(locIndex, 1);
+                locations.forEach((loc, i) => loc.order = i);
+                saveAllData();
+                render();
+            }
+        }
+
+        function deleteItem(locIndex, itemIndex) {
+            const itemName = locations[locIndex].items[itemIndex].name;
+            if (confirm(`Vill du ta bort "${itemName}"?`)) {
+                locations[locIndex].items.splice(itemIndex, 1);
+                locations[locIndex].items.forEach((item, i) => item.order = i);
+                saveAllData();
+                render();
+            }
+        }
+
+        function showAddLocationDialog() {
+            dialogCallback = (name) => {
+                locations.push({
+                    name,
+                    order: locations.length,
+                    items: []
+                });
+                saveAllData();
+                render();
+            };
+            document.getElementById('dialogTitle').textContent = 'Lägg till ny plats';
+            document.getElementById('dialogInput').value = '';
+            document.getElementById('inputDialog').classList.add('show');
+            document.getElementById('dialogInput').focus();
+        }
+
+        function showAddItemDialog(locIndex) {
+            dialogCallback = (name) => {
+                const location = locations[locIndex];
+                location.items.push({
+                    name,
+                    active: false,
+                    order: location.items.length
+                });
+                saveAllData();
+                render();
+            };
+            document.getElementById('dialogTitle').textContent = `Lägg till ny sak i "${locations[locIndex].name}"`;
+            document.getElementById('dialogInput').value = '';
+            document.getElementById('inputDialog').classList.add('show');
+            document.getElementById('dialogInput').focus();
+        }
+
+        function closeDialog() {
+            document.getElementById('inputDialog').classList.remove('show');
+            dialogCallback = null;
+        }
+
+        function confirmDialog() {
+            const input = document.getElementById('dialogInput').value.trim();
+            if (input && dialogCallback) {
+                dialogCallback(input);
+                closeDialog();
+            }
+        }
+
+        document.getElementById('dialogInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') confirmDialog();
+        });
+
+        document.getElementById('toggleFilter').addEventListener('click', () => {
+            filterActive = !filterActive;
+            document.getElementById('toggleFilter').classList.toggle('active', filterActive);
+            render();
+        });
+
+        document.getElementById('toggleEdit').addEventListener('click', () => {
+            editMode = !editMode;
+            document.getElementById('toggleEdit').classList.toggle('active', editMode);
+            render();
+        });
+
+        // Initialize on load
+        initializeData();
+    </script>
+</body>
+</html>
