@@ -177,6 +177,23 @@
             color: #bfdbdd;
             font-family: 'Righteous', sans-serif;
             letter-spacing: 2px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .header-logo {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .header-logo svg {
+            width: 100%;
+            height: 100%;
         }
 
         .header-content {
@@ -612,7 +629,17 @@
     <!-- App Screen -->
     <div class="app-screen" id="appScreen">
         <div class="header">
-            <h1>PACKARIZER</h1>
+            <h1>
+                <div class="header-logo">
+                    <svg viewBox="0 0 200 180" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Handle -->
+                        <path d="M 60 50 Q 60 20 100 20 Q 140 20 140 50" stroke="#bfdbdd" stroke-width="12" fill="none" stroke-linecap="round"/>
+                        <!-- Suitcase body -->
+                        <rect x="50" y="50" width="100" height="100" rx="20" fill="#bfdbdd"/>
+                    </svg>
+                </div>
+                PACKARIZER
+            </h1>
             <div class="header-content">
                 <div class="user-section">
                     <div id="userEmail"></div>
