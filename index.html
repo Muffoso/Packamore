@@ -4,9 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Packarizer</title>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
     <style>
         * {
             margin: 0;
@@ -598,7 +595,11 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyB0H8p6i8-ygCsTdMnY6Aj5yMCLPNVG-84",
@@ -611,9 +612,9 @@
         };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const database = firebase.database();
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
 
         // State
         let editMode = false;
@@ -642,19 +643,19 @@
             "Husvagn": { order: 14, items: { "Tvättlina": { active: false, order: 0 }, "Campingbord": { active: false, order: 1 }, "Vattendunkar": { active: false, order: 2 }, "Campingstol": { active: false, order: 3 }, "Grenkontakt": { active: false, order: 4 } } }
         };
 
-        // Auth functions
-        function toggleForm() {
+        // Auth functions (global scope)
+        window.toggleForm = function() {
             document.getElementById('loginForm').classList.toggle('auth-hidden');
             document.getElementById('registerForm').classList.toggle('auth-hidden');
             clearAuthErrors();
-        }
+        };
 
         function clearAuthErrors() {
             document.getElementById('authError').textContent = '';
             document.getElementById('authError2').textContent = '';
         }
 
-        function login() {
+        window.login = function() {
             const email = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
 
@@ -663,14 +664,14 @@
                 return;
             }
 
-            auth.signInWithEmailAndPassword(email, password)
+            signInWithEmailAndPassword(auth, email, password)
                 .catch(error => {
                     document.getElementById('authError').textContent = 'Fel email eller lösenord';
                     console.error(error);
                 });
-        }
+        };
 
-        function register() {
+        window.register = function() {
             const email = document.getElementById('regEmail').value.trim();
             const password = document.getElementById('regPassword').value;
             const passwordConfirm = document.getElementById('regPasswordConfirm').value;
@@ -690,54 +691,50 @@
                 return;
             }
 
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(() => {
-                    // Initialize empty locations for new user
-                    initializeNewUserData();
-                })
+            createUserWithEmailAndPassword(auth, email, password)
                 .catch(error => {
                     document.getElementById('authError2').textContent = 'Email redan registrerat eller felaktig email';
                     console.error(error);
                 });
-        }
+        };
 
-        function googleSignIn() {
-            const provider = new firebase.auth.GoogleAuthProvider();
-            auth.signInWithPopup(provider)
+        window.googleSignIn = function() {
+            const provider = new GoogleAuthProvider();
+            signInWithPopup(auth, provider)
                 .catch(error => {
                     document.getElementById('authError').textContent = 'Google-inloggning misslyckades';
                     console.error(error);
                 });
-        }
+        };
 
-        function logout() {
-            auth.signOut();
-        }
+        window.logout = function() {
+            signOut(auth);
+        };
 
         // Initialize new user with default data or empty
         function initializeNewUserData() {
             const uid = auth.currentUser.uid;
             const email = auth.currentUser.email;
 
-            // Check if user data exists
-            database.ref(`users/${uid}/locations`).once('value', snapshot => {
+            const userLocationsRef = ref(database, `users/${uid}/locations`);
+            onValue(userLocationsRef, snapshot => {
                 if (!snapshot.exists()) {
                     // Check if this is the special user - load default data
                     if (email === 'stallberg.anders@gmail.com') {
-                        database.ref(`users/${uid}/locations`).set(DEFAULT_LOCATIONS);
+                        set(userLocationsRef, DEFAULT_LOCATIONS);
                     } else {
                         // New user - empty locations
-                        database.ref(`users/${uid}/locations`).set({});
+                        set(userLocationsRef, {});
                     }
                 }
-            });
+            }, { onlyOnce: true });
         }
 
         // Auth state listener
-        auth.onAuthStateChanged(user => {
+        onAuthStateChanged(auth, user => {
             if (user) {
                 currentUser = user;
-                dbRef = database.ref(`users/${user.uid}/locations`);
+                dbRef = ref(database, `users/${user.uid}/locations`);
 
                 document.getElementById('authScreen').classList.add('auth-hidden');
                 document.getElementById('appScreen').classList.add('show');
@@ -768,7 +765,7 @@
 
         // Real-time database listener
         function listenToDataChanges() {
-            dbRef.on('value', snapshot => {
+            onValue(dbRef, snapshot => {
                 const data = snapshot.val();
                 if (data) {
                     locations = Object.entries(data).map(([name, locationData]) => ({
@@ -787,7 +784,7 @@
             });
         }
 
-        async function saveAllData() {
+        window.saveAllData = async function() {
             if (!dbRef) return;
 
             const data = {};
@@ -804,8 +801,8 @@
                 });
             });
 
-            await dbRef.set(data);
-        }
+            await set(dbRef, data);
+        };
 
         function render() {
             const container = document.getElementById('container');
@@ -888,10 +885,10 @@
             }
         }
 
-        function toggleItem(locIndex, itemIndex) {
+        window.toggleItem = function(locIndex, itemIndex) {
             if (!editMode) {
                 locations[locIndex].items[itemIndex].active = !locations[locIndex].items[itemIndex].active;
-                saveAllData();
+                window.saveAllData();
 
                 // Scroll to item if not in filter mode
                 if (!filterActive) {
@@ -921,60 +918,60 @@
                     }, 0);
                 }
             }
-        }
+        };
 
-        function moveLocation(locIndex, direction) {
+        window.moveLocation = function(locIndex, direction) {
             const newIndex = locIndex + direction;
             if (newIndex >= 0 && newIndex < locations.length) {
                 [locations[locIndex], locations[newIndex]] = [locations[newIndex], locations[locIndex]];
                 locations.forEach((loc, i) => loc.order = i);
-                saveAllData();
+                window.saveAllData();
             }
-        }
+        };
 
-        function moveItem(locIndex, itemIndex, direction) {
+        window.moveItem = function(locIndex, itemIndex, direction) {
             const newIndex = itemIndex + direction;
             const items = locations[locIndex].items;
             if (newIndex >= 0 && newIndex < items.length) {
                 [items[itemIndex], items[newIndex]] = [items[newIndex], items[itemIndex]];
                 items.forEach((item, i) => item.order = i);
-                saveAllData();
+                window.saveAllData();
             }
-        }
+        };
 
-        function deleteLocation(locIndex) {
+        window.deleteLocation = function(locIndex) {
             if (confirm(`Vill du ta bort "${locations[locIndex].name}"?`)) {
                 locations.splice(locIndex, 1);
                 locations.forEach((loc, i) => loc.order = i);
-                saveAllData();
+                window.saveAllData();
             }
-        }
+        };
 
-        function deleteItem(locIndex, itemIndex) {
+        window.deleteItem = function(locIndex, itemIndex) {
             const itemName = locations[locIndex].items[itemIndex].name;
             if (confirm(`Vill du ta bort "${itemName}"?`)) {
                 locations[locIndex].items.splice(itemIndex, 1);
                 locations[locIndex].items.forEach((item, i) => item.order = i);
-                saveAllData();
+                window.saveAllData();
             }
-        }
+        };
 
-        function showAddLocationDialog() {
+        window.showAddLocationDialog = function() {
             dialogCallback = (name) => {
                 locations.push({
                     name,
                     order: locations.length,
                     items: []
                 });
-                saveAllData();
+                window.saveAllData();
             };
             document.getElementById('dialogTitle').textContent = 'Lägg till ny plats';
             document.getElementById('dialogInput').value = '';
             document.getElementById('inputDialog').classList.add('show');
             document.getElementById('dialogInput').focus();
-        }
+        };
 
-        function showAddItemDialog(locIndex) {
+        window.showAddItemDialog = function(locIndex) {
             dialogCallback = (name) => {
                 const location = locations[locIndex];
                 location.items.push({
@@ -982,29 +979,29 @@
                     active: false,
                     order: location.items.length
                 });
-                saveAllData();
+                window.saveAllData();
             };
             document.getElementById('dialogTitle').textContent = `Lägg till ny sak i "${locations[locIndex].name}"`;
             document.getElementById('dialogInput').value = '';
             document.getElementById('inputDialog').classList.add('show');
             document.getElementById('dialogInput').focus();
-        }
+        };
 
-        function closeDialog() {
+        window.closeDialog = function() {
             document.getElementById('inputDialog').classList.remove('show');
             dialogCallback = null;
-        }
+        };
 
-        function confirmDialog() {
+        window.confirmDialog = function() {
             const input = document.getElementById('dialogInput').value.trim();
             if (input && dialogCallback) {
                 dialogCallback(input);
-                closeDialog();
+                window.closeDialog();
             }
-        }
+        };
 
         document.getElementById('dialogInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') confirmDialog();
+            if (e.key === 'Enter') window.confirmDialog();
         });
 
         document.getElementById('toggleFilter').addEventListener('click', () => {
