@@ -94,7 +94,26 @@ Sovsäck, Liggunderlag, Presenning, Tält
 ### 15. Husvagn
 Tvättlina, Campingbord, Vattendunkar, Campingstol, Grenkontakt
 
-## Nästa steg
-- Implementera gränssnitt
-- Sätt upp Firebase-struktur
-- Testa funktionalitet
+## Implementerad Funktionalitet
+
+### Autentisering
+- ✅ Email/Password registrering och inloggning
+- ✅ Google Sign-In
+- ✅ Logout-knapp i gränssnittet
+- ✅ Auth-skärm före appens huvudgränssnitt
+
+### Multi-User Support
+- ✅ Varje användare har sitt eget datasystem
+- ✅ stallberg.anders@gmail.com får alla standardplatser och saker
+- ✅ Nya användare startar med tomt system
+- ✅ Realtids synkronisering via Firebase
+
+### Database Setup
+- Regler: Se FIREBASE_SETUP.md
+- Struktur: `users/{uid}/locations/`
+- Säkerhet: Användare kan bara läsa/skriva sin egen data
+
+## Nästa Steg
+1. Sätt upp Firebase-regler enligt FIREBASE_SETUP.md
+2. Aktivera Email/Password och Google Sign-In i Firebase Console
+3. Testa inloggning och registrering

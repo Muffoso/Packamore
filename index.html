@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Packarizer</title>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
     <style>
         * {
             margin: 0;
@@ -18,6 +21,129 @@
             padding-bottom: 100px;
         }
 
+        .auth-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #c9b8a8 0%, #a89f8f 100%);
+        }
+
+        .auth-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 400px;
+        }
+
+        .auth-container h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #3d3d3d;
+            font-size: 24px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .auth-form input {
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            width: 100%;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: #9d8b7e;
+            box-shadow: 0 0 0 3px rgba(157, 139, 126, 0.1);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 10px;
+            flex-direction: column;
+        }
+
+        .auth-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .auth-btn.primary {
+            background: #7a9b76;
+            color: white;
+        }
+
+        .auth-btn.primary:hover {
+            background: #6a8b66;
+        }
+
+        .auth-btn.secondary {
+            background: #9d8b7e;
+            color: white;
+        }
+
+        .auth-btn.secondary:hover {
+            background: #8a7968;
+        }
+
+        .auth-btn.google {
+            background: white;
+            color: #3d3d3d;
+            border: 1px solid #ddd;
+        }
+
+        .auth-btn.google:hover {
+            background: #f9f9f9;
+        }
+
+        .auth-toggle {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .auth-toggle button {
+            background: none;
+            border: none;
+            color: #7a9b76;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 0;
+            font-size: 14px;
+        }
+
+        .auth-error {
+            color: #ef4444;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .auth-hidden {
+            display: none !important;
+        }
+
+        .app-screen {
+            display: none;
+        }
+
+        .app-screen.show {
+            display: block;
+        }
+
         .header {
             text-align: center;
             margin-bottom: 20px;
@@ -26,12 +152,39 @@
             color: #3d3d3d;
             border-radius: 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .header h1 {
             font-size: 28px;
-            margin-bottom: 0;
+            margin: 0;
             font-weight: 600;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+            color: #3d3d3d;
+        }
+
+        .logout-btn {
+            padding: 8px 15px;
+            background: white;
+            color: #3d3d3d;
+            border: 1px solid #3d3d3d;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #3d3d3d;
+            color: white;
         }
 
         .controls {
@@ -382,24 +535,65 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Packarizer</h1>
+    <!-- Auth Screen -->
+    <div class="auth-screen" id="authScreen">
+        <div class="auth-container">
+            <h1>Packarizer</h1>
+
+            <div id="loginForm">
+                <div class="auth-form">
+                    <input type="email" id="email" placeholder="Email" />
+                    <input type="password" id="password" placeholder="Lösenord" />
+                    <button class="auth-btn primary" onclick="login()">Logga in</button>
+                    <button class="auth-btn google" onclick="googleSignIn()">🔐 Logga in med Google</button>
+                    <div class="auth-error" id="authError"></div>
+                </div>
+                <div class="auth-toggle">
+                    Inget konto? <button onclick="toggleForm()">Registrera</button>
+                </div>
+            </div>
+
+            <div id="registerForm" class="auth-hidden">
+                <div class="auth-form">
+                    <input type="email" id="regEmail" placeholder="Email" />
+                    <input type="password" id="regPassword" placeholder="Lösenord (minst 6 tecken)" />
+                    <input type="password" id="regPasswordConfirm" placeholder="Bekräfta lösenord" />
+                    <button class="auth-btn primary" onclick="register()">Skapa konto</button>
+                    <button class="auth-btn google" onclick="googleSignIn()">🔐 Registrera med Google</button>
+                    <div class="auth-error" id="authError2"></div>
+                </div>
+                <div class="auth-toggle">
+                    Redan konto? <button onclick="toggleForm()">Logga in</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="container" id="container"></div>
+    <!-- App Screen -->
+    <div class="app-screen" id="appScreen">
+        <div class="header">
+            <h1>Packarizer</h1>
+            <div class="user-info">
+                <span id="userEmail"></span>
+                <button class="logout-btn" onclick="logout()">Logga ut</button>
+            </div>
+        </div>
 
-    <div class="controls">
-        <button class="toggle-filter" id="toggleFilter" title="Visa endast aktiva saker">📋 Aktiva</button>
-        <button class="toggle-edit" id="toggleEdit" title="Redigeringsläge">✏️ Redigera</button>
-    </div>
+        <div class="container" id="container"></div>
 
-    <div class="input-dialog" id="inputDialog">
-        <div class="dialog-content">
-            <h2 id="dialogTitle"></h2>
-            <input type="text" id="dialogInput" placeholder="Namn">
-            <div class="dialog-buttons">
-                <button class="cancel-btn" onclick="closeDialog()">Avbryt</button>
-                <button class="confirm-btn" onclick="confirmDialog()">OK</button>
+        <div class="controls">
+            <button class="toggle-filter" id="toggleFilter" title="Visa endast aktiva saker">📋 Aktiva</button>
+            <button class="toggle-edit" id="toggleEdit" title="Redigeringsläge">✏️ Redigera</button>
+        </div>
+
+        <div class="input-dialog" id="inputDialog">
+            <div class="dialog-content">
+                <h2 id="dialogTitle"></h2>
+                <input type="text" id="dialogInput" placeholder="Namn">
+                <div class="dialog-buttons">
+                    <button class="cancel-btn" onclick="closeDialog()">Avbryt</button>
+                    <button class="confirm-btn" onclick="confirmDialog()">OK</button>
+                </div>
             </div>
         </div>
     </div>
@@ -416,83 +610,186 @@
             appId: "1:81001000065:web:59987941208afe5aff3180"
         };
 
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
         // State
         let editMode = false;
         let filterActive = false;
         let locations = [];
         let dialogCallback = null;
+        let currentUser = null;
+        let dbRef = null;
 
-        // Firebase helper functions
-        async function fetchData(path) {
-            const url = `${firebaseConfig.databaseURL}/${path}.json`;
-            try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Fetch failed');
-                return await response.json();
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                return null;
-            }
+        // Default locations and items for new users
+        const DEFAULT_LOCATIONS = {
+            "Packa inför resor": { order: 0, items: { "Kudde": { active: false, order: 0 }, "Earpods": { active: false, order: 1 }, "Mobilladdare": { active: false, order: 2 }, "Tandborste": { active: false, order: 3 }, "Tandkräm": { active: false, order: 4 }, "Öronproppar": { active: false, order: 5 }, "Deo": { active: false, order: 6 }, "Voltaren": { active: false, order: 7 } } },
+            "Arbetsrum": { order: 1, items: { "Fjöngar": { active: false, order: 0 }, "Verktyg": { active: false, order: 1 }, "Längdskidglasögon": { active: false, order: 2 }, "Headset": { active: false, order: 3 }, "Sykit": { active: false, order: 4 }, "Pass": { active: false, order: 5 }, "Privat dator": { active: false, order: 6 }, "Jobbdator": { active: false, order: 7 }, "Powerbank": { active: false, order: 8 }, "Datorpowerbank +sladd": { active: false, order: 9 }, "Datormus": { active: false, order: 10 } } },
+            "Tvättstuga": { order: 2, items: { "Flipbelt": { active: false, order: 0 }, "Löparskor": { active: false, order: 1 }, "Skotork": { active: false, order: 2 }, "Terrexskor": { active: false, order: 3 }, "Löparkeps": { active: false, order: 4 }, "Kängor": { active: false, order: 5 }, "Flipflop": { active: false, order: 6 }, "Formgjutna sulor": { active: false, order: 7 } } },
+            "Trappförråd": { order: 3, items: { "Löparryggsäck": { active: false, order: 0 }, "Vätskebälte": { active: false, order: 1 }, "Pannlampa": { active: false, order: 2 }, "Regnjacka gallon": { active: false, order: 3 }, "Packpåsar": { active: false, order: 4 }, "Vattentäta packpåsar": { active: false, order: 5 } } },
+            "Klädkammare uppe": { order: 4, items: { "Vindjacka": { active: false, order: 0 }, "Vindstopper tröja": { active: false, order: 1 }, "Underställ byxor": { active: false, order: 2 }, "Underställströja ull": { active: false, order: 3 }, "Underställströja brynja": { active: false, order: 4 }, "Underställsbyxor trekvarts houdini": { active: false, order: 5 }, "Underställströjor": { active: false, order: 6 }, "Norröna byxor": { active: false, order: 7 }, "Flipflop": { active: false, order: 8 }, "Regnbyxor tunna": { active: false, order: 9 }, "Regnjacka goretex": { active: false, order: 10 }, "Inneskor": { active: false, order: 11 }, "T-shirts funktion": { active: false, order: 12 }, "Haglöfs ull T-shirt": { active: false, order: 13 }, "Dunbyxor": { active: false, order: 14 }, "Kalsonger träning": { active: false, order: 15 }, "Strumpor träning": { active: false, order: 16 }, "Badskor": { active: false, order: 17 } } },
+            "Sovrum": { order: 5, items: { "Houdini tröja": { active: false, order: 0 }, "Chinos": { active: false, order: 1 }, "Tjock fintröja": { active: false, order: 2 }, "Skjorta": { active: false, order: 3 }, "Badbyxor": { active: false, order: 4 }, "Soltröja": { active: false, order: 5 }, "Shorts": { active: false, order: 6 }, "Haglöfs tunna byxor grå": { active: false, order: 7 }, "Tjock soltröja": { active: false, order: 8 }, "Kalsonger": { active: false, order: 9 }, "Strumpor": { active: false, order: 10 }, "T-shirts": { active: false, order: 11 } } },
+            "Badrum nere": { order: 6, items: { "Pappaplåster": { active: false, order: 0 }, "Solskyddsmedel": { active: false, order: 1 } } },
+            "Nere": { order: 7, items: { "Datorunderlägg": { active: false, order: 0 }, "Laddsladd dator": { active: false, order: 1 }, "Mössa": { active: false, order: 2 }, "Vantar": { active: false, order: 3 }, "Snorkel": { active: false, order: 4 }, "Cyklop": { active: false, order: 5 }, "Simglasögon": { active: false, order: 6 }, "Dunjacka": { active: false, order: 7 }, "Vattenflaska": { active: false, order: 8 } } },
+            "Uppe": { order: 8, items: { "Lakan": { active: false, order: 0 }, "Handduk": { active: false, order: 1 }, "Handhanduk": { active: false, order: 2 } } },
+            "Längdskidor": { order: 9, items: { "Skateskidor": { active: false, order: 0 }, "Klassiska skidor": { active: false, order: 1 }, "Klassiska stavar": { active: false, order: 2 }, "Skatestavar": { active: false, order: 3 }, "Klassiska pjäxor": { active: false, order: 4 }, "Skatepjäxor": { active: false, order: 5 }, "Valla": { active: false, order: 6 }, "Extra plupp till skatepjäxor": { active: false, order: 7 } } },
+            "Urförskidor": { order: 10, items: { "Alpina skidor": { active: false, order: 0 }, "Alpina stavar": { active: false, order: 1 }, "Lavinsändare": { active: false, order: 2 }, "Lavinsond": { active: false, order: 3 }, "Lavinspade": { active: false, order: 4 }, "Liftsittunderlag": { active: false, order: 5 }, "Ryggskydd": { active: false, order: 6 }, "Stighudar": { active: false, order: 7 }, "Skidhjälm": { active: false, order: 8 }, "Liftkort": { active: false, order: 9 }, "Skidglasögon": { active: false, order: 10 } } },
+            "Orientering": { order: 11, items: { "Orienteringstights": { active: false, order: 0 }, "Orienteringströja": { active: false, order: 1 }, "Sportidentpinne och kompass": { active: false, order: 2 }, "Orienteringsskor": { active: false, order: 3 }, "Extra kompass": { active: false, order: 4 }, "Laddare gps-klocka": { active: false, order: 5 }, "GPS-klocka": { active: false, order: 6 }, "Tensmaskin": { active: false, order: 7 } } },
+            "Cykel": { order: 12, items: { "Cykelverktyg": { active: false, order: 0 }, "Cykelbyxor": { active: false, order: 1 }, "Cykeltröja": { active: false, order: 2 }, "Cykelhjälm": { active: false, order: 3 }, "Cykellås": { active: false, order: 4 }, "Cykelskor": { active: false, order: 5 } } },
+            "Tältning": { order: 13, items: { "Sovsäck": { active: false, order: 0 }, "Liggunderlag": { active: false, order: 1 }, "Presenning": { active: false, order: 2 }, "Tält": { active: false, order: 3 } } },
+            "Husvagn": { order: 14, items: { "Tvättlina": { active: false, order: 0 }, "Campingbord": { active: false, order: 1 }, "Vattendunkar": { active: false, order: 2 }, "Campingstol": { active: false, order: 3 }, "Grenkontakt": { active: false, order: 4 } } }
+        };
+
+        // Auth functions
+        function toggleForm() {
+            document.getElementById('loginForm').classList.toggle('auth-hidden');
+            document.getElementById('registerForm').classList.toggle('auth-hidden');
+            clearAuthErrors();
         }
 
-        async function saveData(path, data) {
-            const url = `${firebaseConfig.databaseURL}/${path}.json`;
-            try {
-                const response = await fetch(url, {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
+        function clearAuthErrors() {
+            document.getElementById('authError').textContent = '';
+            document.getElementById('authError2').textContent = '';
+        }
+
+        function login() {
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) {
+                document.getElementById('authError').textContent = 'Fyll i email och lösenord';
+                return;
+            }
+
+            auth.signInWithEmailAndPassword(email, password)
+                .catch(error => {
+                    document.getElementById('authError').textContent = 'Fel email eller lösenord';
+                    console.error(error);
                 });
-                if (!response.ok) throw new Error('Save failed');
-                return await response.json();
-            } catch (error) {
-                console.error('Error saving data:', error);
-            }
         }
 
-        // Initialize with default data if needed
-        async function initializeData() {
-            const existingData = await fetchData('locations');
-            if (!existingData) {
-                const defaultData = {
-                    "Packa inför resor": { order: 0, items: { "Kudde": { active: false, order: 0 }, "Earpods": { active: false, order: 1 }, "Mobilladdare": { active: false, order: 2 }, "Tandborste": { active: false, order: 3 }, "Tandkräm": { active: false, order: 4 }, "Öronproppar": { active: false, order: 5 }, "Deo": { active: false, order: 6 }, "Voltaren": { active: false, order: 7 } } },
-                    "Arbetsrum": { order: 1, items: { "Fjöngar": { active: false, order: 0 }, "Verktyg": { active: false, order: 1 }, "Längdskidglasögon": { active: false, order: 2 }, "Headset": { active: false, order: 3 }, "Sykit": { active: false, order: 4 }, "Pass": { active: false, order: 5 }, "Privat dator": { active: false, order: 6 }, "Jobbdator": { active: false, order: 7 }, "Powerbank": { active: false, order: 8 }, "Datorpowerbank +sladd": { active: false, order: 9 }, "Datormus": { active: false, order: 10 } } },
-                    "Tvättstuga": { order: 2, items: { "Flipbelt": { active: false, order: 0 }, "Löparskor": { active: false, order: 1 }, "Skotork": { active: false, order: 2 }, "Terrexskor": { active: false, order: 3 }, "Löparkeps": { active: false, order: 4 }, "Kängor": { active: false, order: 5 }, "Flipflop": { active: false, order: 6 }, "Formgjutna sulor": { active: false, order: 7 } } },
-                    "Trappförråd": { order: 3, items: { "Löparryggsäck": { active: false, order: 0 }, "Vätskebälte": { active: false, order: 1 }, "Pannlampa": { active: false, order: 2 }, "Regnjacka gallon": { active: false, order: 3 }, "Packpåsar": { active: false, order: 4 }, "Vattentäta packpåsar": { active: false, order: 5 } } },
-                    "Klädkammare uppe": { order: 4, items: { "Vindjacka": { active: false, order: 0 }, "Vindstopper tröja": { active: false, order: 1 }, "Underställ byxor": { active: false, order: 2 }, "Underställströja ull": { active: false, order: 3 }, "Underställströja brynja": { active: false, order: 4 }, "Underställsbyxor trekvarts houdini": { active: false, order: 5 }, "Underställströjor": { active: false, order: 6 }, "Norröna byxor": { active: false, order: 7 }, "Flipflop": { active: false, order: 8 }, "Regnbyxor tunna": { active: false, order: 9 }, "Regnjacka goretex": { active: false, order: 10 }, "Inneskor": { active: false, order: 11 }, "T-shirts funktion": { active: false, order: 12 }, "Haglöfs ull T-shirt": { active: false, order: 13 }, "Dunbyxor": { active: false, order: 14 }, "Kalsonger träning": { active: false, order: 15 }, "Strumpor träning": { active: false, order: 16 }, "Badskor": { active: false, order: 17 } } },
-                    "Sovrum": { order: 5, items: { "Houdini tröja": { active: false, order: 0 }, "Chinos": { active: false, order: 1 }, "Tjock fintröja": { active: false, order: 2 }, "Skjorta": { active: false, order: 3 }, "Badbyxor": { active: false, order: 4 }, "Soltröja": { active: false, order: 5 }, "Shorts": { active: false, order: 6 }, "Haglöfs tunna byxor grå": { active: false, order: 7 }, "Tjock soltröja": { active: false, order: 8 }, "Kalsonger": { active: false, order: 9 }, "Strumpor": { active: false, order: 10 }, "T-shirts": { active: false, order: 11 } } },
-                    "Badrum nere": { order: 6, items: { "Pappaplåster": { active: false, order: 0 }, "Solskyddsmedel": { active: false, order: 1 } } },
-                    "Nere": { order: 7, items: { "Datorunderlägg": { active: false, order: 0 }, "Laddsladd dator": { active: false, order: 1 }, "Mössa": { active: false, order: 2 }, "Vantar": { active: false, order: 3 }, "Snorkel": { active: false, order: 4 }, "Cyklop": { active: false, order: 5 }, "Simglasögon": { active: false, order: 6 }, "Dunjacka": { active: false, order: 7 }, "Vattenflaska": { active: false, order: 8 } } },
-                    "Uppe": { order: 8, items: { "Lakan": { active: false, order: 0 }, "Handduk": { active: false, order: 1 }, "Handhanduk": { active: false, order: 2 } } },
-                    "Längdskidor": { order: 9, items: { "Skateskidor": { active: false, order: 0 }, "Klassiska skidor": { active: false, order: 1 }, "Klassiska stavar": { active: false, order: 2 }, "Skatestavar": { active: false, order: 3 }, "Klassiska pjäxor": { active: false, order: 4 }, "Skatepjäxor": { active: false, order: 5 }, "Valla": { active: false, order: 6 }, "Extra plupp till skatepjäxor": { active: false, order: 7 } } },
-                    "Urförskidor": { order: 10, items: { "Alpina skidor": { active: false, order: 0 }, "Alpina stavar": { active: false, order: 1 }, "Lavinsändare": { active: false, order: 2 }, "Lavinsond": { active: false, order: 3 }, "Lavinspade": { active: false, order: 4 }, "Liftsittunderlag": { active: false, order: 5 }, "Ryggskydd": { active: false, order: 6 }, "Stighudar": { active: false, order: 7 }, "Skidhjälm": { active: false, order: 8 }, "Liftkort": { active: false, order: 9 }, "Skidglasögon": { active: false, order: 10 } } },
-                    "Orientering": { order: 11, items: { "Orienteringstights": { active: false, order: 0 }, "Orienteringströja": { active: false, order: 1 }, "Sportidentpinne och kompass": { active: false, order: 2 }, "Orienteringsskor": { active: false, order: 3 }, "Extra kompass": { active: false, order: 4 }, "Laddare gps-klocka": { active: false, order: 5 }, "GPS-klocka": { active: false, order: 6 }, "Tensmaskin": { active: false, order: 7 } } },
-                    "Cykel": { order: 12, items: { "Cykelverktyg": { active: false, order: 0 }, "Cykelbyxor": { active: false, order: 1 }, "Cykeltröja": { active: false, order: 2 }, "Cykelhjälm": { active: false, order: 3 }, "Cykellås": { active: false, order: 4 }, "Cykelskor": { active: false, order: 5 } } },
-                    "Tältning": { order: 13, items: { "Sovsäck": { active: false, order: 0 }, "Liggunderlag": { active: false, order: 1 }, "Presenning": { active: false, order: 2 }, "Tält": { active: false, order: 3 } } },
-                    "Husvagn": { order: 14, items: { "Tvättlina": { active: false, order: 0 }, "Campingbord": { active: false, order: 1 }, "Vattendunkar": { active: false, order: 2 }, "Campingstol": { active: false, order: 3 }, "Grenkontakt": { active: false, order: 4 } } }
-                };
-                await saveData('locations', defaultData);
+        function register() {
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const passwordConfirm = document.getElementById('regPasswordConfirm').value;
+
+            if (!email || !password || !passwordConfirm) {
+                document.getElementById('authError2').textContent = 'Fyll i alla fält';
+                return;
             }
-            await loadData();
+
+            if (password !== passwordConfirm) {
+                document.getElementById('authError2').textContent = 'Lösenorden stämmer inte överens';
+                return;
+            }
+
+            if (password.length < 6) {
+                document.getElementById('authError2').textContent = 'Lösenordet måste vara minst 6 tecken';
+                return;
+            }
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(() => {
+                    // Initialize empty locations for new user
+                    initializeNewUserData();
+                })
+                .catch(error => {
+                    document.getElementById('authError2').textContent = 'Email redan registrerat eller felaktig email';
+                    console.error(error);
+                });
         }
 
-        async function loadData() {
-            const data = await fetchData('locations');
-            if (data) {
-                locations = Object.entries(data).map(([name, locationData]) => ({
-                    name,
-                    order: locationData.order,
-                    items: Object.entries(locationData.items || {}).map(([itemName, itemData]) => ({
-                        name: itemName,
-                        active: itemData.active,
-                        order: itemData.order
-                    })).sort((a, b) => a.order - b.order)
-                })).sort((a, b) => a.order - b.order);
+        function googleSignIn() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider)
+                .catch(error => {
+                    document.getElementById('authError').textContent = 'Google-inloggning misslyckades';
+                    console.error(error);
+                });
+        }
+
+        function logout() {
+            auth.signOut();
+        }
+
+        // Initialize new user with default data or empty
+        function initializeNewUserData() {
+            const uid = auth.currentUser.uid;
+            const email = auth.currentUser.email;
+
+            // Check if user data exists
+            database.ref(`users/${uid}/locations`).once('value', snapshot => {
+                if (!snapshot.exists()) {
+                    // Check if this is the special user - load default data
+                    if (email === 'stallberg.anders@gmail.com') {
+                        database.ref(`users/${uid}/locations`).set(DEFAULT_LOCATIONS);
+                    } else {
+                        // New user - empty locations
+                        database.ref(`users/${uid}/locations`).set({});
+                    }
+                }
+            });
+        }
+
+        // Auth state listener
+        auth.onAuthStateChanged(user => {
+            if (user) {
+                currentUser = user;
+                dbRef = database.ref(`users/${user.uid}/locations`);
+
+                document.getElementById('authScreen').classList.add('auth-hidden');
+                document.getElementById('appScreen').classList.add('show');
+                document.getElementById('userEmail').textContent = user.email;
+
+                initializeNewUserData();
+                listenToDataChanges();
+
+                // Reset edit and filter
+                editMode = false;
+                filterActive = false;
+                document.getElementById('toggleFilter').classList.remove('active');
+                document.getElementById('toggleEdit').classList.remove('active');
+            } else {
+                currentUser = null;
+                dbRef = null;
+                locations = [];
+
+                document.getElementById('authScreen').classList.remove('auth-hidden');
+                document.getElementById('appScreen').classList.remove('show');
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                document.getElementById('regEmail').value = '';
+                document.getElementById('regPassword').value = '';
+                document.getElementById('regPasswordConfirm').value = '';
+            }
+        });
+
+        // Real-time database listener
+        function listenToDataChanges() {
+            dbRef.on('value', snapshot => {
+                const data = snapshot.val();
+                if (data) {
+                    locations = Object.entries(data).map(([name, locationData]) => ({
+                        name,
+                        order: locationData.order,
+                        items: Object.entries(locationData.items || {}).map(([itemName, itemData]) => ({
+                            name: itemName,
+                            active: itemData.active,
+                            order: itemData.order
+                        })).sort((a, b) => a.order - b.order)
+                    })).sort((a, b) => a.order - b.order);
+                } else {
+                    locations = [];
+                }
                 render();
-            }
+            });
         }
 
         async function saveAllData() {
+            if (!dbRef) return;
+
             const data = {};
             locations.forEach(location => {
                 data[location.name] = {
@@ -506,7 +803,8 @@
                     };
                 });
             });
-            await saveData('locations', data);
+
+            await dbRef.set(data);
         }
 
         function render() {
@@ -594,7 +892,6 @@
             if (!editMode) {
                 locations[locIndex].items[itemIndex].active = !locations[locIndex].items[itemIndex].active;
                 saveAllData();
-                render();
 
                 // Scroll to item if not in filter mode
                 if (!filterActive) {
@@ -632,7 +929,6 @@
                 [locations[locIndex], locations[newIndex]] = [locations[newIndex], locations[locIndex]];
                 locations.forEach((loc, i) => loc.order = i);
                 saveAllData();
-                render();
             }
         }
 
@@ -643,7 +939,6 @@
                 [items[itemIndex], items[newIndex]] = [items[newIndex], items[itemIndex]];
                 items.forEach((item, i) => item.order = i);
                 saveAllData();
-                render();
             }
         }
 
@@ -652,7 +947,6 @@
                 locations.splice(locIndex, 1);
                 locations.forEach((loc, i) => loc.order = i);
                 saveAllData();
-                render();
             }
         }
 
@@ -662,7 +956,6 @@
                 locations[locIndex].items.splice(itemIndex, 1);
                 locations[locIndex].items.forEach((item, i) => item.order = i);
                 saveAllData();
-                render();
             }
         }
 
@@ -674,7 +967,6 @@
                     items: []
                 });
                 saveAllData();
-                render();
             };
             document.getElementById('dialogTitle').textContent = 'Lägg till ny plats';
             document.getElementById('dialogInput').value = '';
@@ -691,7 +983,6 @@
                     order: location.items.length
                 });
                 saveAllData();
-                render();
             };
             document.getElementById('dialogTitle').textContent = `Lägg till ny sak i "${locations[locIndex].name}"`;
             document.getElementById('dialogInput').value = '';
@@ -727,9 +1018,6 @@
             document.getElementById('toggleEdit').classList.toggle('active', editMode);
             render();
         });
-
-        // Initialize on load
-        initializeData();
     </script>
 </body>
 </html>
