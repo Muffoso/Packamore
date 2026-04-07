@@ -215,10 +215,13 @@
         }
 
         .user-section {
-            text-align: center;
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-size: 13px;
             color: #e6eaef;
             font-family: 'Inter', sans-serif;
+            justify-content: center;
         }
 
         .header-controls {
@@ -285,6 +288,198 @@
 
         .logout-btn:hover {
             background: #9ec5c6;
+        }
+
+        .save-list-btn, .saved-lists-btn {
+            background: #21664d;
+            color: #f2f0e4;
+            padding: 8px 15px;
+            font-size: 13px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .save-list-btn:hover, .saved-lists-btn:hover {
+            background: #15543c;
+        }
+
+        .qty-controls {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+            margin-right: 8px;
+        }
+
+        .qty-btn {
+            background: #21664d;
+            color: #f2f0e4;
+            border: none;
+            border-radius: 3px;
+            padding: 4px 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .qty-btn:hover {
+            background: #15543c;
+        }
+
+        .qty-display {
+            min-width: 20px;
+            text-align: center;
+            font-weight: 600;
+            color: #045149;
+        }
+
+        .saved-lists-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+        }
+
+        .saved-lists-modal.show {
+            display: flex;
+        }
+
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-content {
+            position: relative;
+            margin: auto;
+            background: #f2f0e4;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            z-index: 1001;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 2px solid #bfdbdd;
+        }
+
+        .modal-header h2 {
+            color: #045149;
+            font-family: 'Righteous', sans-serif;
+            font-size: 20px;
+            margin: 0;
+        }
+
+        .close-modal-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #045149;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .close-modal-btn:hover {
+            background: #bfdbdd;
+            border-radius: 50%;
+        }
+
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .saved-list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px;
+            background: #e6eaef;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            gap: 10px;
+        }
+
+        .saved-list-info {
+            flex: 1;
+        }
+
+        .saved-list-name {
+            font-weight: 600;
+            color: #045149;
+            margin: 0 0 5px 0;
+        }
+
+        .saved-list-date {
+            font-size: 11px;
+            color: #666;
+            margin: 0;
+        }
+
+        .saved-list-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .load-list-btn, .delete-list-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+        }
+
+        .load-list-btn {
+            background: #21664d;
+            color: #f2f0e4;
+        }
+
+        .load-list-btn:hover {
+            background: #15543c;
+        }
+
+        .delete-list-btn {
+            background: #d97176;
+            color: #f2f0e4;
+        }
+
+        .delete-list-btn:hover {
+            background: #c85159;
+        }
+
+        .no-saved-lists {
+            text-align: center;
+            padding: 30px 20px;
+            color: #666;
+            font-style: italic;
         }
 
         .container {
@@ -647,12 +842,14 @@
             </h1>
             <div class="header-content">
                 <div class="user-section">
-                    <div id="userEmail"></div>
+                    <button class="logout-btn" onclick="appLogout()">Logga ut</button>
+                    <span id="userEmail"></span>
                 </div>
                 <div class="header-controls">
                     <button class="toggle-filter" id="toggleFilter" title="Visa endast aktiva saker">Visa alla</button>
+                    <button class="save-list-btn" id="saveListBtn" title="Spara nuvarande val">Spara</button>
+                    <button class="saved-lists-btn" id="savedListsBtn" title="Visa sparade packlistor">Sparade</button>
                     <button class="toggle-edit" id="toggleEdit" title="Redigeringsläge">Redigera</button>
-                    <button class="logout-btn" onclick="appLogout()">Logga ut</button>
                 </div>
             </div>
         </div>
@@ -667,6 +864,17 @@
                     <button class="cancel-btn" onclick="appCloseDialog()">Avbryt</button>
                     <button class="confirm-btn" onclick="appConfirmDialog()">OK</button>
                 </div>
+            </div>
+        </div>
+
+        <div class="saved-lists-modal" id="savedListsModal">
+            <div class="modal-overlay"></div>
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Sparade packlistor</h2>
+                    <button class="close-modal-btn" onclick="appCloseSavedListsModal()">✕</button>
+                </div>
+                <div class="modal-body" id="savedListsContainer"></div>
             </div>
         </div>
     </div>
@@ -716,21 +924,21 @@
 
         // Default locations
         const DEFAULT_LOCATIONS = {
-            "Packa inför resor": { order: 0, items: { "Kudde": { active: false, order: 0 }, "Earpods": { active: false, order: 1 }, "Mobilladdare": { active: false, order: 2 }, "Tandborste": { active: false, order: 3 }, "Tandkräm": { active: false, order: 4 }, "Öronproppar": { active: false, order: 5 }, "Deo": { active: false, order: 6 }, "Voltaren": { active: false, order: 7 } } },
-            "Arbetsrum": { order: 1, items: { "Fjöngar": { active: false, order: 0 }, "Verktyg": { active: false, order: 1 }, "Längdskidglasögon": { active: false, order: 2 }, "Headset": { active: false, order: 3 }, "Sykit": { active: false, order: 4 }, "Pass": { active: false, order: 5 }, "Privat dator": { active: false, order: 6 }, "Jobbdator": { active: false, order: 7 }, "Powerbank": { active: false, order: 8 }, "Datorpowerbank +sladd": { active: false, order: 9 }, "Datormus": { active: false, order: 10 } } },
-            "Tvättstuga": { order: 2, items: { "Flipbelt": { active: false, order: 0 }, "Löparskor": { active: false, order: 1 }, "Skotork": { active: false, order: 2 }, "Terrexskor": { active: false, order: 3 }, "Löparkeps": { active: false, order: 4 }, "Kängor": { active: false, order: 5 }, "Flipflop": { active: false, order: 6 }, "Formgjutna sulor": { active: false, order: 7 } } },
-            "Trappförråd": { order: 3, items: { "Löparryggsäck": { active: false, order: 0 }, "Vätskebälte": { active: false, order: 1 }, "Pannlampa": { active: false, order: 2 }, "Regnjacka gallon": { active: false, order: 3 }, "Packpåsar": { active: false, order: 4 }, "Vattentäta packpåsar": { active: false, order: 5 } } },
-            "Klädkammare uppe": { order: 4, items: { "Vindjacka": { active: false, order: 0 }, "Vindstopper tröja": { active: false, order: 1 }, "Underställ byxor": { active: false, order: 2 }, "Underställströja ull": { active: false, order: 3 }, "Underställströja brynja": { active: false, order: 4 }, "Underställsbyxor trekvarts houdini": { active: false, order: 5 }, "Underställströjor": { active: false, order: 6 }, "Norröna byxor": { active: false, order: 7 }, "Flipflop": { active: false, order: 8 }, "Regnbyxor tunna": { active: false, order: 9 }, "Regnjacka goretex": { active: false, order: 10 }, "Inneskor": { active: false, order: 11 }, "T-shirts funktion": { active: false, order: 12 }, "Haglöfs ull T-shirt": { active: false, order: 13 }, "Dunbyxor": { active: false, order: 14 }, "Kalsonger träning": { active: false, order: 15 }, "Strumpor träning": { active: false, order: 16 }, "Badskor": { active: false, order: 17 } } },
-            "Sovrum": { order: 5, items: { "Houdini tröja": { active: false, order: 0 }, "Chinos": { active: false, order: 1 }, "Tjock fintröja": { active: false, order: 2 }, "Skjorta": { active: false, order: 3 }, "Badbyxor": { active: false, order: 4 }, "Soltröja": { active: false, order: 5 }, "Shorts": { active: false, order: 6 }, "Haglöfs tunna byxor grå": { active: false, order: 7 }, "Tjock soltröja": { active: false, order: 8 }, "Kalsonger": { active: false, order: 9 }, "Strumpor": { active: false, order: 10 }, "T-shirts": { active: false, order: 11 } } },
-            "Badrum nere": { order: 6, items: { "Pappaplåster": { active: false, order: 0 }, "Solskyddsmedel": { active: false, order: 1 } } },
-            "Nere": { order: 7, items: { "Datorunderlägg": { active: false, order: 0 }, "Laddsladd dator": { active: false, order: 1 }, "Mössa": { active: false, order: 2 }, "Vantar": { active: false, order: 3 }, "Snorkel": { active: false, order: 4 }, "Cyklop": { active: false, order: 5 }, "Simglasögon": { active: false, order: 6 }, "Dunjacka": { active: false, order: 7 }, "Vattenflaska": { active: false, order: 8 } } },
-            "Uppe": { order: 8, items: { "Lakan": { active: false, order: 0 }, "Handduk": { active: false, order: 1 }, "Handhanduk": { active: false, order: 2 } } },
-            "Längdskidor": { order: 9, items: { "Skateskidor": { active: false, order: 0 }, "Klassiska skidor": { active: false, order: 1 }, "Klassiska stavar": { active: false, order: 2 }, "Skatestavar": { active: false, order: 3 }, "Klassiska pjäxor": { active: false, order: 4 }, "Skatepjäxor": { active: false, order: 5 }, "Valla": { active: false, order: 6 }, "Extra plupp till skatepjäxor": { active: false, order: 7 } } },
-            "Urförskidor": { order: 10, items: { "Alpina skidor": { active: false, order: 0 }, "Alpina stavar": { active: false, order: 1 }, "Lavinsändare": { active: false, order: 2 }, "Lavinsond": { active: false, order: 3 }, "Lavinspade": { active: false, order: 4 }, "Liftsittunderlag": { active: false, order: 5 }, "Ryggskydd": { active: false, order: 6 }, "Stighudar": { active: false, order: 7 }, "Skidhjälm": { active: false, order: 8 }, "Liftkort": { active: false, order: 9 }, "Skidglasögon": { active: false, order: 10 } } },
-            "Orientering": { order: 11, items: { "Orienteringstights": { active: false, order: 0 }, "Orienteringströja": { active: false, order: 1 }, "Sportidentpinne och kompass": { active: false, order: 2 }, "Orienteringsskor": { active: false, order: 3 }, "Extra kompass": { active: false, order: 4 }, "Laddare gps-klocka": { active: false, order: 5 }, "GPS-klocka": { active: false, order: 6 }, "Tensmaskin": { active: false, order: 7 } } },
-            "Cykel": { order: 12, items: { "Cykelverktyg": { active: false, order: 0 }, "Cykelbyxor": { active: false, order: 1 }, "Cykeltröja": { active: false, order: 2 }, "Cykelhjälm": { active: false, order: 3 }, "Cykellås": { active: false, order: 4 }, "Cykelskor": { active: false, order: 5 } } },
-            "Tältning": { order: 13, items: { "Sovsäck": { active: false, order: 0 }, "Liggunderlag": { active: false, order: 1 }, "Presenning": { active: false, order: 2 }, "Tält": { active: false, order: 3 } } },
-            "Husvagn": { order: 14, items: { "Tvättlina": { active: false, order: 0 }, "Campingbord": { active: false, order: 1 }, "Vattendunkar": { active: false, order: 2 }, "Campingstol": { active: false, order: 3 }, "Grenkontakt": { active: false, order: 4 } } }
+            "Packa inför resor": { order: 0, items: { "Kudde": { active: false, order: 0, quantity: 1 }, "Earpods": { active: false, order: 1, quantity: 1 }, "Mobilladdare": { active: false, order: 2, quantity: 1 }, "Tandborste": { active: false, order: 3, quantity: 1 }, "Tandkräm": { active: false, order: 4, quantity: 1 }, "Öronproppar": { active: false, order: 5, quantity: 1 }, "Deo": { active: false, order: 6, quantity: 1 }, "Voltaren": { active: false, order: 7, quantity: 1 } } },
+            "Arbetsrum": { order: 1, items: { "Fjöngar": { active: false, order: 0, quantity: 1 }, "Verktyg": { active: false, order: 1, quantity: 1 }, "Längdskidglasögon": { active: false, order: 2, quantity: 1 }, "Headset": { active: false, order: 3, quantity: 1 }, "Sykit": { active: false, order: 4, quantity: 1 }, "Pass": { active: false, order: 5, quantity: 1 }, "Privat dator": { active: false, order: 6, quantity: 1 }, "Jobbdator": { active: false, order: 7, quantity: 1 }, "Powerbank": { active: false, order: 8, quantity: 1 }, "Datorpowerbank +sladd": { active: false, order: 9, quantity: 1 }, "Datormus": { active: false, order: 10, quantity: 1 } } },
+            "Tvättstuga": { order: 2, items: { "Flipbelt": { active: false, order: 0, quantity: 1 }, "Löparskor": { active: false, order: 1, quantity: 1 }, "Skotork": { active: false, order: 2, quantity: 1 }, "Terrexskor": { active: false, order: 3, quantity: 1 }, "Löparkeps": { active: false, order: 4, quantity: 1 }, "Kängor": { active: false, order: 5, quantity: 1 }, "Flipflop": { active: false, order: 6, quantity: 1 }, "Formgjutna sulor": { active: false, order: 7, quantity: 1 } } },
+            "Trappförråd": { order: 3, items: { "Löparryggsäck": { active: false, order: 0, quantity: 1 }, "Vätskebälte": { active: false, order: 1, quantity: 1 }, "Pannlampa": { active: false, order: 2, quantity: 1 }, "Regnjacka gallon": { active: false, order: 3, quantity: 1 }, "Packpåsar": { active: false, order: 4, quantity: 1 }, "Vattentäta packpåsar": { active: false, order: 5, quantity: 1 } } },
+            "Klädkammare uppe": { order: 4, items: { "Vindjacka": { active: false, order: 0, quantity: 1 }, "Vindstopper tröja": { active: false, order: 1, quantity: 1 }, "Underställ byxor": { active: false, order: 2, quantity: 1 }, "Underställströja ull": { active: false, order: 3, quantity: 1 }, "Underställströja brynja": { active: false, order: 4, quantity: 1 }, "Underställsbyxor trekvarts houdini": { active: false, order: 5, quantity: 1 }, "Underställströjor": { active: false, order: 6, quantity: 1 }, "Norröna byxor": { active: false, order: 7, quantity: 1 }, "Flipflop": { active: false, order: 8, quantity: 1 }, "Regnbyxor tunna": { active: false, order: 9, quantity: 1 }, "Regnjacka goretex": { active: false, order: 10, quantity: 1 }, "Inneskor": { active: false, order: 11, quantity: 1 }, "T-shirts funktion": { active: false, order: 12, quantity: 1 }, "Haglöfs ull T-shirt": { active: false, order: 13, quantity: 1 }, "Dunbyxor": { active: false, order: 14, quantity: 1 }, "Kalsonger träning": { active: false, order: 15, quantity: 1 }, "Strumpor träning": { active: false, order: 16, quantity: 1 }, "Badskor": { active: false, order: 17, quantity: 1 } } },
+            "Sovrum": { order: 5, items: { "Houdini tröja": { active: false, order: 0, quantity: 1 }, "Chinos": { active: false, order: 1, quantity: 1 }, "Tjock fintröja": { active: false, order: 2, quantity: 1 }, "Skjorta": { active: false, order: 3, quantity: 1 }, "Badbyxor": { active: false, order: 4, quantity: 1 }, "Soltröja": { active: false, order: 5, quantity: 1 }, "Shorts": { active: false, order: 6, quantity: 1 }, "Haglöfs tunna byxor grå": { active: false, order: 7, quantity: 1 }, "Tjock soltröja": { active: false, order: 8, quantity: 1 }, "Kalsonger": { active: false, order: 9, quantity: 1 }, "Strumpor": { active: false, order: 10, quantity: 1 }, "T-shirts": { active: false, order: 11, quantity: 1 } } },
+            "Badrum nere": { order: 6, items: { "Pappaplåster": { active: false, order: 0, quantity: 1 }, "Solskyddsmedel": { active: false, order: 1, quantity: 1 } } },
+            "Nere": { order: 7, items: { "Datorunderlägg": { active: false, order: 0, quantity: 1 }, "Laddsladd dator": { active: false, order: 1, quantity: 1 }, "Mössa": { active: false, order: 2, quantity: 1 }, "Vantar": { active: false, order: 3, quantity: 1 }, "Snorkel": { active: false, order: 4, quantity: 1 }, "Cyklop": { active: false, order: 5, quantity: 1 }, "Simglasögon": { active: false, order: 6, quantity: 1 }, "Dunjacka": { active: false, order: 7, quantity: 1 }, "Vattenflaska": { active: false, order: 8, quantity: 1 } } },
+            "Uppe": { order: 8, items: { "Lakan": { active: false, order: 0, quantity: 1 }, "Handduk": { active: false, order: 1, quantity: 1 }, "Handhanduk": { active: false, order: 2, quantity: 1 } } },
+            "Längdskidor": { order: 9, items: { "Skateskidor": { active: false, order: 0, quantity: 1 }, "Klassiska skidor": { active: false, order: 1, quantity: 1 }, "Klassiska stavar": { active: false, order: 2, quantity: 1 }, "Skatestavar": { active: false, order: 3, quantity: 1 }, "Klassiska pjäxor": { active: false, order: 4, quantity: 1 }, "Skatepjäxor": { active: false, order: 5, quantity: 1 }, "Valla": { active: false, order: 6, quantity: 1 }, "Extra plupp till skatepjäxor": { active: false, order: 7, quantity: 1 } } },
+            "Urförskidor": { order: 10, items: { "Alpina skidor": { active: false, order: 0, quantity: 1 }, "Alpina stavar": { active: false, order: 1, quantity: 1 }, "Lavinsändare": { active: false, order: 2, quantity: 1 }, "Lavinsond": { active: false, order: 3, quantity: 1 }, "Lavinspade": { active: false, order: 4, quantity: 1 }, "Liftsittunderlag": { active: false, order: 5, quantity: 1 }, "Ryggskydd": { active: false, order: 6, quantity: 1 }, "Stighudar": { active: false, order: 7, quantity: 1 }, "Skidhjälm": { active: false, order: 8, quantity: 1 }, "Liftkort": { active: false, order: 9, quantity: 1 }, "Skidglasögon": { active: false, order: 10, quantity: 1 } } },
+            "Orientering": { order: 11, items: { "Orienteringstights": { active: false, order: 0, quantity: 1 }, "Orienteringströja": { active: false, order: 1, quantity: 1 }, "Sportidentpinne och kompass": { active: false, order: 2, quantity: 1 }, "Orienteringsskor": { active: false, order: 3, quantity: 1 }, "Extra kompass": { active: false, order: 4, quantity: 1 }, "Laddare gps-klocka": { active: false, order: 5, quantity: 1 }, "GPS-klocka": { active: false, order: 6, quantity: 1 }, "Tensmaskin": { active: false, order: 7, quantity: 1 } } },
+            "Cykel": { order: 12, items: { "Cykelverktyg": { active: false, order: 0, quantity: 1 }, "Cykelbyxor": { active: false, order: 1, quantity: 1 }, "Cykeltröja": { active: false, order: 2, quantity: 1 }, "Cykelhjälm": { active: false, order: 3, quantity: 1 }, "Cykellås": { active: false, order: 4, quantity: 1 }, "Cykelskor": { active: false, order: 5, quantity: 1 } } },
+            "Tältning": { order: 13, items: { "Sovsäck": { active: false, order: 0, quantity: 1 }, "Liggunderlag": { active: false, order: 1, quantity: 1 }, "Presenning": { active: false, order: 2, quantity: 1 }, "Tält": { active: false, order: 3, quantity: 1 } } },
+            "Husvagn": { order: 14, items: { "Tvättlina": { active: false, order: 0, quantity: 1 }, "Campingbord": { active: false, order: 1, quantity: 1 }, "Vattendunkar": { active: false, order: 2, quantity: 1 }, "Campingstol": { active: false, order: 3, quantity: 1 }, "Grenkontakt": { active: false, order: 4, quantity: 1 } } }
         };
 
         function setupFirebaseListeners() {
@@ -789,7 +997,8 @@
                         items: Object.entries(locationData.items || {}).map(([itemName, itemData]) => ({
                             name: itemName,
                             active: itemData.active,
-                            order: itemData.order
+                            order: itemData.order,
+                            quantity: itemData.quantity || 1
                         })).sort((a, b) => a.order - b.order)
                     })).sort((a, b) => a.order - b.order);
                 } else {
@@ -852,6 +1061,15 @@
         }
 
         // App functions
+        function appChangeQty(locIndex, itemIndex, delta) {
+            const item = locations[locIndex].items[itemIndex];
+            const newQty = (item.quantity || 1) + delta;
+            if (newQty >= 1) {
+                item.quantity = newQty;
+                saveAllData();
+            }
+        }
+
         function saveAllData() {
             if (!currentUser) return;
             const data = {};
@@ -863,7 +1081,8 @@
                 location.items.forEach(item => {
                     data[location.name].items[item.name] = {
                         active: item.active,
-                        order: item.order
+                        order: item.order,
+                        quantity: item.quantity || 1
                     };
                 });
             });
@@ -904,7 +1123,16 @@
                     const itemDiv = document.createElement('div');
                     itemDiv.className = `item ${item.active ? 'active' : ''} ${editMode ? 'edit-mode' : ''}`;
 
+                    const qtyHtml = item.active && !editMode ? `
+                        <span class="qty-controls">
+                            <button class="qty-btn minus" onclick="appChangeQty(${locIndex}, ${itemIndex}, -1)">−</button>
+                            <span class="qty-display">${item.quantity || 1}</span>
+                            <button class="qty-btn plus" onclick="appChangeQty(${locIndex}, ${itemIndex}, 1)">+</button>
+                        </span>
+                    ` : '';
+
                     itemDiv.innerHTML = `
+                        ${qtyHtml}
                         <button class="item-button" onclick="appToggleItem(${locIndex}, ${itemIndex})">${item.name}</button>
                         <div class="item-controls edit-hidden">
                             <button class="item-arrow-btn" onclick="appMoveItem(${locIndex}, ${itemIndex}, -1)" ${itemIndex === 0 ? 'disabled' : ''}>⬆️</button>
@@ -952,6 +1180,9 @@
         function appToggleItem(locIndex, itemIndex) {
             if (!editMode) {
                 locations[locIndex].items[itemIndex].active = !locations[locIndex].items[itemIndex].active;
+                if (!locations[locIndex].items[itemIndex].active) {
+                    locations[locIndex].items[itemIndex].quantity = 1;
+                }
                 saveAllData();
 
                 if (!filterActive) {
@@ -1040,7 +1271,8 @@
                 location.items.push({
                     name,
                     active: false,
-                    order: location.items.length
+                    order: location.items.length,
+                    quantity: 1
                 });
                 saveAllData();
             };
@@ -1080,6 +1312,114 @@
             document.getElementById('toggleEdit').textContent = editMode ? 'Klar' : 'Redigera';
             render();
         });
+
+        document.getElementById('saveListBtn').addEventListener('click', () => {
+            dialogCallback = (name) => {
+                appSaveList(name);
+            };
+            document.getElementById('dialogTitle').textContent = 'Spara packlista';
+            document.getElementById('dialogInput').value = '';
+            document.getElementById('inputDialog').classList.add('show');
+            document.getElementById('dialogInput').focus();
+        });
+
+        document.getElementById('savedListsBtn').addEventListener('click', () => {
+            appShowSavedListsModal();
+        });
+
+        function appSaveList(name) {
+            const activeItems = [];
+            locations.forEach(loc => {
+                loc.items.forEach(item => {
+                    if (item.active) {
+                        activeItems.push({
+                            location: loc.name,
+                            name: item.name,
+                            quantity: item.quantity || 1
+                        });
+                    }
+                });
+            });
+            const timestamp = Date.now();
+            database.ref(`users/${currentUser.uid}/savedLists/${timestamp}`).set({
+                name,
+                createdAt: timestamp,
+                items: activeItems
+            });
+            appCloseDialog();
+        }
+
+        function appShowSavedListsModal() {
+            database.ref(`users/${currentUser.uid}/savedLists`).once('value', snapshot => {
+                const lists = snapshot.val();
+                const container = document.getElementById('savedListsContainer');
+                container.innerHTML = '';
+
+                if (!lists || Object.keys(lists).length === 0) {
+                    container.innerHTML = '<div class="no-saved-lists">Ingen sparad packlista än</div>';
+                } else {
+                    Object.entries(lists).forEach(([key, list]) => {
+                        const date = new Date(list.createdAt).toLocaleDateString('sv-SE');
+                        const item = document.createElement('div');
+                        item.className = 'saved-list-item';
+                        item.innerHTML = `
+                            <div class="saved-list-info">
+                                <p class="saved-list-name">${list.name}</p>
+                                <p class="saved-list-date">${date}</p>
+                            </div>
+                            <div class="saved-list-actions">
+                                <button class="load-list-btn" onclick="appLoadList('${key}')">Ladda</button>
+                                <button class="delete-list-btn" onclick="appDeleteList('${key}')">Radera</button>
+                            </div>
+                        `;
+                        container.appendChild(item);
+                    });
+                }
+
+                document.getElementById('savedListsModal').classList.add('show');
+            });
+        }
+
+        function appCloseSavedListsModal() {
+            document.getElementById('savedListsModal').classList.remove('show');
+        }
+
+        function appLoadList(listKey) {
+            database.ref(`users/${currentUser.uid}/savedLists/${listKey}`).once('value', snapshot => {
+                const list = snapshot.val();
+                if (list && list.items) {
+                    // Deactivate all items
+                    locations.forEach(loc => {
+                        loc.items.forEach(item => {
+                            item.active = false;
+                            item.quantity = 1;
+                        });
+                    });
+
+                    // Activate and set quantity for saved items
+                    list.items.forEach(saved => {
+                        const loc = locations.find(l => l.name === saved.location);
+                        if (loc) {
+                            const item = loc.items.find(i => i.name === saved.name);
+                            if (item) {
+                                item.active = true;
+                                item.quantity = saved.quantity || 1;
+                            }
+                        }
+                    });
+
+                    saveAllData();
+                    appCloseSavedListsModal();
+                }
+            });
+        }
+
+        function appDeleteList(listKey) {
+            if (confirm('Vill du radera denna packlista?')) {
+                database.ref(`users/${currentUser.uid}/savedLists/${listKey}`).remove();
+                appShowSavedListsModal();
+            }
+        }
     </script>
 </body>
 </html>
