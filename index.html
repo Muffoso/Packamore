@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Packarizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Righteous:wght@400;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -12,10 +13,11 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: #f5f5f5;
+            font-family: 'Righteous', sans-serif;
+            background: #ededed;
             padding: 10px;
             padding-bottom: 100px;
+            color: #102937;
         }
 
         .auth-screen {
@@ -23,14 +25,14 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background: linear-gradient(135deg, #c9b8a8 0%, #a89f8f 100%);
+            background: linear-gradient(135deg, #102937 0%, #091d26 100%);
         }
 
         .auth-container {
-            background: white;
+            background: #ededed;
             padding: 30px;
             border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
             width: 90%;
             max-width: 400px;
         }
@@ -38,8 +40,8 @@
         .auth-container h1 {
             text-align: center;
             margin-bottom: 30px;
-            color: #3d3d3d;
-            font-size: 24px;
+            color: #102937;
+            font-size: 32px;
         }
 
         .auth-form {
@@ -50,16 +52,18 @@
 
         .auth-form input {
             padding: 12px;
-            border: 1px solid #ddd;
+            border: 2px solid #102937;
             border-radius: 5px;
             font-size: 16px;
             width: 100%;
+            background: #ffffff;
+            color: #102937;
         }
 
         .auth-form input:focus {
             outline: none;
-            border-color: #9d8b7e;
-            box-shadow: 0 0 0 3px rgba(157, 139, 126, 0.1);
+            border-color: #f9744b;
+            box-shadow: 0 0 0 3px rgba(249, 116, 75, 0.1);
         }
 
         .auth-buttons {
@@ -76,55 +80,60 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            font-family: 'Righteous', sans-serif;
         }
 
         .auth-btn.primary {
-            background: #7a9b76;
-            color: white;
+            background: #102937;
+            color: #ededed;
         }
 
         .auth-btn.primary:hover {
-            background: #6a8b66;
+            background: #091d26;
+            transform: translateY(-2px);
         }
 
         .auth-btn.secondary {
-            background: #9d8b7e;
+            background: #f9744b;
             color: white;
         }
 
         .auth-btn.secondary:hover {
-            background: #8a7968;
+            background: #d84f2a;
+            transform: translateY(-2px);
         }
 
         .auth-btn.google {
-            background: white;
-            color: #3d3d3d;
-            border: 1px solid #ddd;
+            background: #ffffff;
+            color: #102937;
+            border: 2px solid #102937;
         }
 
         .auth-btn.google:hover {
-            background: #f9f9f9;
+            background: #102937;
+            color: #ffffff;
         }
 
         .auth-toggle {
             text-align: center;
             margin-top: 20px;
-            color: #666;
+            color: #102937;
             font-size: 14px;
         }
 
         .auth-toggle button {
             background: none;
             border: none;
-            color: #7a9b76;
+            color: #f9744b;
             cursor: pointer;
             text-decoration: underline;
             padding: 0;
             font-size: 14px;
+            font-family: 'Righteous', sans-serif;
         }
 
         .auth-error {
-            color: #ef4444;
+            color: #d84f2a;
             font-size: 14px;
             text-align: center;
         }
@@ -135,6 +144,7 @@
 
         .app-screen {
             display: none;
+            padding-top: 140px;
         }
 
         .app-screen.show {
@@ -147,17 +157,18 @@
             left: 0;
             right: 0;
             z-index: 1000;
-            background: linear-gradient(135deg, #c9b8a8 0%, #a89f8f 100%);
-            color: #3d3d3d;
+            background: linear-gradient(135deg, #102937 0%, #091d26 100%);
+            color: #ededed;
             padding: 15px 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
         .header h1 {
-            font-size: 24px;
+            font-size: 32px;
             margin: 0 0 10px 0;
-            font-weight: 600;
+            font-weight: 700;
             text-align: center;
+            color: #f9744b;
         }
 
         .header-content {
@@ -171,7 +182,7 @@
         .user-section {
             text-align: center;
             font-size: 13px;
-            color: #3d3d3d;
+            color: #ededed;
         }
 
         .header-controls {
@@ -179,26 +190,6 @@
             gap: 10px;
             justify-content: center;
             align-items: center;
-        }
-
-        .logout-btn {
-            padding: 8px 15px;
-            background: white;
-            color: #3d3d3d;
-            border: 1px solid #3d3d3d;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s ease;
-        }
-
-        .logout-btn:hover {
-            background: #3d3d3d;
-            color: white;
-        }
-
-        .app-screen {
-            padding-top: 140px;
         }
 
         button {
@@ -209,36 +200,53 @@
             cursor: pointer;
             font-weight: 600;
             transition: all 0.3s ease;
+            font-family: 'Righteous', sans-serif;
         }
 
         .toggle-filter {
-            background: #9d8b7e;
+            background: #124d54;
             color: white;
             padding: 8px 15px;
             font-size: 13px;
         }
 
         .toggle-filter:hover {
-            background: #8a7968;
+            background: #094044;
         }
 
         .toggle-filter.active {
-            background: #7a9b76;
+            background: #f9744b;
         }
 
         .toggle-edit {
-            background: #c4a878;
+            background: #124d54;
             color: white;
             padding: 8px 15px;
             font-size: 13px;
         }
 
         .toggle-edit:hover {
-            background: #b39666;
+            background: #094044;
         }
 
         .toggle-edit.active {
-            background: #b39666;
+            background: #f9744b;
+        }
+
+        .logout-btn {
+            padding: 8px 15px;
+            background: #f9744b;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+            font-family: 'Righteous', sans-serif;
+        }
+
+        .logout-btn:hover {
+            background: #d84f2a;
         }
 
         .container {
@@ -247,7 +255,7 @@
         }
 
         .location-section {
-            background: white;
+            background: #ffffff;
             border-radius: 10px;
             margin-bottom: 20px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -255,8 +263,8 @@
         }
 
         .location-header {
-            background: linear-gradient(135deg, #9d8b7e 0%, #8a7968 100%);
-            color: white;
+            background: linear-gradient(135deg, #102937 0%, #091d26 100%);
+            color: #f9744b;
             padding: 15px;
             font-weight: 600;
             font-size: 18px;
@@ -281,8 +289,8 @@
         }
 
         .arrow-btn {
-            background: rgba(255,255,255,0.2);
-            color: white;
+            background: rgba(249, 116, 75, 0.2);
+            color: #f9744b;
             padding: 5px 10px;
             border-radius: 5px;
             font-size: 14px;
@@ -292,11 +300,11 @@
         }
 
         .arrow-btn:hover {
-            background: rgba(255,255,255,0.4);
+            background: rgba(249, 116, 75, 0.4);
         }
 
         .delete-location-btn {
-            background: #ef4444;
+            background: #d84f2a;
             color: white;
             padding: 5px 10px;
             border-radius: 5px;
@@ -307,7 +315,7 @@
         }
 
         .delete-location-btn:hover {
-            background: #dc2626;
+            background: #b53a1f;
         }
 
         .items-list {
@@ -323,7 +331,7 @@
             display: flex;
             align-items: center;
             padding: 12px;
-            border-bottom: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e1d9cf;
             gap: 10px;
             transition: background 0.2s;
         }
@@ -333,11 +341,11 @@
         }
 
         .item.active {
-            background: #e8f0e5;
+            background: #124d54;
         }
 
         .item:hover {
-            background: #f9fafb;
+            background: #f5f5f5;
         }
 
         .item.edit-mode:hover {
@@ -349,26 +357,28 @@
             padding: 12px;
             text-align: left;
             background: none;
-            border: 2px solid #e5e7eb;
+            border: 2px solid #102937;
             border-radius: 8px;
             cursor: pointer;
             font-size: 16px;
             transition: all 0.2s;
+            color: #102937;
+            font-family: 'Righteous', sans-serif;
         }
 
         .item.active .item-button {
-            background: #7a9b76;
-            color: white;
-            border-color: #7a9b76;
+            background: #124d54;
+            color: #ededed;
+            border-color: #124d54;
         }
 
         .item-button:hover {
-            border-color: #9d8b7e;
+            border-color: #f9744b;
         }
 
         .item.edit-mode .item-button {
             cursor: grab;
-            border: 2px dashed #999;
+            border: 2px dashed #102937;
         }
 
         .item.edit-mode .item-button:active {
@@ -389,7 +399,7 @@
         }
 
         .item-arrow-btn {
-            background: #9d8b7e;
+            background: #124d54;
             color: white;
             padding: 8px 12px;
             border-radius: 5px;
@@ -400,11 +410,11 @@
         }
 
         .item-arrow-btn:hover {
-            background: #8a7968;
+            background: #094044;
         }
 
         .delete-item-btn {
-            background: #ef4444;
+            background: #d84f2a;
             color: white;
             padding: 8px 12px;
             border-radius: 5px;
@@ -415,11 +425,11 @@
         }
 
         .delete-item-btn:hover {
-            background: #dc2626;
+            background: #b53a1f;
         }
 
         .add-item-btn {
-            background: #7a9b76;
+            background: #124d54;
             color: white;
             padding: 8px 12px;
             border-radius: 5px;
@@ -429,14 +439,15 @@
             transition: background 0.2s;
             width: 100%;
             margin-top: 10px;
+            font-family: 'Righteous', sans-serif;
         }
 
         .add-item-btn:hover {
-            background: #6a8b66;
+            background: #094044;
         }
 
         .add-location-btn {
-            background: #7a9b76;
+            background: #124d54;
             color: white;
             padding: 12px 20px;
             border-radius: 8px;
@@ -446,10 +457,11 @@
             transition: background 0.2s;
             width: 100%;
             margin-top: 20px;
+            font-family: 'Righteous', sans-serif;
         }
 
         .add-location-btn:hover {
-            background: #6a8b66;
+            background: #094044;
         }
 
         .input-dialog {
@@ -470,7 +482,7 @@
         }
 
         .dialog-content {
-            background: white;
+            background: #ededed;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 20px 25px rgba(0,0,0,0.15);
@@ -480,16 +492,18 @@
 
         .dialog-content h2 {
             margin-bottom: 15px;
-            color: #333;
+            color: #102937;
         }
 
         .dialog-content input {
             width: 100%;
             padding: 10px;
             margin-bottom: 15px;
-            border: 1px solid #ddd;
+            border: 2px solid #102937;
             border-radius: 5px;
             font-size: 16px;
+            background: #ffffff;
+            color: #102937;
         }
 
         .dialog-buttons {
@@ -500,16 +514,25 @@
         .dialog-buttons button {
             flex: 1;
             padding: 10px;
+            font-family: 'Righteous', sans-serif;
         }
 
         .dialog-buttons .cancel-btn {
-            background: #9d8b7e;
+            background: #124d54;
             color: white;
         }
 
+        .dialog-buttons .cancel-btn:hover {
+            background: #094044;
+        }
+
         .dialog-buttons .confirm-btn {
-            background: #7a9b76;
+            background: #f9744b;
             color: white;
+        }
+
+        .dialog-buttons .confirm-btn:hover {
+            background: #d84f2a;
         }
 
         .filter-active-only {
@@ -548,7 +571,7 @@
                     <input type="email" id="email" placeholder="Email" />
                     <input type="password" id="password" placeholder="Lösenord" />
                     <button class="auth-btn primary" onclick="appLogin()">Logga in</button>
-                    <button class="auth-btn google" onclick="appGoogleSignIn()">🔐 Logga in med Google</button>
+                    <button class="auth-btn google" onclick="appGoogleSignIn()">Logga in med Google</button>
                     <div class="auth-error" id="authError"></div>
                 </div>
                 <div class="auth-toggle">
@@ -562,7 +585,7 @@
                     <input type="password" id="regPassword" placeholder="Lösenord (minst 6 tecken)" />
                     <input type="password" id="regPasswordConfirm" placeholder="Bekräfta lösenord" />
                     <button class="auth-btn primary" onclick="appRegister()">Skapa konto</button>
-                    <button class="auth-btn google" onclick="appGoogleSignIn()">🔐 Registrera med Google</button>
+                    <button class="auth-btn google" onclick="appGoogleSignIn()">Registrera med Google</button>
                     <div class="auth-error" id="authError2"></div>
                 </div>
                 <div class="auth-toggle">
