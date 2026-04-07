@@ -142,30 +142,43 @@
         }
 
         .header {
-            text-align: center;
-            margin-bottom: 20px;
-            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
             background: linear-gradient(135deg, #c9b8a8 0%, #a89f8f 100%);
             color: #3d3d3d;
-            border-radius: 10px;
+            padding: 15px 10px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
         .header h1 {
-            font-size: 28px;
-            margin: 0;
+            font-size: 24px;
+            margin: 0 0 10px 0;
             font-weight: 600;
+            text-align: center;
         }
 
-        .user-info {
+        .header-content {
             display: flex;
-            align-items: center;
+            flex-direction: column;
             gap: 10px;
-            font-size: 14px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .user-section {
+            text-align: center;
+            font-size: 13px;
             color: #3d3d3d;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
         }
 
         .logout-btn {
@@ -175,7 +188,7 @@
             border: 1px solid #3d3d3d;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             transition: all 0.3s ease;
         }
 
@@ -184,36 +197,29 @@
             color: white;
         }
 
-        .controls {
-            display: flex;
-            gap: 10px;
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 100;
+        .app-screen {
+            padding-top: 140px;
         }
 
         button {
             padding: 12px 20px;
             font-size: 16px;
             border: none;
-            border-radius: 50px;
+            border-radius: 5px;
             cursor: pointer;
             font-weight: 600;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.15);
             transition: all 0.3s ease;
         }
 
         .toggle-filter {
             background: #9d8b7e;
             color: white;
+            padding: 8px 15px;
+            font-size: 13px;
         }
 
         .toggle-filter:hover {
             background: #8a7968;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(157, 139, 126, 0.4);
         }
 
         .toggle-filter.active {
@@ -223,12 +229,12 @@
         .toggle-edit {
             background: #c4a878;
             color: white;
+            padding: 8px 15px;
+            font-size: 13px;
         }
 
         .toggle-edit:hover {
             background: #b39666;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(196, 168, 120, 0.4);
         }
 
         .toggle-edit.active {
@@ -570,18 +576,19 @@
     <div class="app-screen" id="appScreen">
         <div class="header">
             <h1>Packarizer</h1>
-            <div class="user-info">
-                <span id="userEmail"></span>
-                <button class="logout-btn" onclick="appLogout()">Logga ut</button>
+            <div class="header-content">
+                <div class="user-section">
+                    <div id="userEmail"></div>
+                </div>
+                <div class="header-controls">
+                    <button class="toggle-filter" id="toggleFilter" title="Visa endast aktiva saker">Visa alla</button>
+                    <button class="toggle-edit" id="toggleEdit" title="Redigeringsläge">Redigera</button>
+                    <button class="logout-btn" onclick="appLogout()">Logga ut</button>
+                </div>
             </div>
         </div>
 
         <div class="container" id="container"></div>
-
-        <div class="controls">
-            <button class="toggle-filter" id="toggleFilter" title="Visa endast aktiva saker">📋 Aktiva</button>
-            <button class="toggle-edit" id="toggleEdit" title="Redigeringsläge">✏️ Redigera</button>
-        </div>
 
         <div class="input-dialog" id="inputDialog">
             <div class="dialog-content">
@@ -672,7 +679,9 @@
                     editMode = false;
                     filterActive = false;
                     document.getElementById('toggleFilter').classList.remove('active');
+                    document.getElementById('toggleFilter').textContent = 'Visa valda';
                     document.getElementById('toggleEdit').classList.remove('active');
+                    document.getElementById('toggleEdit').textContent = 'Redigera';
                 } else {
                     currentUser = null;
                     locations = [];
@@ -992,12 +1001,14 @@
         document.getElementById('toggleFilter').addEventListener('click', () => {
             filterActive = !filterActive;
             document.getElementById('toggleFilter').classList.toggle('active', filterActive);
+            document.getElementById('toggleFilter').textContent = filterActive ? 'Visa alla' : 'Visa valda';
             render();
         });
 
         document.getElementById('toggleEdit').addEventListener('click', () => {
             editMode = !editMode;
             document.getElementById('toggleEdit').classList.toggle('active', editMode);
+            document.getElementById('toggleEdit').textContent = editMode ? 'Klar' : 'Redigera';
             render();
         });
     </script>
