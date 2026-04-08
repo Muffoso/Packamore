@@ -181,11 +181,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            gap: 12px;
         }
 
         .header h1 {
             font-size: 32px;
-            margin: 0 0 0 0;
+            margin: 0;
+            padding: 0;
             font-weight: 700;
             text-align: center;
             color: #bfdbdd;
@@ -194,7 +196,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 0;
         }
 
         .h1-text-wrapper {
@@ -233,7 +235,7 @@
             flex-direction: column;
             gap: 10px;
             max-width: 800px;
-            margin: 0 auto;
+            margin: 8px auto 0 auto;
         }
 
         .user-section {
@@ -276,6 +278,26 @@
             font-weight: 600;
             color: #e6eaef;
             letter-spacing: 0.5px;
+        }
+
+        .lists-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #e6eaef;
+            letter-spacing: 0.5px;
+        }
+
+        .lists-buttons-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .lists-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
         }
 
         .filter-buttons {
@@ -992,28 +1014,33 @@
     <div class="app-screen" id="appScreen">
         <div class="header">
             <div class="header-top">
+                <div class="header-logo">
+                    <img src="logo.png" alt="Packarizer logo" />
+                </div>
                 <h1>
-                    <div class="header-logo">
-                        <img src="logo.png" alt="Packarizer logo" />
-                    </div>
                     <div class="h1-text-wrapper">
                         <div>PACKARIZER</div>
                         <div class="user-email" id="userEmail"></div>
                     </div>
-                    <button class="logout-btn" onclick="appLogout()">Logga ut</button>
                 </h1>
+                <button class="logout-btn" onclick="appLogout()">Logga ut</button>
             </div>
             <div class="header-content">
                 <div class="header-controls">
                     <div class="filter-buttons-group">
-                        <div class="filter-label">Visa</div>
+                        <div class="filter-label">Visa saker</div>
                         <div class="filter-buttons">
                             <button class="filter-btn all-btn active" id="filterAllBtn" title="Visa alla saker" onclick="appSetFilter('all')">Alla (<span id="totalCount">0</span>)</button>
                             <button class="filter-btn selected-btn" id="filterSelectedBtn" title="Visa endast valda saker" onclick="appSetFilter('selected')">Valda (<span id="selectedCount">0</span>)</button>
                         </div>
                     </div>
-                    <button class="save-list-btn" id="saveListBtn" title="Spara nuvarande val">Spara</button>
-                    <button class="saved-lists-btn" id="savedListsBtn" title="Visa sparade packlistor">Sparade</button>
+                    <div class="lists-buttons-group">
+                        <div class="lists-label">Listor</div>
+                        <div class="lists-buttons">
+                            <button class="save-list-btn" id="saveListBtn" title="Spara nuvarande val">Spara</button>
+                            <button class="saved-lists-btn" id="savedListsBtn" title="Visa sparade packlistor">Sparade</button>
+                        </div>
+                    </div>
                     <button class="toggle-edit" id="toggleEdit" title="Redigeringsläge">Redigera</button>
                 </div>
             </div>
