@@ -177,9 +177,15 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
+        .header-top {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
         .header h1 {
             font-size: 32px;
-            margin: 0 0 10px 0;
+            margin: 0 0 0 0;
             font-weight: 700;
             text-align: center;
             color: #bfdbdd;
@@ -189,6 +195,22 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
+        }
+
+        .h1-text-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1px;
+        }
+
+        .user-email {
+            font-size: 12px;
+            color: #e6eaef;
+            font-family: 'Inter', sans-serif;
+            letter-spacing: normal;
+            font-weight: 400;
+            line-height: 1;
         }
 
         .header-logo {
@@ -242,18 +264,44 @@
             font-family: 'Inter', sans-serif;
         }
 
-        .toggle-filter {
-            background: #21664d;
-            color: #f2f0e4;
-            padding: 8px 15px;
-            font-size: 13px;
+        .filter-buttons-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
         }
 
-        .toggle-filter:hover {
+        .filter-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #e6eaef;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .filter-btn {
+            background: #21664d;
+            color: #f2f0e4;
+            padding: 6px 12px;
+            font-size: 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+        }
+
+        .filter-btn:hover {
             background: #15543c;
         }
 
-        .toggle-filter.active {
+        .filter-btn.active {
             background: #bfdbdd;
             color: #045149;
         }
@@ -314,10 +362,16 @@
 
         .qty-controls {
             display: flex;
+            gap: 6px;
+            align-items: center;
+            margin-right: 8px;
+        }
+
+        .qty-buttons {
+            display: flex;
             flex-direction: column;
             gap: 3px;
             align-items: center;
-            margin-right: 8px;
         }
 
         .qty-btn {
@@ -937,19 +991,27 @@
     <!-- App Screen -->
     <div class="app-screen" id="appScreen">
         <div class="header">
-            <h1>
-                <div class="header-logo">
-                    <img src="logo.png" alt="Packarizer logo" />
-                </div>
-                PACKARIZER
-                <button class="logout-btn" onclick="appLogout()">Logga ut</button>
-            </h1>
+            <div class="header-top">
+                <h1>
+                    <div class="header-logo">
+                        <img src="logo.png" alt="Packarizer logo" />
+                    </div>
+                    <div class="h1-text-wrapper">
+                        <div>PACKARIZER</div>
+                        <div class="user-email" id="userEmail"></div>
+                    </div>
+                    <button class="logout-btn" onclick="appLogout()">Logga ut</button>
+                </h1>
+            </div>
             <div class="header-content">
-                <div class="user-section">
-                    <span id="userEmail"></span>
-                </div>
                 <div class="header-controls">
-                    <button class="toggle-filter" id="toggleFilter" title="Visa endast aktiva saker">Visa alla</button>
+                    <div class="filter-buttons-group">
+                        <div class="filter-label">Visa</div>
+                        <div class="filter-buttons">
+                            <button class="filter-btn all-btn active" id="filterAllBtn" title="Visa alla saker" onclick="appSetFilter('all')">Alla (<span id="totalCount">0</span>)</button>
+                            <button class="filter-btn selected-btn" id="filterSelectedBtn" title="Visa endast valda saker" onclick="appSetFilter('selected')">Valda (<span id="selectedCount">0</span>)</button>
+                        </div>
+                    </div>
                     <button class="save-list-btn" id="saveListBtn" title="Spara nuvarande val">Spara</button>
                     <button class="saved-lists-btn" id="savedListsBtn" title="Visa sparade packlistor">Sparade</button>
                     <button class="toggle-edit" id="toggleEdit" title="Redigeringsläge">Redigera</button>
@@ -1080,8 +1142,8 @@
                     listenToDataChanges(user);
                     editMode = false;
                     filterActive = false;
-                    document.getElementById('toggleFilter').classList.remove('active');
-                    document.getElementById('toggleFilter').textContent = 'Visa valda';
+                    document.getElementById('filterAllBtn').classList.add('active');
+                    document.getElementById('filterSelectedBtn').classList.remove('active');
                     document.getElementById('toggleEdit').classList.remove('active');
                     document.getElementById('toggleEdit').textContent = 'Redigera';
                 } else {
@@ -1250,9 +1312,11 @@
 
                     const qtyHtml = item.active && !editMode ? `
                         <span class="qty-controls">
-                            <button class="qty-btn plus" onclick="appChangeQty(${locIndex}, ${itemIndex}, 1)">+</button>
+                            <div class="qty-buttons">
+                                <button class="qty-btn plus" onclick="appChangeQty(${locIndex}, ${itemIndex}, 1)">+</button>
+                                <button class="qty-btn minus" onclick="appChangeQty(${locIndex}, ${itemIndex}, -1)">−</button>
+                            </div>
                             <span class="qty-display">${item.quantity || 1}</span>
-                            <button class="qty-btn minus" onclick="appChangeQty(${locIndex}, ${itemIndex}, -1)">−</button>
                         </span>
                     ` : '';
 
@@ -1300,6 +1364,8 @@
             } else {
                 container.classList.remove('edit-mode');
             }
+
+            appUpdateFilterCounts();
         }
 
         function appToggleItem(locIndex, itemIndex) {
@@ -1424,12 +1490,20 @@
             if (e.key === 'Enter') appConfirmDialog();
         });
 
-        document.getElementById('toggleFilter').addEventListener('click', () => {
-            filterActive = !filterActive;
-            document.getElementById('toggleFilter').classList.toggle('active', filterActive);
-            document.getElementById('toggleFilter').textContent = filterActive ? 'Visa alla' : 'Visa valda';
+        function appSetFilter(mode) {
+            filterActive = (mode === 'selected');
+            document.getElementById('filterAllBtn').classList.toggle('active', mode === 'all');
+            document.getElementById('filterSelectedBtn').classList.toggle('active', mode === 'selected');
+            appUpdateFilterCounts();
             render();
-        });
+        }
+
+        function appUpdateFilterCounts() {
+            const totalCount = locations.reduce((sum, loc) => sum + loc.items.length, 0);
+            const selectedCount = locations.reduce((sum, loc) => sum + loc.items.filter(i => i.active).length, 0);
+            document.getElementById('totalCount').textContent = totalCount;
+            document.getElementById('selectedCount').textContent = selectedCount;
+        }
 
         document.getElementById('toggleEdit').addEventListener('click', () => {
             editMode = !editMode;
@@ -1485,31 +1559,7 @@
             ]).then(([ownSnapshot, incomingSnapshot]) => {
                 container.innerHTML = '';
 
-                // Own saved lists
-                const lists = ownSnapshot.val();
-                if (!lists || Object.keys(lists).length === 0) {
-                    container.innerHTML = '<div class="no-saved-lists">Ingen sparad packlista än</div>';
-                } else {
-                    Object.entries(lists).forEach(([key, list]) => {
-                        const date = new Date(list.createdAt).toLocaleDateString('sv-SE');
-                        const item = document.createElement('div');
-                        item.className = 'saved-list-item';
-                        item.innerHTML = `
-                            <div class="saved-list-info">
-                                <p class="saved-list-name">${list.name}</p>
-                                <p class="saved-list-date">${date}</p>
-                            </div>
-                            <div class="saved-list-actions">
-                                <button class="load-list-btn" onclick="appLoadList('${key}')">Ladda</button>
-                                <button class="share-list-btn" onclick="appOpenShareDialog('${key}', '${list.name.replace(/'/g, "\\'")}')">Dela</button>
-                                <button class="delete-list-btn" onclick="appDeleteList('${key}')">Radera</button>
-                            </div>
-                        `;
-                        container.appendChild(item);
-                    });
-                }
-
-                // Incoming shared lists
+                // Incoming shared lists (show first)
                 const incoming = incomingSnapshot.val();
                 if (incoming) {
                     const pendingEntries = Object.entries(incoming).filter(([, v]) => v.status === 'pending');
@@ -1534,6 +1584,34 @@
                             container.appendChild(incomingDiv);
                         });
                     }
+                }
+
+                // Own saved lists (sorted by createdAt, newest first)
+                const lists = ownSnapshot.val();
+                if (!lists || Object.keys(lists).length === 0) {
+                    if (!container.hasChildNodes()) {
+                        container.innerHTML = '<div class="no-saved-lists">Ingen sparad packlista än</div>';
+                    }
+                } else {
+                    // Sort by createdAt in descending order (newest first)
+                    const sortedEntries = Object.entries(lists).sort((a, b) => b[1].createdAt - a[1].createdAt);
+                    sortedEntries.forEach(([key, list]) => {
+                        const date = new Date(list.createdAt).toLocaleDateString('sv-SE');
+                        const item = document.createElement('div');
+                        item.className = 'saved-list-item';
+                        item.innerHTML = `
+                            <div class="saved-list-info">
+                                <p class="saved-list-name">${list.name}</p>
+                                <p class="saved-list-date">${date}</p>
+                            </div>
+                            <div class="saved-list-actions">
+                                <button class="load-list-btn" onclick="appLoadList('${key}')">Ladda</button>
+                                <button class="share-list-btn" onclick="appOpenShareDialog('${key}', '${list.name.replace(/'/g, "\\'")}')">Dela</button>
+                                <button class="delete-list-btn" onclick="appDeleteList('${key}')">Radera</button>
+                            </div>
+                        `;
+                        container.appendChild(item);
+                    });
                 }
             });
         }
