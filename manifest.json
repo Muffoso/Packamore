@@ -1,7 +1,7 @@
 {
-  "name": "Packarizer",
-  "short_name": "Packarizer",
-  "description": "Packarizer - Packlista organizer",
+  "name": "Packamore",
+  "short_name": "Packamore",
+  "description": "Packamore - Packlista organizer",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
