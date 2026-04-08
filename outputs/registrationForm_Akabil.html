@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Åka bil - Registrering</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: #fff;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            animation: fadeIn 0.6s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeUp 0.8s ease-out 0.2s backwards;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #1DB5A0;
+            text-shadow: 0 2px 10px rgba(29, 181, 160, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            color: #b0bfd9;
+            font-style: italic;
+        }
+
+        .info-card {
+            background: rgba(29, 181, 160, 0.1);
+            border: 1px solid rgba(29, 181, 160, 0.3);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            backdrop-filter: blur(10px);
+            animation: fadeUp 0.8s ease-out 0.4s backwards;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            font-size: 0.95em;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            color: #1DB5A0;
+            font-weight: 600;
+            margin-bottom: 4px;
+            font-size: 0.85em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            color: #e0e8f0;
+        }
+
+        .registration-card {
+            background: rgba(29, 181, 160, 0.15);
+            border: 1px solid rgba(29, 181, 160, 0.4);
+            border-radius: 16px;
+            padding: 32px;
+            backdrop-filter: blur(10px);
+            animation: fadeUp 0.8s ease-out 0.6s backwards;
+        }
+
+        .registration-card h2 {
+            font-size: 1.5em;
+            margin-bottom: 24px;
+            color: #1DB5A0;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #e0e8f0;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(29, 181, 160, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #1DB5A0;
+            box-shadow: 0 0 0 3px rgba(29, 181, 160, 0.2);
+        }
+
+        input::placeholder {
+            color: #7a8a9e;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        button {
+            flex: 1;
+            padding: 14px 24px;
+            font-size: 1em;
+            font-weight: 600;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-family: inherit;
+            min-height: 48px;
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, #1DB5A0 0%, #16a890 100%);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(29, 181, 160, 0.3);
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(29, 181, 160, 0.4);
+        }
+
+        .btn-register:active {
+            transform: translateY(0);
+        }
+
+        .btn-admin {
+            background: rgba(255, 255, 255, 0.1);
+            color: #b0bfd9;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .btn-admin:hover {
+            background: rgba(255, 255, 255, 0.15);
+            color: #fff;
+        }
+
+        .participants-section {
+            margin-top: 32px;
+            text-align: center;
+        }
+
+        .participants-title {
+            color: #1DB5A0;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .participant-slots {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .slot {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 2px solid rgba(29, 181, 160, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4em;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .slot.filled {
+            background: rgba(29, 181, 160, 0.3);
+            border-color: #1DB5A0;
+        }
+
+        .slot.empty {
+            background: transparent;
+            color: #1DB5A0;
+        }
+
+        .slot.min-required {
+            border-top: 3px solid #1DB5A0;
+            border-top-width: 4px;
+        }
+
+        .remaining-slots {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: #1DB5A0;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .remaining-text {
+            font-size: 0.85em;
+            color: #b0bfd9;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            font-size: 0.95em;
+            display: none;
+            animation: fadeUp 0.3s ease-out;
+        }
+
+        .message.success {
+            background: rgba(76, 175, 80, 0.2);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+            color: #c8e6c9;
+            display: block;
+        }
+
+        .message.error {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+            color: #ef9a9a;
+            display: block;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(29, 181, 160, 0.3);
+            border-top: 2px solid #1DB5A0;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading {
+            text-align: center;
+            color: #b0bfd9;
+            font-size: 0.9em;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            border: 1px solid rgba(29, 181, 160, 0.3);
+            border-radius: 16px;
+            padding: 32px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: fadeUp 0.3s ease-out;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .modal-header h2 {
+            color: #1DB5A0;
+            font-size: 1.5em;
+            margin: 0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #b0bfd9;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: color 0.3s ease;
+        }
+
+        .close-btn:hover {
+            color: #1DB5A0;
+        }
+
+        .admin-form {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .admin-form input {
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(29, 181, 160, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1em;
+            font-family: inherit;
+        }
+
+        .admin-form input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #1DB5A0;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #1DB5A0 0%, #16a890 100%);
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(29, 181, 160, 0.4);
+        }
+
+        .participants-list {
+            text-align: left;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .participant-item {
+            background: rgba(29, 181, 160, 0.1);
+            border: 1px solid rgba(29, 181, 160, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            animation: fadeUp 0.3s ease-out;
+        }
+
+        .participant-name {
+            color: #e0e8f0;
+            font-weight: 500;
+        }
+
+        .participant-number {
+            color: #1DB5A0;
+            font-size: 0.85em;
+            font-weight: 600;
+            background: rgba(29, 181, 160, 0.2);
+            padding: 4px 8px;
+            border-radius: 4px;
+            margin-right: 12px;
+        }
+
+        .btn-delete {
+            background: rgba(244, 67, 54, 0.2);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+            color: #ef9a9a;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+        }
+
+        .btn-delete:hover {
+            background: rgba(244, 67, 54, 0.3);
+            color: #ffcdd2;
+        }
+
+        .participant-count {
+            text-align: center;
+            color: #b0bfd9;
+            margin-bottom: 24px;
+            font-weight: 600;
+        }
+
+        .participant-count .current {
+            color: #1DB5A0;
+            font-size: 1.3em;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .registration-card {
+                padding: 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .modal-content {
+                width: 95%;
+                padding: 20px;
+            }
+
+            .participant-slots {
+                gap: 8px;
+            }
+
+            .slot {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 id="eventName">Åka bil</h1>
+            <p id="eventIntro">Nu åker vi hem!</p>
+        </div>
+
+        <div class="info-card">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">📅 Datum</span>
+                    <span class="info-value" id="eventDate">Onsdag, 9 april 2026</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">🕐 Tid</span>
+                    <span class="info-value" id="eventTime">13:00 - 16:00</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">📍 Plats</span>
+                    <span class="info-value" id="eventLocation">Barkarbacken</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">💵 Pris</span>
+                    <span class="info-value" id="eventPrice">400 kr</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="registration-card">
+            <h2>Anmäl dig</h2>
+
+            <div id="message" class="message"></div>
+
+            <div class="form-group">
+                <label for="nameInput">Namn *</label>
+                <input
+                    type="text"
+                    id="nameInput"
+                    placeholder="Ditt namn"
+                    aria-label="Deltagarnamn"
+                >
+            </div>
+
+            <div class="button-group">
+                <button class="btn-register" id="registerBtn">Anmäl mig</button>
+                <button class="btn-admin" id="adminBtn">Admin</button>
+            </div>
+
+            <div class="participants-section">
+                <div class="participants-title">Anmälda platser</div>
+                <div id="participantSlots" class="participant-slots">
+                    <div class="spinner"></div>
+                </div>
+                <div class="remaining-slots" id="remainingCount">–</div>
+                <div class="remaining-text">platser kvar</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Admin Panel</h2>
+                <button class="close-btn" id="closeModalBtn">&times;</button>
+            </div>
+
+            <div id="adminLoginForm" class="admin-form">
+                <label for="adminPassword">Admin-lösenord</label>
+                <input
+                    type="password"
+                    id="adminPassword"
+                    placeholder="Ange lösenord"
+                    aria-label="Admin-lösenord"
+                >
+                <button class="btn-login" id="loginBtn">Logga in</button>
+            </div>
+
+            <div id="adminContent" style="display: none;">
+                <div class="participant-count">
+                    Anmälda: <span class="current" id="participantCountDisplay">0</span> / <span id="maxParticipants">4</span>
+                </div>
+                <div id="adminParticipantsList" class="participants-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAgD57MKlgqysUnR-pb559dZRBNRZwXD8",
+            authDomain: "testelura.firebaseapp.com",
+            databaseURL: "https://testelura-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "testelura",
+            storageBucket: "testelura.firebasestorage.app",
+            messagingSenderId: "670408355011",
+            appId: "1:670408355011:web:d20002768f3f69869dc676"
+        };
+
+        // EVENT CONFIGURATION
+        const CONFIG = {
+            eventName: "Åka bil",
+            eventIntroInfo: "Nu åker vi hem!",
+            eventDate: "Onsdag, 9 april 2026",
+            eventTime: "13:00 - 16:00",
+            eventLocation: "Barkarbacken",
+            eventPrice: "400 kr",
+            minParticipants: 1,
+            maxParticipants: 4,
+            adminPassword: "brum",
+            eventExtra: "",
+            dbPath: "events/Akabil/participants"
+        };
+
+        // Application State
+        let participants = [];
+        let isAdminAuthenticated = false;
+        let updateInterval;
+
+        // Apply Configuration to DOM
+        function applyConfig() {
+            document.getElementById('eventName').textContent = CONFIG.eventName;
+            document.getElementById('eventIntro').textContent = CONFIG.eventIntroInfo;
+            document.getElementById('eventDate').textContent = CONFIG.eventDate;
+            document.getElementById('eventTime').textContent = CONFIG.eventTime;
+            document.getElementById('eventLocation').textContent = CONFIG.eventLocation;
+            document.getElementById('eventPrice').textContent = CONFIG.eventPrice;
+            document.getElementById('maxParticipants').textContent = CONFIG.maxParticipants;
+        }
+
+        // Firebase REST API Endpoints
+        const dbURL = firebaseConfig.databaseURL;
+        const dbPath = CONFIG.dbPath;
+
+        // Fetch all participants
+        async function fetchParticipants() {
+            try {
+                const response = await fetch(`${dbURL}/${dbPath}.json`);
+                const data = await response.json();
+                participants = data ? Object.entries(data).map(([id, participant]) => ({
+                    id,
+                    ...participant
+                })) : [];
+                updateParticipantDisplay();
+                return participants;
+            } catch (error) {
+                console.error('Error fetching participants:', error);
+                showMessage('Kunde inte hämta deltagarlistan', 'error');
+                return [];
+            }
+        }
+
+        // Add new participant
+        async function addParticipant(name) {
+            // Validate
+            if (!name.trim()) {
+                showMessage('Namn kan inte vara tomt', 'error');
+                return false;
+            }
+
+            // Check for duplicates
+            if (participants.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+                showMessage('Den här personen är redan anmäld', 'error');
+                return false;
+            }
+
+            // Check capacity
+            if (participants.length >= CONFIG.maxParticipants) {
+                showMessage('Oj! Maximal kapacitet är nådd', 'error');
+                return false;
+            }
+
+            try {
+                const newParticipant = {
+                    name: name.trim(),
+                    timestamp: new Date().toISOString()
+                };
+
+                const response = await fetch(
+                    `${dbURL}/${dbPath}.json`,
+                    {
+                        method: 'POST',
+                        body: JSON.stringify(newParticipant)
+                    }
+                );
+
+                if (response.ok) {
+                    showMessage(`${name} är nu anmäld!`, 'success');
+                    document.getElementById('nameInput').value = '';
+                    await fetchParticipants();
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error adding participant:', error);
+                showMessage('Något gick fel. Försök igen senare.', 'error');
+            }
+            return false;
+        }
+
+        // Delete participant (admin only)
+        async function deleteParticipant(id) {
+            if (!confirm('Är du säker?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch(
+                    `${dbURL}/${dbPath}/${id}.json`,
+                    { method: 'DELETE' }
+                );
+
+                if (response.ok) {
+                    await fetchParticipants();
+                }
+            } catch (error) {
+                console.error('Error deleting participant:', error);
+            }
+        }
+
+        // Update participant display
+        function updateParticipantDisplay() {
+            const slotsContainer = document.getElementById('participantSlots');
+            const count = participants.length;
+            const max = CONFIG.maxParticipants;
+            const min = CONFIG.minParticipants;
+
+            // Generate slots
+            let slotsHTML = '';
+            for (let i = 0; i < max; i++) {
+                const isFilled = i < count;
+                const isMinRequired = i < min;
+                const slotClass = `slot ${isFilled ? 'filled' : 'empty'} ${isMinRequired ? 'min-required' : ''}`;
+                slotsHTML += `<div class="${slotClass}">${isFilled ? '👤' : ''}</div>`;
+            }
+            slotsContainer.innerHTML = slotsHTML;
+
+            // Update remaining count
+            const remaining = max - count;
+            const remainingElement = document.getElementById('remainingCount');
+            remainingElement.textContent = remaining > 0 ? remaining : '0';
+
+            // Update admin count
+            document.getElementById('participantCountDisplay').textContent = count;
+        }
+
+        // Display admin participants list
+        function displayAdminParticipants() {
+            const listContainer = document.getElementById('adminParticipantsList');
+
+            if (participants.length === 0) {
+                listContainer.innerHTML = '<p style="color: #b0bfd9; text-align: center; padding: 20px;">Inga anmälda deltagare än</p>';
+                return;
+            }
+
+            let html = '';
+            participants.forEach((participant, index) => {
+                const sanitizedName = escapeHtml(participant.name);
+                html += `
+                    <div class="participant-item">
+                        <div style="display: flex; align-items: center; flex: 1;">
+                            <span class="participant-number">#${index + 1}</span>
+                            <span class="participant-name">${sanitizedName}</span>
+                        </div>
+                        <button class="btn-delete" onclick="deleteParticipant('${participant.id}')">Ta bort</button>
+                    </div>
+                `;
+            });
+            listContainer.innerHTML = html;
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        // Show messages
+        function showMessage(text, type) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.className = `message ${type}`;
+
+            setTimeout(() => {
+                messageEl.className = 'message';
+            }, 4000);
+        }
+
+        // Event Listeners
+        document.getElementById('registerBtn').addEventListener('click', () => {
+            const name = document.getElementById('nameInput').value;
+            addParticipant(name);
+        });
+
+        document.getElementById('nameInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                const name = document.getElementById('nameInput').value;
+                addParticipant(name);
+            }
+        });
+
+        document.getElementById('adminBtn').addEventListener('click', () => {
+            document.getElementById('adminModal').classList.add('active');
+            document.getElementById('adminPassword').focus();
+        });
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            document.getElementById('adminModal').classList.remove('active');
+            document.getElementById('adminPassword').value = '';
+            document.getElementById('adminLoginForm').style.display = 'block';
+            document.getElementById('adminContent').style.display = 'none';
+            isAdminAuthenticated = false;
+        });
+
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const password = document.getElementById('adminPassword').value;
+            if (password === CONFIG.adminPassword) {
+                isAdminAuthenticated = true;
+                document.getElementById('adminLoginForm').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                displayAdminParticipants();
+            } else {
+                showMessage('Felaktigt lösenord', 'error');
+                document.getElementById('adminPassword').value = '';
+            }
+        });
+
+        document.getElementById('adminPassword').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('loginBtn').click();
+            }
+        });
+
+        // Close modal when clicking outside
+        document.getElementById('adminModal').addEventListener('click', (e) => {
+            if (e.target.id === 'adminModal') {
+                document.getElementById('closeModalBtn').click();
+            }
+        });
+
+        // Initialize
+        applyConfig();
+        fetchParticipants();
+
+        // Poll for updates every 5 seconds
+        updateInterval = setInterval(() => {
+            fetchParticipants();
+        }, 5000);
+
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            clearInterval(updateInterval);
+        });
+    </script>
+</body>
+</html>

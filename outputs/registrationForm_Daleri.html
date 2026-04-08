@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daleri - Anmälningsformulär</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #FFD700;
+            --dark: #0a0e27;
+            --darker: #1a1f3a;
+            --text: #ffffff;
+            --error: #ff6b6b;
+            --success: #51cf66;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--text);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            animation: fadeUp 0.8s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+        }
+
+        .info-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            animation: fadeUp 1s ease-out;
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .info-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: rgba(255, 255, 255, 0.6);
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .registration-card {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            animation: fadeUp 1.2s ease-out;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+
+        .progress-section {
+            margin-bottom: 25px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.95rem;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), #FFC700);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 100%;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-register {
+            background: linear-gradient(135deg, var(--primary), #FFC700);
+            color: var(--dark);
+        }
+
+        .btn-register:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-admin {
+            background: rgba(255, 215, 0, 0.2);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+        }
+
+        .btn-admin:hover {
+            background: rgba(255, 215, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .message {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+            animation: fadeUp 0.4s ease-out;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.success {
+            background: rgba(81, 207, 102, 0.2);
+            color: var(--success);
+            border: 1px solid var(--success);
+        }
+
+        .message.error {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--error);
+            border: 1px solid var(--error);
+        }
+
+        .participants-list {
+            margin-top: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .participant-item {
+            background: rgba(255, 215, 0, 0.1);
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .participant-name {
+            color: var(--text);
+        }
+
+        .btn-delete {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--error);
+            border: 1px solid var(--error);
+            padding: 5px 10px;
+            font-size: 0.85rem;
+        }
+
+        .btn-delete:hover {
+            background: rgba(255, 107, 107, 0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, var(--dark) 0%, var(--darker) 100%);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            animation: fadeUp 0.3s ease-out;
+            position: relative;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--text);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+        }
+
+        .modal h2 {
+            margin-bottom: 20px;
+            color: var(--primary);
+            margin-top: 10px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 215, 0, 0.3);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .info-item {
+                flex-direction: column;
+            }
+
+            .info-label {
+                margin-bottom: 5px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1 id="eventName">Daleri</h1>
+            <p id="eventIntro">Imorrn åker vi hänger ni på?</p>
+        </div>
+
+        <!-- Event Information Card -->
+        <div class="info-card">
+            <div class="info-item">
+                <span class="info-label">📅 Datum</span>
+                <span class="info-value" id="eventDate">3 april 2026</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">🕐 Tid</span>
+                <span class="info-value" id="eventTime">10:00</span>
+            </div>
+            <div class="info-item">
+                <span class="info-label">📍 Plats</span>
+                <span class="info-value" id="eventLocation">Tullinge</span>
+            </div>
+        </div>
+
+        <!-- Registration Card -->
+        <div class="registration-card">
+            <!-- Progress Section -->
+            <div class="progress-section">
+                <div class="progress-label">
+                    <span>Anmälda deltagare</span>
+                    <span><span id="currentParticipants">0</span> / <span id="maxParticipants">4</span></span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div id="message" class="message"></div>
+
+            <!-- Loading -->
+            <div id="loading" class="loading">
+                <span class="spinner"></span>
+                <span>Laddar...</span>
+            </div>
+
+            <!-- Registration Form -->
+            <form id="registrationForm">
+                <div class="form-group">
+                    <label for="participantName">Ditt namn *</label>
+                    <input
+                        type="text"
+                        id="participantName"
+                        placeholder="Ange ditt namn"
+                        aria-label="Deltagarens namn"
+                        required
+                    >
+                </div>
+
+                <div class="button-group">
+                    <button type="submit" class="btn-register">Anmäl mig</button>
+                    <button type="button" class="btn-admin" id="adminBtn">Admin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Admin Modal -->
+    <div id="adminModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" id="closeModal">&times;</button>
+            <h2>Admin Panel</h2>
+
+            <div id="adminLogin" style="display: block;">
+                <div class="form-group">
+                    <label for="adminPassword">Admin-lösenord</label>
+                    <input
+                        type="password"
+                        id="adminPassword"
+                        placeholder="Ange lösenord"
+                        aria-label="Admin-lösenord"
+                    >
+                </div>
+                <button type="button" class="btn-register" id="loginBtn" style="width: 100%;">Logga in</button>
+            </div>
+
+            <div id="adminPanel" style="display: none;">
+                <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(29, 181, 160, 0.2);">
+                    <strong>Totalt anmälda:</strong> <span id="adminTotalCount">0</span> / 4
+                </div>
+
+                <div id="loading" class="loading show" style="display: block;">
+                    <span class="spinner"></span>
+                    <span>Laddar deltagare...</span>
+                </div>
+
+                <div id="participantsList" class="participants-list"></div>
+
+                <button type="button" class="btn-register" id="refreshBtn" style="width: 100%; margin-top: 20px;">Uppdatera</button>
+                <button type="button" class="btn-admin" id="logoutBtn" style="width: 100%; margin-top: 10px;">Logga ut</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyAAgD57MKlgqysUnR-pb559dZRBNRZwXD8",
+            authDomain: "testelura.firebaseapp.com",
+            databaseURL: "https://testelura-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "testelura",
+            storageBucket: "testelura.firebasestorage.app",
+            messagingSenderId: "670408355011",
+            appId: "1:670408355011:web:d20002768f3f69869dc676"
+        };
+
+        // Configuration
+        const CONFIG = {
+            eventName: "Daleri",
+            eventIntroInfo: "Imorrn åker vi hänger ni på?",
+            eventDate: "3 april 2026",
+            eventTime: "10:00",
+            eventLocation: "Tullinge",
+            minParticipants: 4,
+            maxParticipants: 4,
+            adminPassword: "brum",
+            firebaseDB: firebaseConfig.databaseURL
+        };
+
+        // DOM Elements
+        const registrationForm = document.getElementById('registrationForm');
+        const participantNameInput = document.getElementById('participantName');
+        const messageDiv = document.getElementById('message');
+        const adminBtn = document.getElementById('adminBtn');
+        const adminModal = document.getElementById('adminModal');
+        const closeModal = document.getElementById('closeModal');
+        const adminPassword = document.getElementById('adminPassword');
+        const loginBtn = document.getElementById('loginBtn');
+        const adminPanel = document.getElementById('adminPanel');
+        const adminLogin = document.getElementById('adminLogin');
+        const participantsList = document.getElementById('participantsList');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const refreshBtn = document.getElementById('refreshBtn');
+        const currentParticipantsSpan = document.getElementById('currentParticipants');
+        const maxParticipantsSpan = document.getElementById('maxParticipants');
+        const progressFill = document.getElementById('progressFill');
+        const adminTotalCount = document.getElementById('adminTotalCount');
+
+        // Firebase Database Reference
+        const dbPath = `${CONFIG.firebaseDB}/participants.json`;
+
+        // Apply Config to DOM
+        function applyConfig() {
+            document.getElementById('eventName').textContent = CONFIG.eventName;
+            document.getElementById('eventIntro').textContent = CONFIG.eventIntroInfo;
+            document.getElementById('eventDate').textContent = CONFIG.eventDate;
+            document.getElementById('eventTime').textContent = CONFIG.eventTime;
+            document.getElementById('eventLocation').textContent = CONFIG.eventLocation;
+            maxParticipantsSpan.textContent = CONFIG.maxParticipants;
+        }
+
+        // Show Message
+        function showMessage(text, type = 'success') {
+            messageDiv.textContent = text;
+            messageDiv.className = `message show ${type}`;
+            setTimeout(() => {
+                messageDiv.classList.remove('show');
+            }, 4000);
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Fetch Participants
+        async function fetchParticipants() {
+            try {
+                const response = await fetch(dbPath);
+                if (!response.ok) throw new Error('Network error');
+                const data = await response.json();
+                return data ? Object.values(data) : [];
+            } catch (error) {
+                console.error('Error fetching participants:', error);
+                showMessage('Kunde inte hämta deltagarlista', 'error');
+                return [];
+            }
+        }
+
+        // Update Progress Bar
+        function updateProgress(currentCount) {
+            currentParticipantsSpan.textContent = currentCount;
+            const min = CONFIG.minParticipants;
+            const max = CONFIG.maxParticipants;
+            const percentage = Math.min(((currentCount - min) / (max - min)) * 100, 100);
+            progressFill.style.width = Math.max(percentage, 5) + '%';
+        }
+
+        // Poll for Updates
+        async function pollUpdates() {
+            const participants = await fetchParticipants();
+            updateProgress(participants.length);
+
+            if (document.getElementById('adminPanel').style.display === 'block') {
+                displayParticipants(participants);
+            }
+        }
+
+        // Start Polling
+        setInterval(pollUpdates, 5000);
+
+        // Register Participant
+        registrationForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const name = participantNameInput.value.trim();
+
+            if (!name) {
+                showMessage('Ange ditt namn', 'error');
+                return;
+            }
+
+            const participants = await fetchParticipants();
+
+            // Check Capacity
+            if (participants.length >= CONFIG.maxParticipants) {
+                showMessage('Maximal kapacitet nådd', 'error');
+                return;
+            }
+
+            // Check Duplicate
+            if (participants.some(p => p.name.toLowerCase() === name.toLowerCase())) {
+                showMessage('Du är redan anmäld', 'error');
+                return;
+            }
+
+            // Add Participant
+            try {
+                const newParticipant = {
+                    name: name,
+                    timestamp: new Date().toISOString()
+                };
+
+                const response = await fetch(dbPath, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newParticipant)
+                });
+
+                if (!response.ok) throw new Error('Network error');
+
+                showMessage('Du är nu anmäld! 🎉', 'success');
+                participantNameInput.value = '';
+                await pollUpdates();
+            } catch (error) {
+                console.error('Error registering:', error);
+                showMessage('Kunde inte anmäla. Försök igen.', 'error');
+            }
+        });
+
+        // Handle Enter Key
+        participantNameInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                registrationForm.dispatchEvent(new Event('submit'));
+            }
+        });
+
+        // Admin Panel
+        adminBtn.addEventListener('click', () => {
+            adminModal.classList.add('show');
+            adminPassword.focus();
+        });
+
+        closeModal.addEventListener('click', () => {
+            adminModal.classList.remove('show');
+            adminPanel.style.display = 'none';
+            adminLogin.style.display = 'block';
+            adminPassword.value = '';
+        });
+
+        adminModal.addEventListener('click', (e) => {
+            if (e.target === adminModal) {
+                adminModal.classList.remove('show');
+                adminPanel.style.display = 'none';
+                adminLogin.style.display = 'block';
+                adminPassword.value = '';
+            }
+        });
+
+        loginBtn.addEventListener('click', async () => {
+            if (adminPassword.value === CONFIG.adminPassword) {
+                adminLogin.style.display = 'none';
+                adminPanel.style.display = 'block';
+                const participants = await fetchParticipants();
+                displayParticipants(participants);
+            } else {
+                showMessage('Fel lösenord', 'error');
+            }
+        });
+
+        adminPassword.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                loginBtn.click();
+            }
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            adminModal.classList.remove('show');
+            adminPanel.style.display = 'none';
+            adminLogin.style.display = 'block';
+            adminPassword.value = '';
+        });
+
+        refreshBtn.addEventListener('click', async () => {
+            const participants = await fetchParticipants();
+            displayParticipants(participants);
+        });
+
+        // Display Participants
+        async function displayParticipants(participants) {
+            adminTotalCount.textContent = participants.length;
+            participantsList.innerHTML = '';
+
+            if (participants.length === 0) {
+                participantsList.innerHTML = '<p style="color: rgba(255, 255, 255, 0.6);">Ingen har anmält sig än</p>';
+                return;
+            }
+
+            participants.forEach((participant, index) => {
+                const item = document.createElement('div');
+                item.className = 'participant-item';
+                item.innerHTML = `
+                    <span class="participant-name">${index + 1}. ${escapeHtml(participant.name)}</span>
+                    <button type="button" class="btn-delete" data-id="${participant.id || index}">Ta bort</button>
+                `;
+                participantsList.appendChild(item);
+
+                const deleteBtn = item.querySelector('.btn-delete');
+                deleteBtn.addEventListener('click', async () => {
+                    if (confirm(`Ta bort ${escapeHtml(participant.name)}?`)) {
+                        await deleteParticipant(participant.name);
+                    }
+                });
+            });
+        }
+
+        // Delete Participant
+        async function deleteParticipant(name) {
+            try {
+                const participants = await fetchParticipants();
+                const updated = participants.filter(p => p.name !== name);
+
+                const response = await fetch(dbPath, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updated)
+                });
+
+                if (!response.ok) throw new Error('Network error');
+
+                showMessage('Deltagar borttagen', 'success');
+                const allParticipants = await fetchParticipants();
+                displayParticipants(allParticipants);
+                await pollUpdates();
+            } catch (error) {
+                console.error('Error deleting:', error);
+                showMessage('Kunde inte ta bort deltagar', 'error');
+            }
+        }
+
+        // Initialize
+        applyConfig();
+        pollUpdates();
+    </script>
+</body>
+</html>
