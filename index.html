@@ -252,11 +252,11 @@
         }
 
         .header-controls {
-            display: grid;
-            grid-template-columns: auto auto auto;
+            display: flex;
             gap: 10px;
             justify-content: center;
             align-items: start;
+            flex-wrap: wrap;
         }
 
         button {
@@ -270,49 +270,7 @@
             font-family: 'Inter', sans-serif;
         }
 
-        .filter-buttons-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            align-items: center;
-            grid-column: 1;
-        }
-
-        .filter-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #e6eaef;
-            letter-spacing: 0.5px;
-        }
-
-        .lists-label {
-            font-size: 11px;
-            font-weight: 600;
-            color: #e6eaef;
-            letter-spacing: 0.5px;
-        }
-
-        .lists-buttons-group {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            align-items: center;
-            grid-column: 2;
-        }
-
-        .lists-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .filter-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .filter-btn {
+        .menu-btn {
             background: #21664d;
             color: #f2f0e4;
             padding: 6px 12px;
@@ -328,44 +286,56 @@
             align-items: center;
             justify-content: center;
             white-space: nowrap;
+            position: relative;
         }
 
-        .filter-btn:hover {
+        .menu-btn:hover {
             background: #15543c;
         }
 
-        .filter-btn.active {
-            background: #bfdbdd;
-            color: #045149;
-        }
-
-        .toggle-edit {
-            background: #21664d;
-            color: #f2f0e4;
-            padding: 6px 12px;
-            font-size: 12px;
-            border: none;
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            background: #f2f0e4;
+            border: 2px solid #045149;
             border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Inter', sans-serif;
-            height: 28px;
+            z-index: 1000;
+            min-width: 130px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            top: 100%;
+            margin-top: 4px;
+        }
+
+        .dropdown-menu.show {
             display: flex;
-            align-items: center;
-            justify-content: center;
-            white-space: nowrap;
-            grid-column: 3;
-            grid-row: 2;
+            flex-direction: column;
         }
 
-        .toggle-edit:hover {
-            background: #15543c;
-        }
-
-        .toggle-edit.active {
-            background: #bfdbdd;
+        .menu-item {
+            padding: 8px 12px;
+            cursor: pointer;
             color: #045149;
+            font-family: 'Inter', sans-serif;
+            font-size: 12px;
+            background: none;
+            border: none;
+            text-align: left;
+            transition: background 0.2s;
+            white-space: nowrap;
         }
+
+        .menu-item:hover {
+            background: #e6eaef;
+        }
+
+        .menu-item:first-child {
+            border-radius: 2px 2px 0 0;
+        }
+
+        .menu-item:last-child {
+            border-radius: 0 0 2px 2px;
+        }
+
 
         .logout-btn {
             padding: 8px 15px;
@@ -407,26 +377,6 @@
             background: #e6eaef;
         }
 
-        .save-list-btn, .saved-lists-btn {
-            background: #21664d;
-            color: #f2f0e4;
-            padding: 6px 12px;
-            font-size: 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: 'Inter', sans-serif;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            white-space: nowrap;
-        }
-
-        .save-list-btn:hover, .saved-lists-btn:hover {
-            background: #15543c;
-        }
 
         .qty-controls {
             display: flex;
@@ -1073,21 +1023,18 @@
             </div>
             <div class="header-content">
                 <div class="header-controls">
-                    <div class="filter-buttons-group">
-                        <div class="filter-label">Visa saker</div>
-                        <div class="filter-buttons">
-                            <button class="filter-btn all-btn active" id="filterAllBtn" title="Visa alla saker" onclick="appSetFilter('all')">Alla (<span id="totalCount">0</span>)</button>
-                            <button class="filter-btn selected-btn" id="filterSelectedBtn" title="Visa endast valda saker" onclick="appSetFilter('selected')">Valda (<span id="selectedCount">0</span>)</button>
-                        </div>
+                    <button class="menu-btn" id="visaMenuBtn" onclick="appToggleVisaMenu()">Visa ▼</button>
+                    <div class="dropdown-menu" id="visaMenu">
+                        <button class="menu-item" onclick="appSetFilter('all'); appToggleVisaMenu()">Alla (<span id="totalCount">0</span>)</button>
+                        <button class="menu-item" onclick="appSetFilter('selected'); appToggleVisaMenu()">Valda (<span id="selectedCount">0</span>)</button>
+                        <button class="menu-item" onclick="appToggleEdit(); appToggleVisaMenu()">Redigera</button>
                     </div>
-                    <div class="lists-buttons-group">
-                        <div class="lists-label">Listor</div>
-                        <div class="lists-buttons">
-                            <button class="save-list-btn" id="saveListBtn" title="Spara nuvarande val">Spara</button>
-                            <button class="saved-lists-btn" id="savedListsBtn" title="Visa sparade packlistor">Sparade</button>
-                        </div>
+
+                    <button class="menu-btn" id="listorMenuBtn" onclick="appToggleListorMenu()">Listor ▼</button>
+                    <div class="dropdown-menu" id="listorMenu">
+                        <button class="menu-item" id="saveListBtn" onclick="appShowSaveListDialog(); appToggleListorMenu()">Spara</button>
+                        <button class="menu-item" id="savedListsBtn" onclick="appShowSavedListsModal(); appToggleListorMenu()">Sparade</button>
                     </div>
-                    <button class="toggle-edit" id="toggleEdit" title="Redigeringsläge">Redigera</button>
                 </div>
             </div>
         </div>
@@ -1608,10 +1555,39 @@
 
         function appSetFilter(mode) {
             filterActive = (mode === 'selected');
-            document.getElementById('filterAllBtn').classList.toggle('active', mode === 'all');
-            document.getElementById('filterSelectedBtn').classList.toggle('active', mode === 'selected');
             appUpdateFilterCounts();
             render();
+        }
+
+        function appToggleEdit() {
+            editMode = !editMode;
+            document.getElementById('toggleEdit').classList.toggle('active', editMode);
+            document.getElementById('toggleEdit').textContent = editMode ? 'Klar' : 'Redigera';
+            render();
+        }
+
+        function appToggleVisaMenu() {
+            const menu = document.getElementById('visaMenu');
+            menu.classList.toggle('show');
+            const listorMenu = document.getElementById('listorMenu');
+            listorMenu.classList.remove('show');
+        }
+
+        function appToggleListorMenu() {
+            const menu = document.getElementById('listorMenu');
+            menu.classList.toggle('show');
+            const visaMenu = document.getElementById('visaMenu');
+            visaMenu.classList.remove('show');
+        }
+
+        function appShowSaveListDialog() {
+            dialogCallback = (name) => {
+                appSaveList(name);
+            };
+            document.getElementById('dialogTitle').textContent = 'Spara packlista';
+            document.getElementById('dialogInput').value = '';
+            document.getElementById('inputDialog').classList.add('show');
+            document.getElementById('dialogInput').focus();
         }
 
         function appUpdateFilterCounts() {
@@ -1621,25 +1597,19 @@
             document.getElementById('selectedCount').textContent = selectedCount;
         }
 
-        document.getElementById('toggleEdit').addEventListener('click', () => {
-            editMode = !editMode;
-            document.getElementById('toggleEdit').classList.toggle('active', editMode);
-            document.getElementById('toggleEdit').textContent = editMode ? 'Klar' : 'Redigera';
-            render();
-        });
+        // Close menus when clicking outside
+        document.addEventListener('click', (e) => {
+            const visaMenu = document.getElementById('visaMenu');
+            const listorMenu = document.getElementById('listorMenu');
+            const visaBtn = document.getElementById('visaMenuBtn');
+            const listorBtn = document.getElementById('listorMenuBtn');
 
-        document.getElementById('saveListBtn').addEventListener('click', () => {
-            dialogCallback = (name) => {
-                appSaveList(name);
-            };
-            document.getElementById('dialogTitle').textContent = 'Spara packlista';
-            document.getElementById('dialogInput').value = '';
-            document.getElementById('inputDialog').classList.add('show');
-            document.getElementById('dialogInput').focus();
-        });
-
-        document.getElementById('savedListsBtn').addEventListener('click', () => {
-            appShowSavedListsModal();
+            if (!visaBtn.contains(e.target) && !visaMenu.contains(e.target)) {
+                visaMenu.classList.remove('show');
+            }
+            if (!listorBtn.contains(e.target) && !listorMenu.contains(e.target)) {
+                listorMenu.classList.remove('show');
+            }
         });
 
         function appSaveList(name) {
