@@ -980,6 +980,20 @@
         .show-active-only .location-section:has(.item.active) {
             display: block;
         }
+
+        /* Hide address bar on mobile */
+        html {
+            height: 100%;
+        }
+
+        body {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
     </style>
 </head>
 <body>
@@ -1870,6 +1884,19 @@
                     appShowSavedListsModal(); // refresh
                 });
         }
+
+        // Hide address bar on mobile
+        window.addEventListener('load', () => {
+            window.scrollTo(0, 1);
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            // Prevent scrolling up to show address bar
+            if (window.scrollY === 0) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
     </script>
 </body>
 </html>
