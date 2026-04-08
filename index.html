@@ -7,12 +7,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Righteous:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <!-- Favicon och webapp icons -->
     <link rel="icon" type="image/png" href="logo-icon.png">
+    <link rel="shortcut icon" type="image/png" href="logo-icon.png">
     <link rel="apple-touch-icon" href="logo-icon.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="logo-icon.png">
     <meta name="theme-color" content="#045149">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Packarizer">
+    <meta name="msapplication-TileColor" content="#045149">
+    <meta name="msapplication-TileImage" content="logo-icon.png">
     <style>
         * {
             margin: 0;
@@ -183,6 +187,7 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
+            margin-top: -4px;
         }
 
         .header h1 {
@@ -1561,9 +1566,8 @@
 
         function appToggleEdit() {
             editMode = !editMode;
-            document.getElementById('toggleEdit').classList.toggle('active', editMode);
-            document.getElementById('toggleEdit').textContent = editMode ? 'Klar' : 'Redigera';
             render();
+            appUpdateFilterCounts();
         }
 
         function appToggleVisaMenu() {
