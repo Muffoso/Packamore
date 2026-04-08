@@ -159,6 +159,7 @@
         .app-screen {
             display: none;
             padding-top: 165px;
+            padding-bottom: 100px;
         }
 
         .app-screen.show {
@@ -274,6 +275,7 @@
             flex-direction: column;
             gap: 4px;
             align-items: center;
+            grid-column: 1;
         }
 
         .filter-label {
@@ -295,6 +297,7 @@
             flex-direction: column;
             gap: 4px;
             align-items: center;
+            grid-column: 2;
         }
 
         .lists-buttons {
@@ -351,6 +354,8 @@
             align-items: center;
             justify-content: center;
             white-space: nowrap;
+            grid-column: 3;
+            grid-row: 1;
         }
 
         .toggle-edit:hover {
@@ -378,11 +383,28 @@
             background: #9ec5c6;
         }
 
-        .header h1 .logout-btn {
-            font-size: 9px;
-            padding: 2px 4px;
-            flex-shrink: 0;
-            white-space: nowrap;
+        .logout-menu {
+            position: fixed;
+            background: #f2f0e4;
+            border: 2px solid #045149;
+            border-radius: 4px;
+            padding: 8px 0;
+            z-index: 2000;
+            min-width: 120px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+
+        .logout-menu-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            color: #045149;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .logout-menu-item:hover {
+            background: #e6eaef;
         }
 
         .save-list-btn, .saved-lists-btn {
@@ -688,6 +710,7 @@
         .container {
             max-width: 800px;
             margin: 0 auto;
+            padding-top: 20px;
         }
 
         .location-section {
@@ -1044,10 +1067,9 @@
                 <h1>
                     <div class="h1-text-wrapper">
                         <div>PACKARIZER</div>
-                        <div class="user-email" id="userEmail"></div>
+                        <div class="user-email" id="userEmail" style="cursor: pointer;" onclick="appShowLogoutMenu()"></div>
                     </div>
                 </h1>
-                <button class="logout-btn" onclick="appLogout()">Logga ut</button>
             </div>
             <div class="header-content">
                 <div class="header-controls">
@@ -1296,6 +1318,49 @@
 
         function appLogout() {
             auth.signOut();
+            appCloseLogoutMenu();
+        }
+
+        function appShowLogoutMenu() {
+            const emailEl = document.getElementById('userEmail');
+            const rect = emailEl.getBoundingClientRect();
+
+            // Remove existing menu if any
+            const existingMenu = document.getElementById('logoutMenu');
+            if (existingMenu) existingMenu.remove();
+
+            const menu = document.createElement('div');
+            menu.id = 'logoutMenu';
+            menu.className = 'logout-menu';
+            menu.style.top = (rect.bottom + 5) + 'px';
+            menu.style.left = (rect.left - 30) + 'px';
+
+            const logoutItem = document.createElement('div');
+            logoutItem.className = 'logout-menu-item';
+            logoutItem.textContent = 'Logga ut';
+            logoutItem.onclick = appLogout;
+
+            menu.appendChild(logoutItem);
+            document.body.appendChild(menu);
+
+            // Close menu when clicking outside
+            document.addEventListener('click', appCloseLogoutMenuOnClickOutside);
+        }
+
+        function appCloseLogoutMenuOnClickOutside(e) {
+            const menu = document.getElementById('logoutMenu');
+            const emailEl = document.getElementById('userEmail');
+            if (menu && e.target !== emailEl && !menu.contains(e.target)) {
+                appCloseLogoutMenu();
+            }
+        }
+
+        function appCloseLogoutMenu() {
+            const menu = document.getElementById('logoutMenu');
+            if (menu) {
+                menu.remove();
+                document.removeEventListener('click', appCloseLogoutMenuOnClickOutside);
+            }
         }
 
         // App functions
