@@ -158,7 +158,7 @@
 
         .app-screen {
             display: none;
-            padding-top: 140px;
+            padding-top: 165px;
         }
 
         .app-screen.show {
@@ -290,6 +290,12 @@
             background: #9ec5c6;
         }
 
+        .header h1 .logout-btn {
+            font-size: 12px;
+            padding: 6px 12px;
+            flex-shrink: 0;
+        }
+
         .save-list-btn, .saved-lists-btn {
             background: #21664d;
             color: #f2f0e4;
@@ -308,7 +314,8 @@
 
         .qty-controls {
             display: flex;
-            gap: 5px;
+            flex-direction: column;
+            gap: 3px;
             align-items: center;
             margin-right: 8px;
         }
@@ -334,7 +341,7 @@
             min-width: 20px;
             text-align: center;
             font-weight: 600;
-            color: #045149;
+            color: #f2f0e4;
         }
 
         .saved-lists-modal {
@@ -480,6 +487,102 @@
             padding: 30px 20px;
             color: #666;
             font-style: italic;
+        }
+
+        .share-list-btn {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            background: #bfdbdd;
+            color: #045149;
+        }
+
+        .share-list-btn:hover {
+            background: #9ec5c6;
+        }
+
+        .share-dialog-status {
+            font-size: 13px;
+            margin-bottom: 10px;
+            color: #045149;
+            min-height: 18px;
+        }
+
+        .incoming-section-header {
+            font-weight: 700;
+            color: #045149;
+            font-family: 'Righteous', sans-serif;
+            font-size: 15px;
+            margin: 15px 0 8px 0;
+            padding-top: 10px;
+            border-top: 2px solid #bfdbdd;
+        }
+
+        .incoming-list-item {
+            display: flex;
+            flex-direction: column;
+            padding: 12px;
+            background: #e6eaef;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            gap: 8px;
+            border-left: 4px solid #21664d;
+        }
+
+        .incoming-list-sender {
+            font-size: 11px;
+            color: #666;
+            margin: 0;
+        }
+
+        .incoming-list-name {
+            font-weight: 600;
+            color: #045149;
+            margin: 0;
+        }
+
+        .incoming-list-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .accept-shared-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            background: #21664d;
+            color: #f2f0e4;
+        }
+
+        .accept-shared-btn:hover {
+            background: #15543c;
+        }
+
+        .decline-shared-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 3px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            background: #d97176;
+            color: #f2f0e4;
+        }
+
+        .decline-shared-btn:hover {
+            background: #c85159;
         }
 
         .container {
@@ -839,10 +942,10 @@
                     <img src="logo.png" alt="Packarizer logo" />
                 </div>
                 PACKARIZER
+                <button class="logout-btn" onclick="appLogout()">Logga ut</button>
             </h1>
             <div class="header-content">
                 <div class="user-section">
-                    <button class="logout-btn" onclick="appLogout()">Logga ut</button>
                     <span id="userEmail"></span>
                 </div>
                 <div class="header-controls">
@@ -863,6 +966,21 @@
                 <div class="dialog-buttons">
                     <button class="cancel-btn" onclick="appCloseDialog()">Avbryt</button>
                     <button class="confirm-btn" onclick="appConfirmDialog()">OK</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-dialog" id="shareDialog">
+            <div class="dialog-content">
+                <h2>Dela packlista</h2>
+                <p id="shareDialogListName" style="font-size:13px;color:#045149;margin-bottom:10px;"></p>
+                <input type="email" id="shareEmailInput" placeholder="Mottagarens email"
+                       list="favoriteEmailsList" autocomplete="off">
+                <datalist id="favoriteEmailsList"></datalist>
+                <div class="share-dialog-status" id="shareDialogStatus"></div>
+                <div class="dialog-buttons">
+                    <button class="cancel-btn" onclick="appCloseShareDialog()">Avbryt</button>
+                    <button class="confirm-btn" onclick="appConfirmShare()">Dela</button>
                 </div>
             </div>
         </div>
@@ -951,6 +1069,13 @@
                     document.getElementById('authScreen').classList.add('auth-hidden');
                     document.getElementById('appScreen').classList.add('show');
                     document.getElementById('userEmail').textContent = user.email;
+
+                    // Write email→uid index for sharing functionality
+                    if (user.email) {
+                        const sanitizedEmail = user.email.replace(/\./g, ',');
+                        database.ref(`emailIndex/${sanitizedEmail}`).set({ uid: user.uid });
+                    }
+
                     initializeNewUserData(user);
                     listenToDataChanges(user);
                     editMode = false;
@@ -1125,9 +1250,9 @@
 
                     const qtyHtml = item.active && !editMode ? `
                         <span class="qty-controls">
-                            <button class="qty-btn minus" onclick="appChangeQty(${locIndex}, ${itemIndex}, -1)">−</button>
-                            <span class="qty-display">${item.quantity || 1}</span>
                             <button class="qty-btn plus" onclick="appChangeQty(${locIndex}, ${itemIndex}, 1)">+</button>
+                            <span class="qty-display">${item.quantity || 1}</span>
+                            <button class="qty-btn minus" onclick="appChangeQty(${locIndex}, ${itemIndex}, -1)">−</button>
                         </span>
                     ` : '';
 
@@ -1350,11 +1475,18 @@
         }
 
         function appShowSavedListsModal() {
-            database.ref(`users/${currentUser.uid}/savedLists`).once('value', snapshot => {
-                const lists = snapshot.val();
-                const container = document.getElementById('savedListsContainer');
+            const container = document.getElementById('savedListsContainer');
+            container.innerHTML = '<div style="text-align:center;color:#666;padding:20px;">Laddar...</div>';
+            document.getElementById('savedListsModal').classList.add('show');
+
+            Promise.all([
+                database.ref(`users/${currentUser.uid}/savedLists`).once('value'),
+                database.ref(`sharedLists/${currentUser.uid}/incoming`).once('value')
+            ]).then(([ownSnapshot, incomingSnapshot]) => {
                 container.innerHTML = '';
 
+                // Own saved lists
+                const lists = ownSnapshot.val();
                 if (!lists || Object.keys(lists).length === 0) {
                     container.innerHTML = '<div class="no-saved-lists">Ingen sparad packlista än</div>';
                 } else {
@@ -1369,6 +1501,7 @@
                             </div>
                             <div class="saved-list-actions">
                                 <button class="load-list-btn" onclick="appLoadList('${key}')">Ladda</button>
+                                <button class="share-list-btn" onclick="appOpenShareDialog('${key}', '${list.name.replace(/'/g, "\\'")}')">Dela</button>
                                 <button class="delete-list-btn" onclick="appDeleteList('${key}')">Radera</button>
                             </div>
                         `;
@@ -1376,7 +1509,32 @@
                     });
                 }
 
-                document.getElementById('savedListsModal').classList.add('show');
+                // Incoming shared lists
+                const incoming = incomingSnapshot.val();
+                if (incoming) {
+                    const pendingEntries = Object.entries(incoming).filter(([, v]) => v.status === 'pending');
+                    if (pendingEntries.length > 0) {
+                        const sectionHeader = document.createElement('div');
+                        sectionHeader.className = 'incoming-section-header';
+                        sectionHeader.textContent = 'Delade med dig';
+                        container.appendChild(sectionHeader);
+
+                        pendingEntries.forEach(([key, shared]) => {
+                            const date = new Date(shared.createdAt).toLocaleDateString('sv-SE');
+                            const incomingDiv = document.createElement('div');
+                            incomingDiv.className = 'incoming-list-item';
+                            incomingDiv.innerHTML = `
+                                <p class="incoming-list-name">${shared.listName}</p>
+                                <p class="incoming-list-sender">Från: ${shared.senderEmail} &nbsp;·&nbsp; ${date}</p>
+                                <div class="incoming-list-actions">
+                                    <button class="accept-shared-btn" onclick="appAcceptSharedList('${key}')">Acceptera</button>
+                                    <button class="decline-shared-btn" onclick="appDeclineSharedList('${key}')">Avvisa</button>
+                                </div>
+                            `;
+                            container.appendChild(incomingDiv);
+                        });
+                    }
+                }
             });
         }
 
@@ -1419,6 +1577,125 @@
                 database.ref(`users/${currentUser.uid}/savedLists/${listKey}`).remove();
                 appShowSavedListsModal();
             }
+        }
+
+        // Share dialog state
+        let shareTargetListKey = null;
+        let shareTargetListName = null;
+
+        function appOpenShareDialog(listKey, listName) {
+            shareTargetListKey = listKey;
+            shareTargetListName = listName;
+            document.getElementById('shareDialogListName').textContent = `"${listName}"`;
+            document.getElementById('shareEmailInput').value = '';
+            document.getElementById('shareDialogStatus').textContent = '';
+
+            // Populate favorite emails datalist
+            const datalist = document.getElementById('favoriteEmailsList');
+            datalist.innerHTML = '';
+            database.ref(`users/${currentUser.uid}/favoriteEmails`).once('value', snapshot => {
+                const favs = snapshot.val();
+                if (favs) {
+                    Object.values(favs).forEach(emailObj => {
+                        const option = document.createElement('option');
+                        option.value = emailObj.email;
+                        datalist.appendChild(option);
+                    });
+                }
+            });
+
+            document.getElementById('shareDialog').classList.add('show');
+            document.getElementById('shareEmailInput').focus();
+        }
+
+        function appCloseShareDialog() {
+            document.getElementById('shareDialog').classList.remove('show');
+            shareTargetListKey = null;
+            shareTargetListName = null;
+        }
+
+        function appConfirmShare() {
+            const email = document.getElementById('shareEmailInput').value.trim().toLowerCase();
+            if (!email) {
+                document.getElementById('shareDialogStatus').textContent = 'Ange en email-adress.';
+                return;
+            }
+            if (email === currentUser.email.toLowerCase()) {
+                document.getElementById('shareDialogStatus').textContent = 'Du kan inte dela med dig själv.';
+                return;
+            }
+
+            document.getElementById('shareDialogStatus').textContent = 'Söker efter användare...';
+
+            const sanitizedEmail = email.replace(/\./g, ',');
+            database.ref(`emailIndex/${sanitizedEmail}`).once('value', snapshot => {
+                const data = snapshot.val();
+                if (!data || !data.uid) {
+                    document.getElementById('shareDialogStatus').textContent = 'Ingen användare hittades med den emailen.';
+                    return;
+                }
+
+                const recipientUid = data.uid;
+
+                // Read the list data
+                database.ref(`users/${currentUser.uid}/savedLists/${shareTargetListKey}`).once('value', listSnapshot => {
+                    const list = listSnapshot.val();
+                    if (!list) {
+                        document.getElementById('shareDialogStatus').textContent = 'Listan hittades inte.';
+                        return;
+                    }
+
+                    const sharedKey = Date.now();
+                    const payload = {
+                        senderEmail: currentUser.email,
+                        listName: list.name,
+                        createdAt: sharedKey,
+                        items: list.items || [],
+                        status: 'pending'
+                    };
+
+                    database.ref(`sharedLists/${recipientUid}/incoming/${sharedKey}`).set(payload)
+                        .then(() => {
+                            appSaveFavoriteEmail(email);
+                            document.getElementById('shareDialogStatus').textContent = 'Delad!';
+                            setTimeout(() => appCloseShareDialog(), 1200);
+                        })
+                        .catch(() => {
+                            document.getElementById('shareDialogStatus').textContent = 'Något gick fel. Försök igen.';
+                        });
+                });
+            });
+        }
+
+        function appSaveFavoriteEmail(email) {
+            const sanitized = email.replace(/\./g, ',');
+            database.ref(`users/${currentUser.uid}/favoriteEmails/${sanitized}`).set({ email: email });
+        }
+
+        function appAcceptSharedList(incomingKey) {
+            database.ref(`sharedLists/${currentUser.uid}/incoming/${incomingKey}`).once('value', snapshot => {
+                const shared = snapshot.val();
+                if (!shared) return;
+
+                // Save as own saved list
+                const timestamp = Date.now();
+                database.ref(`users/${currentUser.uid}/savedLists/${timestamp}`).set({
+                    name: shared.listName,
+                    createdAt: timestamp,
+                    items: shared.items || []
+                }).then(() => {
+                    // Mark as accepted
+                    database.ref(`sharedLists/${currentUser.uid}/incoming/${incomingKey}`).update({ status: 'accepted' });
+                    appShowSavedListsModal(); // refresh
+                });
+            });
+        }
+
+        function appDeclineSharedList(incomingKey) {
+            database.ref(`sharedLists/${currentUser.uid}/incoming/${incomingKey}`).update({ status: 'declined' })
+                .then(() => {
+                    appShowSavedListsModal(); // refresh
+                });
         }
     </script>
 </body>
