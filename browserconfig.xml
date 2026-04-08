@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<browserconfig>
+    <msapplication>
+        <tile>
+            <square150x150logo src="logo-icon.png"/>
+            <TileColor>#045149</TileColor>
+        </tile>
+        <notification>
+            <polling-uri src="none"/>
+        </notification>
+    </msapplication>
+</browserconfig>

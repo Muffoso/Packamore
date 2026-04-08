@@ -1,0 +1,32 @@
+{
+  "name": "Packarizer",
+  "short_name": "Packarizer",
+  "description": "Packarizer - Packlista organizer",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "theme_color": "#045149",
+  "background_color": "#f2f0e4",
+  "icons": [
+    {
+      "src": "logo-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "logo-icon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    }
+  ]
+}

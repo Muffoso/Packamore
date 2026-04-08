@@ -1,4 +1,4 @@
-# Packarizer - Plan
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                # Packarizer - Plan
 
 ## Översikt
 En personlig packlist-webbapp för en användare. Lagrar alla ägodelar organiserade efter hemmaplatser och gör det snabbt att välja vad som ska packas för en resa.
@@ -24,7 +24,7 @@ En personlig packlist-webbapp för en användare. Lagrar alla ägodelar organise
     - Ändra ordning på hemmaplatser (drag & drop eller upp/ner knappar)
     - Ändra ordning på saker inom varje hemmaplats
     - Lägga till nya hemmaplatser
-    - Ta bort hemmaplatser
+    - Ta bort hemmaplatser                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
     - Lägga till nya saker
     - Ta bort saker
 
