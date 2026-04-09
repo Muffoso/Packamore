@@ -537,6 +537,15 @@
             border-bottom: none;
         }
 
+        .bottom-sheet-menu-item[data-arrow="true"] {
+            background: #045149;
+            color: #bfdbdd;
+        }
+
+        .bottom-sheet-menu-item[data-arrow="true"]:active {
+            background: #003a37;
+        }
+
 
         .qty-controls {
             display: flex;
@@ -1197,7 +1206,6 @@
                     <div class="dropdown-menu" id="visaMenu">
                         <button class="menu-item" onclick="appSetFilter('all'); appToggleVisaMenu()">Alla (<span id="totalCount">0</span>)</button>
                         <button class="menu-item" onclick="appSetFilter('selected'); appToggleVisaMenu()">Valda (<span id="selectedCount">0</span>)</button>
-                        <button class="menu-item" onclick="appToggleEdit(); appToggleVisaMenu()">Redigera</button>
                     </div>
 
                     <button class="menu-btn" id="listorMenuBtn" onclick="appToggleListorMenu()">Listor ▼</button>
@@ -1669,7 +1677,7 @@
 
                     appShowContextMenu(locHeader, locIndex, -1, 'location');
                 }
-            }, 1000);
+            }, 700);
         }
 
         function appOnTouchEnd(e) {
@@ -1709,6 +1717,10 @@
                 const menuItem = document.createElement('div');
                 menuItem.className = 'bottom-sheet-menu-item';
                 menuItem.textContent = item.label;
+                // Mark arrow buttons for special styling
+                if (item.label.includes('⬆️') || item.label.includes('⬇️')) {
+                    menuItem.setAttribute('data-arrow', 'true');
+                }
                 menuItem.onclick = () => {
                     item.action();
                     // Only close if action doesn't update the sheet (i.e., not Ordna/Flytta)
