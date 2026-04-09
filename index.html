@@ -1482,14 +1482,18 @@
 
                 section.appendChild(itemsList);
 
-                // Always show add location button between sections
-                const addLocationBtn = document.createElement('button');
-                addLocationBtn.className = 'add-location-btn';
-                addLocationBtn.textContent = '+ Lägg till plats';
-                addLocationBtn.onclick = () => appShowAddLocationDialog(locIndex + 1);
+                // Show add location button between sections (only when all items shown)
+                if (!filterActive) {
+                    const addLocationBtn = document.createElement('button');
+                    addLocationBtn.className = 'add-location-btn';
+                    addLocationBtn.textContent = '+ Lägg till plats';
+                    addLocationBtn.onclick = () => appShowAddLocationDialog(locIndex + 1);
 
-                container.appendChild(section);
-                container.appendChild(addLocationBtn);
+                    container.appendChild(section);
+                    container.appendChild(addLocationBtn);
+                } else {
+                    container.appendChild(section);
+                }
             });
 
             if (filterActive) {
@@ -1630,7 +1634,7 @@
                 saveAllData();
             };
 
-            document.getElementById('dialogTitle').textContent = 'Byt namn';
+            document.getElementById('dialogTitle').textContent = `Byt namn - ${currentName}`;
             document.getElementById('dialogInput').value = currentName;
             document.getElementById('inputDialog').classList.add('show');
             document.getElementById('dialogInput').focus();
@@ -1657,7 +1661,8 @@
                     upItem.textContent = '⬆️ Upp';
                     upItem.onclick = () => {
                         appMoveItem(locIndex, itemIndex, -1);
-                        menu.remove();
+                        render();
+                        appShowOrganizeMenu(locIndex, itemIndex - 1, type, element);
                     };
                     menu.appendChild(upItem);
                 }
@@ -1668,7 +1673,8 @@
                     downItem.textContent = '⬇️ Ner';
                     downItem.onclick = () => {
                         appMoveItem(locIndex, itemIndex, 1);
-                        menu.remove();
+                        render();
+                        appShowOrganizeMenu(locIndex, itemIndex + 1, type, element);
                     };
                     menu.appendChild(downItem);
                 }
@@ -1691,7 +1697,8 @@
                     upItem.textContent = '⬆️ Upp';
                     upItem.onclick = () => {
                         appMoveLocation(locIndex, -1);
-                        menu.remove();
+                        render();
+                        appShowOrganizeMenu(locIndex - 1, -1, type, element);
                     };
                     menu.appendChild(upItem);
                 }
@@ -1702,7 +1709,8 @@
                     downItem.textContent = '⬇️ Ner';
                     downItem.onclick = () => {
                         appMoveLocation(locIndex, 1);
-                        menu.remove();
+                        render();
+                        appShowOrganizeMenu(locIndex + 1, -1, type, element);
                     };
                     menu.appendChild(downItem);
                 }
@@ -1716,6 +1724,20 @@
                     menu.appendChild(noMove);
                 }
             }
+
+            // Add separator
+            const separator = document.createElement('div');
+            separator.style.borderTop = '1px solid #ccc';
+            separator.style.margin = '5px 0';
+            menu.appendChild(separator);
+
+            // Add done button
+            const doneBtn = document.createElement('div');
+            doneBtn.className = 'context-menu-item';
+            doneBtn.textContent = '✓ Klar';
+            doneBtn.style.fontWeight = 'bold';
+            doneBtn.onclick = () => menu.remove();
+            menu.appendChild(doneBtn);
 
             document.body.appendChild(menu);
             menu.style.top = (rect.bottom + 5) + 'px';
