@@ -849,6 +849,125 @@
             background: #c85159;
         }
 
+        .feedback-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+        }
+
+        .feedback-modal.show {
+            display: flex;
+        }
+
+        .feedback-form {
+            position: relative;
+            margin: auto;
+            background: #f2f0e4;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            z-index: 1001;
+        }
+
+        .feedback-form h2 {
+            color: #045149;
+            font-family: 'Righteous', sans-serif;
+            margin: 0 0 20px 0;
+            font-size: 18px;
+        }
+
+        .feedback-stars {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            justify-content: center;
+        }
+
+        .star-btn {
+            background: none;
+            border: none;
+            font-size: 30px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            color: #bfdbdd;
+        }
+
+        .star-btn:hover {
+            transform: scale(1.2);
+        }
+
+        .star-btn.active {
+            color: #045149;
+        }
+
+        .feedback-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #bfdbdd;
+            border-radius: 5px;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+            color: #045149;
+            margin-bottom: 15px;
+        }
+
+        .feedback-textarea::placeholder {
+            color: #999;
+        }
+
+        .feedback-textarea:focus {
+            outline: none;
+            border-color: #045149;
+            box-shadow: 0 0 0 3px rgba(4, 81, 73, 0.1);
+        }
+
+        .feedback-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .feedback-cancel-btn, .feedback-submit-btn {
+            padding: 10px 16px;
+            border: none;
+            border-radius: 5px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .feedback-cancel-btn {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .feedback-cancel-btn:hover {
+            background: #d0d0d0;
+        }
+
+        .feedback-submit-btn {
+            background: #045149;
+            color: #f2f0e4;
+        }
+
+        .feedback-submit-btn:hover {
+            background: #003a37;
+        }
+
+        .feedback-submit-btn:disabled {
+            background: #bfdbdd;
+            cursor: not-allowed;
+        }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -1289,6 +1408,26 @@
                     <button class="close-modal-btn" onclick="appCloseSavedListsModal()">✕</button>
                 </div>
                 <div class="modal-body" id="savedListsContainer"></div>
+            </div>
+        </div>
+
+        <div class="feedback-modal" id="feedbackModal">
+            <div class="modal-overlay"></div>
+            <div class="feedback-form">
+                <h2>Ge feedback</h2>
+                <div class="feedback-stars" id="starRating">
+                    <button class="star-btn" data-rating="1" onclick="appSetRating(1)">★</button>
+                    <button class="star-btn" data-rating="2" onclick="appSetRating(2)">★</button>
+                    <button class="star-btn" data-rating="3" onclick="appSetRating(3)">★</button>
+                    <button class="star-btn" data-rating="4" onclick="appSetRating(4)">★</button>
+                    <button class="star-btn" data-rating="5" onclick="appSetRating(5)">★</button>
+                    <button class="star-btn" data-rating="6" onclick="appSetRating(6)">★</button>
+                </div>
+                <textarea class="feedback-textarea" id="feedbackText" placeholder="Vad funkar? Vad funkar inte? Vad borde vara bättre? Skriv vad du vill."></textarea>
+                <div class="feedback-actions">
+                    <button class="feedback-cancel-btn" onclick="appCloseFeedbackForm()">Avbryt</button>
+                    <button class="feedback-submit-btn" onclick="appSubmitFeedback()">Skicka</button>
+                </div>
             </div>
         </div>
 
@@ -2260,6 +2399,64 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                 database.ref(`users/${currentUser.uid}/savedLists/${listKey}`).remove();
                 appShowSavedListsModal();
             }
+        }
+
+        // Feedback form state
+        let currentFeedbackRating = 0;
+
+        function appOpenFeedbackForm() {
+            document.getElementById('feedbackModal').classList.add('show');
+            document.getElementById('feedbackText').value = '';
+            currentFeedbackRating = 0;
+            // Reset star buttons
+            document.querySelectorAll('.star-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById('feedbackText').focus();
+        }
+
+        function appCloseFeedbackForm() {
+            document.getElementById('feedbackModal').classList.remove('show');
+        }
+
+        function appSetRating(rating) {
+            currentFeedbackRating = rating;
+            document.querySelectorAll('.star-btn').forEach((btn, index) => {
+                if (index < rating) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        function appSubmitFeedback() {
+            const text = document.getElementById('feedbackText').value.trim();
+
+            if (currentFeedbackRating === 0) {
+                alert('Vänligen välj en rating (1-6 stjärnor)');
+                return;
+            }
+
+            if (!text) {
+                alert('Vänligen skriv något feedback');
+                return;
+            }
+
+            // Save feedback to Firebase
+            const feedbackKey = Date.now();
+            database.ref(`feedback/${feedbackKey}`).set({
+                userId: currentUser?.uid || 'anonymous',
+                userEmail: currentUser?.email || 'anonymous',
+                rating: currentFeedbackRating,
+                message: text,
+                createdAt: feedbackKey
+            }).then(() => {
+                alert('Tack för din feedback!');
+                appCloseFeedbackForm();
+            }).catch(() => {
+                alert('Kunde inte skicka feedback. Försök igen senare.');
+            });
         }
 
         // Share dialog state
