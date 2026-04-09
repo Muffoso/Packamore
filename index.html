@@ -453,8 +453,9 @@
             right: 0;
             bottom: 0;
             background: rgba(0,0,0,0.3);
-            z-index: 1500;
+            z-index: 500;
             display: none;
+            pointer-events: none;
         }
 
         .move-mode-overlay.active {
@@ -1611,7 +1612,12 @@
         function appSetupLongTouchListeners() {
             const container = document.getElementById('container');
 
-            // Remove old listeners and add new ones
+            // Remove old listeners
+            container.removeEventListener('touchstart', appOnTouchStart);
+            container.removeEventListener('touchend', appOnTouchEnd);
+            container.removeEventListener('click', appOnContainerClick);
+
+            // Add new listeners
             container.addEventListener('touchstart', appOnTouchStart, false);
             container.addEventListener('touchend', appOnTouchEnd, false);
             container.addEventListener('click', appOnContainerClick, false);
@@ -1661,18 +1667,18 @@
         function appOnContainerClick(e) {
             if (!moveMode) return;
 
+            e.stopPropagation();
+
             const item = e.target.closest('.item');
             const locHeader = e.target.closest('.location-header');
 
             if (item && !e.target.closest('button')) {
-                e.preventDefault();
                 const itemDiv = item;
                 const itemIndex = Array.from(itemDiv.parentElement.children).filter(el => el.classList.contains('item')).indexOf(itemDiv);
                 const section = itemDiv.closest('.location-section');
                 const locIndex = Array.from(section.parentElement.children).filter(el => el.classList.contains('location-section')).indexOf(section);
                 appSelectMoveTarget(locIndex, itemIndex, 'before');
             } else if (locHeader && !e.target.closest('button')) {
-                e.preventDefault();
                 const section = locHeader.closest('.location-section');
                 const locIndex = Array.from(section.parentElement.children).filter(el => el.classList.contains('location-section')).indexOf(section);
                 appSelectMoveTarget(locIndex, -1, 'location');
@@ -1761,6 +1767,10 @@
             moveSourceItemIndex = itemIndex;
             moveTargetLocIndex = null;
             moveTargetItemIndex = null;
+
+            // Close context menu
+            const contextMenu = document.getElementById('contextMenu');
+            if (contextMenu) contextMenu.remove();
 
             document.getElementById('moveModeOverlay').classList.add('active');
             document.getElementById('moveModePrompt').classList.add('active');
