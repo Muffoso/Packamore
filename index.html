@@ -1541,22 +1541,12 @@
                     const section = itemDiv.closest('.location-section');
                     const locIndex = Array.from(section.parentElement.children).filter(el => el.classList.contains('location-section')).indexOf(section);
 
-                    // Get absolute position and scroll so item is 25px from top
-                    const itemPos = itemDiv.offsetTop;
-                    window.scrollTo(0, itemPos - 25);
-
-                    // Show menu after scroll
-                    setTimeout(() => appShowContextMenu(itemDiv, locIndex, itemIndex, 'item'), 50);
+                    appShowContextMenu(itemDiv, locIndex, itemIndex, 'item');
                 } else if (locHeader) {
                     const section = locHeader.closest('.location-section');
                     const locIndex = Array.from(section.parentElement.children).filter(el => el.classList.contains('location-section')).indexOf(section);
 
-                    // Get absolute position and scroll so header is 25px from top
-                    const headerPos = locHeader.offsetTop;
-                    window.scrollTo(0, headerPos - 25);
-
-                    // Show menu after scroll
-                    setTimeout(() => appShowContextMenu(locHeader, locIndex, -1, 'location'), 50);
+                    appShowContextMenu(locHeader, locIndex, -1, 'location');
                 }
             }, 500);
         }
