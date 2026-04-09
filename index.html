@@ -2330,11 +2330,28 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                     }
 
                     const sharedKey = Date.now();
+
+                    // Build locations structure from current locations
+                    const locationsData = {};
+                    locations.forEach(location => {
+                        locationsData[location.name] = {
+                            order: location.order,
+                            items: {}
+                        };
+                        location.items.forEach(item => {
+                            locationsData[location.name].items[item.name] = {
+                                active: item.active,
+                                order: item.order,
+                                quantity: item.quantity || 1
+                            };
+                        });
+                    });
+
                     const payload = {
                         senderEmail: currentUser.email,
                         listName: list.name,
                         createdAt: sharedKey,
-                        items: list.items || [],
+                        items: locationsData,
                         status: 'pending'
                     };
 
