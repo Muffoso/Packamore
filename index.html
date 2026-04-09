@@ -446,94 +446,6 @@
             background: #e6eaef;
         }
 
-        .move-mode-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.3);
-            z-index: 500;
-            display: none;
-            pointer-events: none;
-        }
-
-        .move-mode-overlay.active {
-            display: block;
-        }
-
-        .move-mode-prompt {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: #f2f0e4;
-            border: 2px solid #045149;
-            border-radius: 8px;
-            padding: 20px;
-            z-index: 2001;
-            text-align: center;
-            font-family: 'Inter', sans-serif;
-            color: #045149;
-            display: none;
-        }
-
-        .move-mode-prompt.active {
-            display: block;
-        }
-
-        .move-mode-prompt button {
-            margin-top: 15px;
-            padding: 8px 16px;
-            background: #045149;
-            color: #f2f0e4;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-family: 'Inter', sans-serif;
-        }
-
-        .move-mode-prompt button:hover {
-            background: #003a37;
-        }
-
-        .move-insert-marker {
-            height: 3px;
-            background: #045149;
-            margin: 5px 0;
-            border-radius: 1.5px;
-            animation: pulse 1s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        .move-confirm-btn {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #045149;
-            color: #f2f0e4;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 4px;
-            font-family: 'Inter', sans-serif;
-            cursor: pointer;
-            z-index: 2000;
-            display: none;
-        }
-
-        .move-confirm-btn.active {
-            display: block;
-        }
-
-        .move-confirm-btn:hover {
-            background: #003a37;
-        }
-
 
         .qty-controls {
             display: flex;
@@ -1242,12 +1154,6 @@
             </div>
         </div>
 
-        <div class="move-mode-overlay" id="moveModeOverlay"></div>
-        <div class="move-mode-prompt" id="moveModePrompt">
-            <h3>Välj plats genom att klicka i listan</h3>
-            <button onclick="appCancelMove()">Avbryt</button>
-        </div>
-        <button class="move-confirm-btn" id="moveConfirmBtn" onclick="appConfirmMove()">Flytta hit</button>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -1580,7 +1486,7 @@
                 const addLocationBtn = document.createElement('button');
                 addLocationBtn.className = 'add-location-btn';
                 addLocationBtn.textContent = '+ Lägg till plats';
-                addLocationBtn.onclick = () => appShowAddLocationDialog();
+                addLocationBtn.onclick = () => appShowAddLocationDialog(locIndex + 1);
 
                 container.appendChild(section);
                 container.appendChild(addLocationBtn);
@@ -1605,11 +1511,6 @@
         // Long touch and context menu variables
         let longTouchTimeout;
         let touchStartTime;
-        let moveMode = false;
-        let moveSourceLocIndex = null;
-        let moveSourceItemIndex = null;
-        let moveTargetLocIndex = null;
-        let moveTargetItemIndex = null;
 
         function appSetupLongTouchListeners() {
             const container = document.getElementById('container');
@@ -1617,12 +1518,10 @@
             // Remove old listeners
             container.removeEventListener('touchstart', appOnTouchStart);
             container.removeEventListener('touchend', appOnTouchEnd);
-            container.removeEventListener('click', appOnContainerClick);
 
             // Add new listeners
             container.addEventListener('touchstart', appOnTouchStart, false);
             container.addEventListener('touchend', appOnTouchEnd, false);
-            container.addEventListener('click', appOnContainerClick, false);
         }
 
         function appOnTouchStart(e) {
@@ -1631,7 +1530,7 @@
 
             touchStartTime = Date.now();
             longTouchTimeout = setTimeout(() => {
-                if (editMode || moveMode) return;
+                if (editMode) return;
 
                 const item = target.closest('.item');
                 const locHeader = target.closest('.location-header');
@@ -1666,27 +1565,6 @@
             clearTimeout(longTouchTimeout);
         }
 
-        function appOnContainerClick(e) {
-            if (!moveMode) return;
-
-            e.stopPropagation();
-
-            const item = e.target.closest('.item');
-            const locHeader = e.target.closest('.location-header');
-
-            if (item && !e.target.closest('button')) {
-                const itemDiv = item;
-                const itemIndex = Array.from(itemDiv.parentElement.children).filter(el => el.classList.contains('item')).indexOf(itemDiv);
-                const section = itemDiv.closest('.location-section');
-                const locIndex = Array.from(section.parentElement.children).filter(el => el.classList.contains('location-section')).indexOf(section);
-                appSelectMoveTarget(locIndex, itemIndex, 'before');
-            } else if (locHeader && !e.target.closest('button')) {
-                const section = locHeader.closest('.location-section');
-                const locIndex = Array.from(section.parentElement.children).filter(el => el.classList.contains('location-section')).indexOf(section);
-                appSelectMoveTarget(locIndex, -1, 'location');
-            }
-        }
-
         function appShowContextMenu(element, locIndex, itemIndex, type) {
             // Remove existing menu if any
             const existingMenu = document.getElementById('contextMenu');
@@ -1698,9 +1576,14 @@
 
             const items = [
                 { label: 'Byt namn', action: () => appStartRename(locIndex, itemIndex, type) },
-                { label: 'Flytta', action: () => appStartMove(locIndex, itemIndex, type) },
-                { label: 'Ta bort', action: () => appDeleteFromMenu(locIndex, itemIndex, type) }
+                { label: 'Ordna', action: () => appShowOrganizeMenu(locIndex, itemIndex, type, element) }
             ];
+
+            if (type === 'item') {
+                items.push({ label: 'Flytta', action: () => appShowMoveItemMenu(locIndex, itemIndex, element) });
+            }
+
+            items.push({ label: 'Ta bort', action: () => appDeleteFromMenu(locIndex, itemIndex, type) });
 
             items.forEach(item => {
                 const menuItem = document.createElement('div');
@@ -1763,62 +1646,177 @@
             document.getElementById('dialogInput').focus();
         }
 
-        function appStartMove(locIndex, itemIndex, type) {
-            moveMode = true;
-            moveSourceLocIndex = locIndex;
-            moveSourceItemIndex = itemIndex;
-            moveTargetLocIndex = null;
-            moveTargetItemIndex = null;
+        function appShowOrganizeMenu(locIndex, itemIndex, type, element) {
+            // Remove existing menu if any
+            const existingMenu = document.getElementById('contextMenu');
+            if (existingMenu) existingMenu.remove();
 
-            // Close context menu
-            const contextMenu = document.getElementById('contextMenu');
-            if (contextMenu) contextMenu.remove();
+            const menu = document.createElement('div');
+            menu.className = 'context-menu';
 
-            document.getElementById('moveModeOverlay').classList.add('active');
-            document.getElementById('moveModePrompt').classList.add('active');
-        }
+            const rect = element.getBoundingClientRect();
 
-        function appSelectMoveTarget(locIndex, itemIndex, position) {
-            moveTargetLocIndex = locIndex;
-            moveTargetItemIndex = itemIndex;
+            // Determine if can move up or down
+            if (type === 'item') {
+                const canMoveUp = itemIndex > 0;
+                const canMoveDown = itemIndex < locations[locIndex].items.length - 1;
 
-            document.getElementById('moveConfirmBtn').classList.add('active');
-        }
+                if (canMoveUp) {
+                    const upItem = document.createElement('div');
+                    upItem.className = 'context-menu-item';
+                    upItem.textContent = '⬆️ Upp';
+                    upItem.onclick = () => {
+                        appMoveItem(locIndex, itemIndex, -1);
+                        menu.remove();
+                    };
+                    menu.appendChild(upItem);
+                }
 
-        function appConfirmMove() {
-            if (moveTargetLocIndex === null) return;
+                if (canMoveDown) {
+                    const downItem = document.createElement('div');
+                    downItem.className = 'context-menu-item';
+                    downItem.textContent = '⬇️ Ner';
+                    downItem.onclick = () => {
+                        appMoveItem(locIndex, itemIndex, 1);
+                        menu.remove();
+                    };
+                    menu.appendChild(downItem);
+                }
 
-            const item = locations[moveSourceLocIndex].items[moveSourceItemIndex];
-
-            // Remove from source
-            locations[moveSourceLocIndex].items.splice(moveSourceItemIndex, 1);
-            locations[moveSourceLocIndex].items.forEach((it, i) => it.order = i);
-
-            // Add to target
-            if (moveTargetItemIndex === -1) {
-                // Moving to a location header - add at end of location
-                locations[moveTargetLocIndex].items.push(item);
-                item.order = locations[moveTargetLocIndex].items.length - 1;
+                if (!canMoveUp && !canMoveDown) {
+                    const noMove = document.createElement('div');
+                    noMove.className = 'context-menu-item';
+                    noMove.style.color = '#999';
+                    noMove.textContent = 'Ingen förflyttning möjlig';
+                    noMove.style.cursor = 'default';
+                    menu.appendChild(noMove);
+                }
             } else {
-                // Insert before target item
-                locations[moveTargetLocIndex].items.splice(moveTargetItemIndex, 0, item);
-                locations[moveTargetLocIndex].items.forEach((it, i) => it.order = i);
+                const canMoveUp = locIndex > 0;
+                const canMoveDown = locIndex < locations.length - 1;
+
+                if (canMoveUp) {
+                    const upItem = document.createElement('div');
+                    upItem.className = 'context-menu-item';
+                    upItem.textContent = '⬆️ Upp';
+                    upItem.onclick = () => {
+                        appMoveLocation(locIndex, -1);
+                        menu.remove();
+                    };
+                    menu.appendChild(upItem);
+                }
+
+                if (canMoveDown) {
+                    const downItem = document.createElement('div');
+                    downItem.className = 'context-menu-item';
+                    downItem.textContent = '⬇️ Ner';
+                    downItem.onclick = () => {
+                        appMoveLocation(locIndex, 1);
+                        menu.remove();
+                    };
+                    menu.appendChild(downItem);
+                }
+
+                if (!canMoveUp && !canMoveDown) {
+                    const noMove = document.createElement('div');
+                    noMove.className = 'context-menu-item';
+                    noMove.style.color = '#999';
+                    noMove.textContent = 'Ingen förflyttning möjlig';
+                    noMove.style.cursor = 'default';
+                    menu.appendChild(noMove);
+                }
             }
 
-            saveAllData();
-            appCancelMove();
+            document.body.appendChild(menu);
+            menu.style.top = (rect.bottom + 5) + 'px';
+
+            // Update position on scroll
+            const updateMenuPosition = () => {
+                const currentRect = element.getBoundingClientRect();
+                menu.style.top = (currentRect.bottom + 5) + 'px';
+
+                if (currentRect.top < 0 || currentRect.bottom > window.innerHeight) {
+                    menu.remove();
+                    window.removeEventListener('scroll', updateMenuPosition);
+                }
+            };
+
+            window.addEventListener('scroll', updateMenuPosition);
+
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu(e) {
+                    if (!menu.contains(e.target)) {
+                        menu.remove();
+                        window.removeEventListener('scroll', updateMenuPosition);
+                        document.removeEventListener('click', closeMenu);
+                    }
+                });
+            }, 0);
         }
 
-        function appCancelMove() {
-            moveMode = false;
-            moveSourceLocIndex = null;
-            moveSourceItemIndex = null;
-            moveTargetLocIndex = null;
-            moveTargetItemIndex = null;
+        function appShowMoveItemMenu(locIndex, itemIndex, element) {
+            // Remove existing menu if any
+            const existingMenu = document.getElementById('contextMenu');
+            if (existingMenu) existingMenu.remove();
 
-            document.getElementById('moveModeOverlay').classList.remove('active');
-            document.getElementById('moveModePrompt').classList.remove('active');
-            document.getElementById('moveConfirmBtn').classList.remove('active');
+            const menu = document.createElement('div');
+            menu.className = 'context-menu';
+
+            const rect = element.getBoundingClientRect();
+
+            // Create menu items for each location
+            locations.forEach((location, idx) => {
+                if (idx !== locIndex) {
+                    const menuItem = document.createElement('div');
+                    menuItem.className = 'context-menu-item';
+                    menuItem.textContent = location.name;
+                    menuItem.onclick = () => {
+                        appMoveItemToLocation(locIndex, itemIndex, idx);
+                        menu.remove();
+                    };
+                    menu.appendChild(menuItem);
+                }
+            });
+
+            document.body.appendChild(menu);
+            menu.style.top = (rect.bottom + 5) + 'px';
+
+            // Update position on scroll
+            const updateMenuPosition = () => {
+                const currentRect = element.getBoundingClientRect();
+                menu.style.top = (currentRect.bottom + 5) + 'px';
+
+                if (currentRect.top < 0 || currentRect.bottom > window.innerHeight) {
+                    menu.remove();
+                    window.removeEventListener('scroll', updateMenuPosition);
+                }
+            };
+
+            window.addEventListener('scroll', updateMenuPosition);
+
+            setTimeout(() => {
+                document.addEventListener('click', function closeMenu(e) {
+                    if (!menu.contains(e.target)) {
+                        menu.remove();
+                        window.removeEventListener('scroll', updateMenuPosition);
+                        document.removeEventListener('click', closeMenu);
+                    }
+                });
+            }, 0);
+        }
+
+        function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
+            const item = locations[fromLocIndex].items[itemIndex];
+
+            // Remove from source location
+            locations[fromLocIndex].items.splice(itemIndex, 1);
+            locations[fromLocIndex].items.forEach((it, i) => it.order = i);
+
+            // Add to target location
+            locations[toLocIndex].items.push(item);
+            item.order = locations[toLocIndex].items.length - 1;
+
+            saveAllData();
         }
 
         function appDeleteFromMenu(locIndex, itemIndex, type) {
@@ -1902,13 +1900,22 @@
             }
         }
 
-        function appShowAddLocationDialog() {
+        function appShowAddLocationDialog(insertIndex = null) {
             dialogCallback = (name) => {
-                locations.push({
+                const newLocation = {
                     name,
-                    order: locations.length,
+                    order: insertIndex !== null ? insertIndex : locations.length,
                     items: []
-                });
+                };
+
+                if (insertIndex !== null) {
+                    locations.splice(insertIndex, 0, newLocation);
+                    // Update order of all locations
+                    locations.forEach((loc, i) => loc.order = i);
+                } else {
+                    locations.push(newLocation);
+                }
+
                 saveAllData();
             };
             document.getElementById('dialogTitle').textContent = 'Lägg till ny plats';
