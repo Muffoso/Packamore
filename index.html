@@ -1669,7 +1669,7 @@
 
                     appShowContextMenu(locHeader, locIndex, -1, 'location');
                 }
-            }, 500);
+            }, 1000);
         }
 
         function appOnTouchEnd(e) {
@@ -1729,10 +1729,6 @@
         }
 
         function appShowOrganizeBottomSheet(locIndex, itemIndex, type) {
-            appCloseBottomSheet();
-
-            const overlay = document.getElementById('bottomSheetOverlay');
-            const sheet = document.getElementById('bottomSheet');
             const titleEl = document.getElementById('bottomSheetTitle');
             const contentEl = document.getElementById('bottomSheetContent');
 
@@ -1824,17 +1820,9 @@
             closeBtn.style.fontWeight = 'bold';
             closeBtn.onclick = () => appCloseBottomSheet();
             contentEl.appendChild(closeBtn);
-
-            overlay.classList.add('active');
-            sheet.classList.add('active');
-            overlay.onclick = () => appCloseBottomSheet();
         }
 
         function appShowMoveItemBottomSheet(locIndex, itemIndex) {
-            appCloseBottomSheet();
-
-            const overlay = document.getElementById('bottomSheetOverlay');
-            const sheet = document.getElementById('bottomSheet');
             const titleEl = document.getElementById('bottomSheetTitle');
             const contentEl = document.getElementById('bottomSheetContent');
 
@@ -1870,10 +1858,6 @@
                     contentEl.appendChild(menuItem);
                 });
             }
-
-            overlay.classList.add('active');
-            sheet.classList.add('active');
-            overlay.onclick = () => appCloseBottomSheet();
         }
 
         function appStartRename(locIndex, itemIndex, type) {
