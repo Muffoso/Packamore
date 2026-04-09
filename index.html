@@ -2331,20 +2331,28 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
 
                     const sharedKey = Date.now();
 
-                    // Build locations structure from current locations
+                    // Build locations structure with only items from this saved list
                     const locationsData = {};
-                    locations.forEach(location => {
-                        locationsData[location.name] = {
-                            order: location.order,
-                            items: {}
-                        };
-                        location.items.forEach(item => {
-                            locationsData[location.name].items[item.name] = {
-                                active: item.active,
-                                order: item.order,
-                                quantity: item.quantity || 1
+                    list.items.forEach(saved => {
+                        if (!locationsData[saved.location]) {
+                            locationsData[saved.location] = {
+                                order: 0,
+                                items: {}
                             };
-                        });
+                        }
+                        locationsData[saved.location].items[saved.name] = {
+                            active: false,
+                            order: Object.keys(locationsData[saved.location].items).length,
+                            quantity: saved.quantity || 1
+                        };
+                    });
+
+                    // Set order based on locations array
+                    let locOrder = 0;
+                    locations.forEach(loc => {
+                        if (locationsData[loc.name]) {
+                            locationsData[loc.name].order = locOrder++;
+                        }
                     });
 
                     const payload = {
