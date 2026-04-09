@@ -1711,7 +1711,10 @@
                 menuItem.textContent = item.label;
                 menuItem.onclick = () => {
                     item.action();
-                    appCloseBottomSheet();
+                    // Only close if action doesn't update the sheet (i.e., not Ordna/Flytta)
+                    if (item.label !== 'Ordna' && item.label !== 'Flytta') {
+                        appCloseBottomSheet();
+                    }
                 };
                 contentEl.appendChild(menuItem);
             });
