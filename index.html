@@ -69,13 +69,13 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 6px;
             margin-bottom: 30px;
         }
 
         .auth-logo {
-            width: 60px;
-            height: 60px;
+            width: 72px;
+            height: 72px;
         }
 
         .auth-container h1 {
@@ -86,6 +86,7 @@
             font-family: 'Righteous', sans-serif;
             font-weight: 700;
             letter-spacing: 2px;
+            line-height: 1;
         }
 
         .auth-form {
@@ -1053,7 +1054,7 @@
                 <img src="logoDarkTransparent.png" alt="Packamore logo" class="auth-logo" />
                 <div>
                     <h1>PACKAMORE</h1>
-                    <div class="auth-tagline" style="margin-top: 5px; margin-bottom: 0;">packlistor fast listigare</div>
+                    <div class="auth-tagline" style="margin-top: 2px; margin-bottom: 0;">Packlistor, fast listigare.</div>
                 </div>
             </div>
 
@@ -1503,6 +1504,15 @@
                     container.appendChild(section);
                 }
             });
+
+            // If no locations, show add location button
+            if (locations.length === 0) {
+                const addLocationBtn = document.createElement('button');
+                addLocationBtn.className = 'add-location-btn';
+                addLocationBtn.textContent = '+ Lägg till plats';
+                addLocationBtn.onclick = () => appShowAddLocationDialog(0);
+                container.appendChild(addLocationBtn);
+            }
 
             if (filterActive) {
                 container.classList.add('show-active-only');
