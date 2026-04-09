@@ -429,6 +429,8 @@
             z-index: 2000;
             min-width: 150px;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            left: 50%;
+            transform: translateX(-50%);
         }
 
         .context-menu-item {
@@ -1632,11 +1634,27 @@
                     const itemIndex = Array.from(itemDiv.parentElement.children).filter(el => el.classList.contains('item')).indexOf(itemDiv);
                     const section = itemDiv.closest('.location-section');
                     const locIndex = Array.from(section.parentElement.children).filter(el => el.classList.contains('location-section')).indexOf(section);
-                    appShowContextMenu(e, locIndex, itemIndex, 'item');
+
+                    // Scroll to position item at 25px from top
+                    const rect = itemDiv.getBoundingClientRect();
+                    const scrollTop = window.scrollY;
+                    const targetScrollTop = scrollTop + rect.top - 25;
+                    window.scrollTo(0, targetScrollTop);
+
+                    // Show menu after scroll
+                    setTimeout(() => appShowContextMenu(itemDiv, locIndex, itemIndex, 'item'), 50);
                 } else if (locHeader) {
                     const section = locHeader.closest('.location-section');
                     const locIndex = Array.from(section.parentElement.children).filter(el => el.classList.contains('location-section')).indexOf(section);
-                    appShowContextMenu(e, locIndex, -1, 'location');
+
+                    // Scroll to position header at 25px from top
+                    const rect = locHeader.getBoundingClientRect();
+                    const scrollTop = window.scrollY;
+                    const targetScrollTop = scrollTop + rect.top - 25;
+                    window.scrollTo(0, targetScrollTop);
+
+                    // Show menu after scroll
+                    setTimeout(() => appShowContextMenu(locHeader, locIndex, -1, 'location'), 50);
                 }
             }, 500);
         }
@@ -1666,9 +1684,7 @@
             }
         }
 
-        function appShowContextMenu(e, locIndex, itemIndex, type) {
-            e.preventDefault();
-
+        function appShowContextMenu(element, locIndex, itemIndex, type) {
             // Remove existing menu if any
             const existingMenu = document.getElementById('contextMenu');
             if (existingMenu) existingMenu.remove();
@@ -1676,8 +1692,6 @@
             const menu = document.createElement('div');
             menu.id = 'contextMenu';
             menu.className = 'context-menu';
-            menu.style.top = e.touches[0].clientY + 'px';
-            menu.style.left = e.touches[0].clientX + 'px';
 
             const items = [
                 { label: 'Byt namn', action: () => appStartRename(locIndex, itemIndex, type) },
@@ -1698,11 +1712,30 @@
 
             document.body.appendChild(menu);
 
+            // Position menu just below the element
+            const rect = element.getBoundingClientRect();
+            menu.style.top = (rect.bottom + 5) + 'px';
+
+            // Update position on scroll to keep menu with element
+            const updateMenuPosition = () => {
+                const currentRect = element.getBoundingClientRect();
+                menu.style.top = (currentRect.bottom + 5) + 'px';
+
+                // Close menu if element is off-screen
+                if (currentRect.top < 0 || currentRect.bottom > window.innerHeight) {
+                    menu.remove();
+                    window.removeEventListener('scroll', updateMenuPosition);
+                }
+            };
+
+            window.addEventListener('scroll', updateMenuPosition);
+
             // Close menu when clicking outside
             setTimeout(() => {
                 document.addEventListener('click', function closeMenu(e) {
                     if (!menu.contains(e.target)) {
                         menu.remove();
+                        window.removeEventListener('scroll', updateMenuPosition);
                         document.removeEventListener('click', closeMenu);
                     }
                 });
