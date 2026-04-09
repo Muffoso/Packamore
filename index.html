@@ -447,6 +447,96 @@
             background: #e6eaef;
         }
 
+        .bottom-sheet-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.3);
+            z-index: 1999;
+            display: none;
+        }
+
+        .bottom-sheet-overlay.active {
+            display: block;
+        }
+
+        .bottom-sheet {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #f2f0e4;
+            border-radius: 12px 12px 0 0;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+            max-height: 80vh;
+            animation: slideUp 0.3s ease-out;
+        }
+
+        .bottom-sheet.active {
+            display: flex;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        .bottom-sheet-header {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bottom-sheet-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #045149;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .bottom-sheet-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #045149;
+            padding: 0;
+        }
+
+        .bottom-sheet-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+        }
+
+        .bottom-sheet-menu-item {
+            padding: 16px;
+            border-bottom: 1px solid #e0e0e0;
+            color: #045149;
+            font-family: 'Inter', sans-serif;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .bottom-sheet-menu-item:active {
+            background: #e6eaef;
+        }
+
+        .bottom-sheet-menu-item:last-child {
+            border-bottom: none;
+        }
+
 
         .qty-controls {
             display: flex;
@@ -1132,6 +1222,15 @@
             </div>
         </div>
 
+        <div class="bottom-sheet-overlay" id="bottomSheetOverlay"></div>
+        <div class="bottom-sheet" id="bottomSheet">
+            <div class="bottom-sheet-header">
+                <div class="bottom-sheet-title" id="bottomSheetTitle"></div>
+                <button class="bottom-sheet-close" onclick="appCloseBottomSheet()">✕</button>
+            </div>
+            <div class="bottom-sheet-content" id="bottomSheetContent"></div>
+        </div>
+
         <div class="input-dialog" id="shareDialog">
             <div class="dialog-content">
                 <h2>Dela packlista</h2>
@@ -1586,58 +1685,146 @@
             menu.id = 'contextMenu';
             menu.className = 'context-menu';
 
-            const items = [
+            // Show bottom sheet with options
+            appShowBottomSheet(type === 'item' ? `${locations[locIndex].items[itemIndex].name}` : locations[locIndex].name, [
                 { label: 'Byt namn', action: () => appStartRename(locIndex, itemIndex, type) },
-                { label: 'Ordna', action: () => appShowOrganizeMenu(locIndex, itemIndex, type, element) }
-            ];
+                { label: 'Ordna', action: () => appShowOrganizeBottomSheet(locIndex, itemIndex, type) },
+                ...(type === 'item' ? [{ label: 'Flytta', action: () => appShowMoveItemBottomSheet(locIndex, itemIndex) }] : []),
+                { label: 'Ta bort', action: () => appDeleteFromMenu(locIndex, itemIndex, type) }
+            ]);
+        }
 
-            if (type === 'item') {
-                items.push({ label: 'Flytta', action: () => appShowMoveItemMenu(locIndex, itemIndex, element) });
-            }
+        function appShowBottomSheet(title, items) {
+            appCloseBottomSheet();
 
-            items.push({ label: 'Ta bort', action: () => appDeleteFromMenu(locIndex, itemIndex, type) });
+            const overlay = document.getElementById('bottomSheetOverlay');
+            const sheet = document.getElementById('bottomSheet');
+            const titleEl = document.getElementById('bottomSheetTitle');
+            const contentEl = document.getElementById('bottomSheetContent');
+
+            titleEl.textContent = title;
+            contentEl.innerHTML = '';
 
             items.forEach(item => {
                 const menuItem = document.createElement('div');
-                menuItem.className = 'context-menu-item';
+                menuItem.className = 'bottom-sheet-menu-item';
                 menuItem.textContent = item.label;
                 menuItem.onclick = () => {
                     item.action();
-                    menu.remove();
+                    appCloseBottomSheet();
                 };
-                menu.appendChild(menuItem);
+                contentEl.appendChild(menuItem);
             });
 
-            document.body.appendChild(menu);
+            overlay.classList.add('active');
+            sheet.classList.add('active');
+            overlay.onclick = () => appCloseBottomSheet();
+        }
 
-            // Position menu just below the element
-            const rect = element.getBoundingClientRect();
-            menu.style.top = (rect.bottom + 5) + 'px';
+        function appCloseBottomSheet() {
+            const overlay = document.getElementById('bottomSheetOverlay');
+            const sheet = document.getElementById('bottomSheet');
+            overlay.classList.remove('active');
+            sheet.classList.remove('active');
+        }
 
-            // Update position on scroll to keep menu with element
-            const updateMenuPosition = () => {
-                const currentRect = element.getBoundingClientRect();
-                menu.style.top = (currentRect.bottom + 5) + 'px';
+        function appShowOrganizeBottomSheet(locIndex, itemIndex, type) {
+            const items = [];
 
-                // Close menu if element is off-screen
-                if (currentRect.top < 0 || currentRect.bottom > window.innerHeight) {
-                    menu.remove();
-                    window.removeEventListener('scroll', updateMenuPosition);
+            if (type === 'item') {
+                const canMoveUp = itemIndex > 0;
+                const canMoveDown = itemIndex < locations[locIndex].items.length - 1;
+
+                if (canMoveUp) {
+                    items.push({
+                        label: '⬆️ Flytta upp',
+                        action: () => {
+                            appMoveItem(locIndex, itemIndex, -1);
+                            render();
+                            appShowOrganizeBottomSheet(locIndex, itemIndex - 1, type);
+                        }
+                    });
                 }
-            };
 
-            window.addEventListener('scroll', updateMenuPosition);
+                if (canMoveDown) {
+                    items.push({
+                        label: '⬇️ Flytta ner',
+                        action: () => {
+                            appMoveItem(locIndex, itemIndex, 1);
+                            render();
+                            appShowOrganizeBottomSheet(locIndex, itemIndex + 1, type);
+                        }
+                    });
+                }
 
-            // Close menu when clicking outside
-            setTimeout(() => {
-                document.addEventListener('click', function closeMenu(e) {
-                    if (!menu.contains(e.target)) {
-                        menu.remove();
-                        window.removeEventListener('scroll', updateMenuPosition);
-                        document.removeEventListener('click', closeMenu);
+                if (!canMoveUp && !canMoveDown) {
+                    items.push({
+                        label: 'Ingen förflyttning möjlig',
+                        action: () => {}
+                    });
+                }
+            } else {
+                const canMoveUp = locIndex > 0;
+                const canMoveDown = locIndex < locations.length - 1;
+
+                if (canMoveUp) {
+                    items.push({
+                        label: '⬆️ Flytta upp',
+                        action: () => {
+                            appMoveLocation(locIndex, -1);
+                            render();
+                            appShowOrganizeBottomSheet(locIndex - 1, -1, type);
+                        }
+                    });
+                }
+
+                if (canMoveDown) {
+                    items.push({
+                        label: '⬇️ Flytta ner',
+                        action: () => {
+                            appMoveLocation(locIndex, 1);
+                            render();
+                            appShowOrganizeBottomSheet(locIndex + 1, -1, type);
+                        }
+                    });
+                }
+
+                if (!canMoveUp && !canMoveDown) {
+                    items.push({
+                        label: 'Ingen förflyttning möjlig',
+                        action: () => {}
+                    });
+                }
+            }
+
+            items.push({
+                label: '✓ Klar',
+                action: () => {}
+            });
+
+            appShowBottomSheet(`Ordna: ${type === 'item' ? locations[locIndex].items[itemIndex].name : locations[locIndex].name}`, items);
+        }
+
+        function appShowMoveItemBottomSheet(locIndex, itemIndex) {
+            const items = locations
+                .filter((_, idx) => idx !== locIndex)
+                .map((location, idx) => ({
+                    label: location.name,
+                    action: () => {
+                        const actualIdx = locations.findIndex(l => l.name === location.name);
+                        appMoveItemToLocation(locIndex, itemIndex, actualIdx);
+                        render();
                     }
+                }));
+
+            if (items.length === 0) {
+                items.push({
+                    label: 'Inga andra platser att flytta till',
+                    action: () => {}
                 });
-            }, 0);
+            }
+
+            appShowBottomSheet(`Flytta: ${locations[locIndex].items[itemIndex].name}`, items);
         }
 
         function appStartRename(locIndex, itemIndex, type) {
@@ -1658,184 +1845,7 @@
             document.getElementById('dialogInput').focus();
         }
 
-        function appShowOrganizeMenu(locIndex, itemIndex, type, element) {
-            // Remove existing menu if any
-            const existingMenu = document.getElementById('contextMenu');
-            if (existingMenu) existingMenu.remove();
-
-            const menu = document.createElement('div');
-            menu.className = 'context-menu';
-
-            const rect = element.getBoundingClientRect();
-
-            // Determine if can move up or down
-            if (type === 'item') {
-                const canMoveUp = itemIndex > 0;
-                const canMoveDown = itemIndex < locations[locIndex].items.length - 1;
-
-                if (canMoveUp) {
-                    const upItem = document.createElement('div');
-                    upItem.className = 'context-menu-item';
-                    upItem.textContent = '⬆️ Upp';
-                    upItem.onclick = () => {
-                        appMoveItem(locIndex, itemIndex, -1);
-                        render();
-                        appShowOrganizeMenu(locIndex, itemIndex - 1, type, element);
-                    };
-                    menu.appendChild(upItem);
-                }
-
-                if (canMoveDown) {
-                    const downItem = document.createElement('div');
-                    downItem.className = 'context-menu-item';
-                    downItem.textContent = '⬇️ Ner';
-                    downItem.onclick = () => {
-                        appMoveItem(locIndex, itemIndex, 1);
-                        render();
-                        appShowOrganizeMenu(locIndex, itemIndex + 1, type, element);
-                    };
-                    menu.appendChild(downItem);
-                }
-
-                if (!canMoveUp && !canMoveDown) {
-                    const noMove = document.createElement('div');
-                    noMove.className = 'context-menu-item';
-                    noMove.style.color = '#999';
-                    noMove.textContent = 'Ingen förflyttning möjlig';
-                    noMove.style.cursor = 'default';
-                    menu.appendChild(noMove);
-                }
-            } else {
-                const canMoveUp = locIndex > 0;
-                const canMoveDown = locIndex < locations.length - 1;
-
-                if (canMoveUp) {
-                    const upItem = document.createElement('div');
-                    upItem.className = 'context-menu-item';
-                    upItem.textContent = '⬆️ Upp';
-                    upItem.onclick = () => {
-                        appMoveLocation(locIndex, -1);
-                        render();
-                        appShowOrganizeMenu(locIndex - 1, -1, type, element);
-                    };
-                    menu.appendChild(upItem);
-                }
-
-                if (canMoveDown) {
-                    const downItem = document.createElement('div');
-                    downItem.className = 'context-menu-item';
-                    downItem.textContent = '⬇️ Ner';
-                    downItem.onclick = () => {
-                        appMoveLocation(locIndex, 1);
-                        render();
-                        appShowOrganizeMenu(locIndex + 1, -1, type, element);
-                    };
-                    menu.appendChild(downItem);
-                }
-
-                if (!canMoveUp && !canMoveDown) {
-                    const noMove = document.createElement('div');
-                    noMove.className = 'context-menu-item';
-                    noMove.style.color = '#999';
-                    noMove.textContent = 'Ingen förflyttning möjlig';
-                    noMove.style.cursor = 'default';
-                    menu.appendChild(noMove);
-                }
-            }
-
-            // Add separator
-            const separator = document.createElement('div');
-            separator.style.borderTop = '1px solid #ccc';
-            separator.style.margin = '5px 0';
-            menu.appendChild(separator);
-
-            // Add done button
-            const doneBtn = document.createElement('div');
-            doneBtn.className = 'context-menu-item';
-            doneBtn.textContent = '✓ Klar';
-            doneBtn.style.fontWeight = 'bold';
-            doneBtn.onclick = () => menu.remove();
-            menu.appendChild(doneBtn);
-
-            document.body.appendChild(menu);
-            menu.style.top = (rect.bottom + 5) + 'px';
-
-            // Update position on scroll
-            const updateMenuPosition = () => {
-                const currentRect = element.getBoundingClientRect();
-                menu.style.top = (currentRect.bottom + 5) + 'px';
-
-                if (currentRect.top < 0 || currentRect.bottom > window.innerHeight) {
-                    menu.remove();
-                    window.removeEventListener('scroll', updateMenuPosition);
-                }
-            };
-
-            window.addEventListener('scroll', updateMenuPosition);
-
-            setTimeout(() => {
-                document.addEventListener('click', function closeMenu(e) {
-                    if (!menu.contains(e.target)) {
-                        menu.remove();
-                        window.removeEventListener('scroll', updateMenuPosition);
-                        document.removeEventListener('click', closeMenu);
-                    }
-                });
-            }, 0);
-        }
-
-        function appShowMoveItemMenu(locIndex, itemIndex, element) {
-            // Remove existing menu if any
-            const existingMenu = document.getElementById('contextMenu');
-            if (existingMenu) existingMenu.remove();
-
-            const menu = document.createElement('div');
-            menu.className = 'context-menu';
-
-            const rect = element.getBoundingClientRect();
-
-            // Create menu items for each location
-            locations.forEach((location, idx) => {
-                if (idx !== locIndex) {
-                    const menuItem = document.createElement('div');
-                    menuItem.className = 'context-menu-item';
-                    menuItem.textContent = location.name;
-                    menuItem.onclick = () => {
-                        appMoveItemToLocation(locIndex, itemIndex, idx);
-                        menu.remove();
-                    };
-                    menu.appendChild(menuItem);
-                }
-            });
-
-            document.body.appendChild(menu);
-            menu.style.top = (rect.bottom + 5) + 'px';
-
-            // Update position on scroll
-            const updateMenuPosition = () => {
-                const currentRect = element.getBoundingClientRect();
-                menu.style.top = (currentRect.bottom + 5) + 'px';
-
-                if (currentRect.top < 0 || currentRect.bottom > window.innerHeight) {
-                    menu.remove();
-                    window.removeEventListener('scroll', updateMenuPosition);
-                }
-            };
-
-            window.addEventListener('scroll', updateMenuPosition);
-
-            setTimeout(() => {
-                document.addEventListener('click', function closeMenu(e) {
-                    if (!menu.contains(e.target)) {
-                        menu.remove();
-                        window.removeEventListener('scroll', updateMenuPosition);
-                        document.removeEventListener('click', closeMenu);
-                    }
-                });
-            }, 0);
-        }
-
-        function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
+function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
             const item = locations[fromLocIndex].items[itemIndex];
 
             // Remove from source location
