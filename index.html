@@ -74,8 +74,8 @@
         }
 
         .auth-logo {
-            width: 40px;
-            height: 40px;
+            width: 60px;
+            height: 60px;
         }
 
         .auth-container h1 {
@@ -1051,7 +1051,10 @@
             <div class="auth-tagline">Packa kan bli det bästa du vet,<br>eller åtminstone lite mer smooth.</div>
             <div class="auth-header">
                 <img src="logoDarkTransparent.png" alt="Packamore logo" class="auth-logo" />
-                <h1>PACKAMORE</h1>
+                <div>
+                    <h1>PACKAMORE</h1>
+                    <div class="auth-tagline" style="margin-top: 5px; margin-bottom: 0;">packlistor fast listigare</div>
+                </div>
             </div>
 
             <div id="loginForm">
@@ -1482,8 +1485,13 @@
 
                 section.appendChild(itemsList);
 
-                // Show add location button between sections (only when all items shown)
-                if (!filterActive) {
+                // Show add location button between sections
+                // Show if: all items shown OR user has no items/locations
+                const hasNoItems = locations.every(loc => loc.items.length === 0);
+                const hasNoLocations = locations.length === 0;
+                const shouldShowAddLocation = !filterActive || hasNoItems || hasNoLocations;
+
+                if (shouldShowAddLocation) {
                     const addLocationBtn = document.createElement('button');
                     addLocationBtn.className = 'add-location-btn';
                     addLocationBtn.textContent = '+ Lägg till plats';
