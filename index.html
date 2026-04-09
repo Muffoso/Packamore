@@ -333,6 +333,29 @@
             position: relative;
         }
 
+        .feedback-btn {
+            background: #21664d;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            height: 28px;
+            width: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+        }
+
+        .feedback-btn img {
+            width: 18px;
+            height: 18px;
+        }
+
+        .feedback-btn:hover {
+            background: #15543c;
+        }
+
         .menu-btn:hover {
             background: #15543c;
         }
@@ -1213,6 +1236,10 @@
                         <button class="menu-item" id="saveListBtn" onclick="appShowSaveListDialog(); appToggleListorMenu()">Spara</button>
                         <button class="menu-item" id="savedListsBtn" onclick="appShowSavedListsModal(); appToggleListorMenu()">Sparade</button>
                     </div>
+
+                    <button class="feedback-btn" id="feedbackBtn" onclick="appOpenFeedbackForm()" title="Ge feedback">
+                        <img src="feedback.png" alt="Feedback" />
+                    </button>
                 </div>
             </div>
         </div>
@@ -2385,6 +2412,11 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                 .then(() => {
                     appShowSavedListsModal(); // refresh
                 });
+        }
+
+        function appOpenFeedbackForm() {
+            // Placeholder for feedback form
+            alert('Feedback-formulär kommer snart!');
         }
 
     </script>
