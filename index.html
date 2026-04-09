@@ -1055,7 +1055,7 @@
             display: none;
             align-items: center;
             justify-content: center;
-            z-index: 1000;
+            z-index: 1100;
         }
 
         .input-dialog.show {
@@ -2260,6 +2260,7 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                 }
             });
 
+            document.getElementById('savedListsModal').classList.remove('show');
             document.getElementById('shareDialog').classList.add('show');
             document.getElementById('shareEmailInput').focus();
         }
@@ -2333,17 +2334,49 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                 const shared = snapshot.val();
                 if (!shared) return;
 
-                // Save as own saved list
-                const timestamp = Date.now();
-                database.ref(`users/${currentUser.uid}/savedLists/${timestamp}`).set({
-                    name: shared.listName,
-                    createdAt: timestamp,
-                    items: shared.items || []
-                }).then(() => {
-                    // Mark as accepted
-                    database.ref(`sharedLists/${currentUser.uid}/incoming/${incomingKey}`).update({ status: 'accepted' });
-                    appShowSavedListsModal(); // refresh
-                });
+                // Merge shared items into current locations
+                const sharedItems = shared.items || [];
+
+                // Create new locations and items from shared list
+                if (sharedItems && typeof sharedItems === 'object') {
+                    Object.entries(sharedItems).forEach(([locName, locData]) => {
+                        // Check if location exists
+                        let location = locations.find(l => l.name === locName);
+
+                        if (!location) {
+                            // Create new location
+                            location = {
+                                name: locName,
+                                order: locations.length,
+                                items: []
+                            };
+                            locations.push(location);
+                        }
+
+                        // Add missing items to location
+                        if (locData && locData.items && typeof locData.items === 'object') {
+                            Object.entries(locData.items).forEach(([itemName, itemData]) => {
+                                const exists = location.items.find(i => i.name === itemName);
+                                if (!exists) {
+                                    location.items.push({
+                                        name: itemName,
+                                        active: itemData.active || false,
+                                        order: location.items.length,
+                                        quantity: itemData.quantity || 1
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+
+                // Save updated locations
+                saveAllData();
+
+                // Mark as accepted
+                database.ref(`sharedLists/${currentUser.uid}/incoming/${incomingKey}`).update({ status: 'accepted' });
+                render();
+                appShowSavedListsModal(); // refresh
             });
         }
 
