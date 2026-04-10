@@ -906,6 +906,20 @@
             color: #045149;
         }
 
+        .star-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .star-label {
+            font-size: 11px;
+            color: #666;
+            text-align: center;
+            max-width: 80px;
+        }
+
         .feedback-textarea {
             width: 100%;
             padding: 12px;
@@ -1416,12 +1430,18 @@
             <div class="feedback-form">
                 <h2>Ge feedback</h2>
                 <div class="feedback-stars" id="starRating">
-                    <button class="star-btn" data-rating="1" onclick="appSetRating(1)">★</button>
+                    <div class="star-wrapper">
+                        <button class="star-btn" data-rating="1" onclick="appSetRating(1)">★</button>
+                        <span class="star-label">Gav mig huvudvärk</span>
+                    </div>
                     <button class="star-btn" data-rating="2" onclick="appSetRating(2)">★</button>
                     <button class="star-btn" data-rating="3" onclick="appSetRating(3)">★</button>
                     <button class="star-btn" data-rating="4" onclick="appSetRating(4)">★</button>
                     <button class="star-btn" data-rating="5" onclick="appSetRating(5)">★</button>
-                    <button class="star-btn" data-rating="6" onclick="appSetRating(6)">★</button>
+                    <div class="star-wrapper">
+                        <button class="star-btn" data-rating="6" onclick="appSetRating(6)">★</button>
+                        <span class="star-label">Jag vill packa snart igen</span>
+                    </div>
                 </div>
                 <textarea class="feedback-textarea" id="feedbackText" placeholder="Vad funkar? Vad funkar inte? Vad borde vara bättre? Skriv vad du vill."></textarea>
                 <div class="feedback-actions">
@@ -2441,25 +2461,31 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                 return;
             }
 
-            if (!text) {
-                alert('Vänligen skriv något feedback');
+            // Text is optional, rating is required
+            if (!currentUser) {
+                alert('Du måste vara inloggad för att skicka feedback');
                 return;
             }
 
             // Save feedback to Firebase
             const feedbackKey = Date.now();
-            database.ref(`feedback/${feedbackKey}`).set({
-                userId: currentUser?.uid || 'anonymous',
-                userEmail: currentUser?.email || 'anonymous',
+            const feedbackData = {
+                userId: currentUser.uid,
+                userEmail: currentUser.email,
                 rating: currentFeedbackRating,
                 message: text,
                 createdAt: feedbackKey
-            }).then(() => {
-                alert('Tack för din feedback!');
-                appCloseFeedbackForm();
-            }).catch(() => {
-                alert('Kunde inte skicka feedback. Försök igen senare.');
-            });
+            };
+
+            database.ref(`feedback/${feedbackKey}`).set(feedbackData)
+                .then(() => {
+                    alert('Tack för din feedback!');
+                    appCloseFeedbackForm();
+                })
+                .catch((error) => {
+                    console.error('Feedback error:', error);
+                    alert('Kunde inte skicka feedback. Försök igen senare.');
+                });
         }
 
         // Share dialog state
@@ -2586,17 +2612,7 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                 const shared = snapshot.val();
                 if (!shared) return;
 
-                // First, deactivate all currently active items
-                locations.forEach(loc => {
-                    loc.items.forEach(item => {
-                        if (item.active) {
-                            item.active = false;
-                            item.quantity = 1;
-                        }
-                    });
-                });
-
-                // Merge shared items into current locations
+                // Merge shared items into current locations (but don't activate them yet)
                 const sharedItems = shared.items || [];
 
                 // Create new locations and items from shared list
@@ -2622,14 +2638,10 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                                 if (!exists) {
                                     location.items.push({
                                         name: itemName,
-                                        active: true,  // Set shared items as active
+                                        active: false,  // Don't activate - user loads the list manually
                                         order: location.items.length,
                                         quantity: itemData.quantity || 1
                                     });
-                                } else {
-                                    // If item exists, activate it with the shared quantity
-                                    exists.active = true;
-                                    exists.quantity = itemData.quantity || 1;
                                 }
                             });
                         }
@@ -2642,16 +2654,16 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                 // Save as a new saved list
                 const timestamp = Date.now();
                 const savedListItems = [];
-                locations.forEach(loc => {
-                    loc.items.forEach(item => {
-                        if (item.active) {
+                sharedItems && typeof sharedItems === 'object' && Object.entries(sharedItems).forEach(([locName, locData]) => {
+                    if (locData && locData.items && typeof locData.items === 'object') {
+                        Object.entries(locData.items).forEach(([itemName, itemData]) => {
                             savedListItems.push({
-                                location: loc.name,
-                                name: item.name,
-                                quantity: item.quantity || 1
+                                location: locName,
+                                name: itemName,
+                                quantity: itemData.quantity || 1
                             });
-                        }
-                    });
+                        });
+                    }
                 });
 
                 database.ref(`users/${currentUser.uid}/savedLists/${timestamp}`).set({
