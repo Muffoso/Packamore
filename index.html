@@ -2418,18 +2418,38 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                     });
 
                     // Activate and set quantity for saved items
+                    // Also add missing locations and items if they don't exist
                     list.items.forEach(saved => {
-                        const loc = locations.find(l => l.name === saved.location);
-                        if (loc) {
-                            const item = loc.items.find(i => i.name === saved.name);
-                            if (item) {
-                                item.active = true;
-                                item.quantity = saved.quantity || 1;
-                            }
+                        let loc = locations.find(l => l.name === saved.location);
+
+                        // If location doesn't exist, create it
+                        if (!loc) {
+                            loc = {
+                                name: saved.location,
+                                order: locations.length,
+                                items: []
+                            };
+                            locations.push(loc);
+                        }
+
+                        // Find or create the item
+                        let item = loc.items.find(i => i.name === saved.name);
+                        if (!item) {
+                            item = {
+                                name: saved.name,
+                                active: true,
+                                order: loc.items.length,
+                                quantity: saved.quantity || 1
+                            };
+                            loc.items.push(item);
+                        } else {
+                            item.active = true;
+                            item.quantity = saved.quantity || 1;
                         }
                     });
 
                     saveAllData();
+                    render();
                     appCloseSavedListsModal();
                 }
             });
