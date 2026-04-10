@@ -1,0 +1,16 @@
+# Feedback viewer - local development only
+feedback-viewer.html
+read-feedback.js
+firebase-key.json
+
+# Node modules
+node_modules/
+npm-debug.log
+
+# Environment files
+.env
+.env.local
+
+# OS files
+.DS_Store
+Thumbs.db
