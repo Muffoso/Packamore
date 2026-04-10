@@ -547,16 +547,17 @@
             breakdownContainer.innerHTML = '';
 
             // Find max count for scaling
-            const maxCount = Math.max(...Object.values(stats.breakdown));
+            const maxCount = Math.max(...Object.values(stats.breakdown), 1);
+            const chartHeight = 150; // pixels
 
             for (let i = 1; i <= 6; i++) {
                 const count = stats.breakdown[i];
-                const percentage = (count / maxCount) * 100;
+                const barHeight = (count / maxCount) * chartHeight;
 
                 const div = document.createElement('div');
                 div.className = 'rating-item';
                 div.innerHTML = `
-                    <div class="rating-bar" style="height: ${percentage}%;"></div>
+                    <div class="rating-bar" style="height: ${barHeight}px;"></div>
                     <div class="rating-item-count">${count}</div>
                     <div class="rating-item-label">${i}★</div>
                 `;
