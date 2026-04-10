@@ -2138,7 +2138,10 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
         }
 
         function appDeleteLocation(locIndex) {
-            if (confirm(`Vill du ta bort "${locations[locIndex].name}"?`)) {
+            const location = locations[locIndex];
+            const itemCount = location.items.length;
+            const message = `Vill du verkligen ta bort platsen "${location.name}" och alla ${itemCount} saker på den?`;
+            if (confirm(message)) {
                 locations.splice(locIndex, 1);
                 locations.forEach((loc, i) => loc.order = i);
                 saveAllData();
@@ -2583,6 +2586,16 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                 const shared = snapshot.val();
                 if (!shared) return;
 
+                // First, deactivate all currently active items
+                locations.forEach(loc => {
+                    loc.items.forEach(item => {
+                        if (item.active) {
+                            item.active = false;
+                            item.quantity = 1;
+                        }
+                    });
+                });
+
                 // Merge shared items into current locations
                 const sharedItems = shared.items || [];
 
@@ -2609,10 +2622,14 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                                 if (!exists) {
                                     location.items.push({
                                         name: itemName,
-                                        active: itemData.active || false,
+                                        active: true,  // Set shared items as active
                                         order: location.items.length,
                                         quantity: itemData.quantity || 1
                                     });
+                                } else {
+                                    // If item exists, activate it with the shared quantity
+                                    exists.active = true;
+                                    exists.quantity = itemData.quantity || 1;
                                 }
                             });
                         }
@@ -2621,6 +2638,27 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
 
                 // Save updated locations
                 saveAllData();
+
+                // Save as a new saved list
+                const timestamp = Date.now();
+                const savedListItems = [];
+                locations.forEach(loc => {
+                    loc.items.forEach(item => {
+                        if (item.active) {
+                            savedListItems.push({
+                                location: loc.name,
+                                name: item.name,
+                                quantity: item.quantity || 1
+                            });
+                        }
+                    });
+                });
+
+                database.ref(`users/${currentUser.uid}/savedLists/${timestamp}`).set({
+                    name: shared.listName,
+                    createdAt: timestamp,
+                    items: savedListItems
+                });
 
                 // Mark as accepted
                 database.ref(`sharedLists/${currentUser.uid}/incoming/${incomingKey}`).update({ status: 'accepted' });
@@ -2634,11 +2672,6 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                 .then(() => {
                     appShowSavedListsModal(); // refresh
                 });
-        }
-
-        function appOpenFeedbackForm() {
-            // Placeholder for feedback form
-            alert('Feedback-formulär kommer snart!');
         }
 
     </script>
