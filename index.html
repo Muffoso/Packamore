@@ -2207,7 +2207,7 @@
                 menuItem.onclick = () => {
                     item.action();
                     // Only close if action doesn't update the sheet (i.e., not Ordna/Flytta)
-                    if (item.label !== 'Ordna' && item.label !== 'Flytta') {
+                    if (item.label !== 'Flytta upp/ner' && item.label !== 'Flytta till annan grupp') {
                         appCloseBottomSheet();
                     }
                 };
