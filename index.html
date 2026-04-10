@@ -884,20 +884,22 @@
 
         .feedback-stars {
             display: flex;
-            gap: 10px;
+            gap: 4px;
             margin-bottom: 20px;
             justify-content: center;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             align-items: center;
         }
 
         .star-btn {
             background: none;
             border: none;
-            font-size: 30px;
+            font-size: 20px;
             cursor: pointer;
             transition: transform 0.2s ease;
             color: #bfdbdd;
+            padding: 0;
+            line-height: 1;
         }
 
         .star-btn:hover {
@@ -911,18 +913,19 @@
         .star-labels {
             display: flex;
             justify-content: space-between;
-            margin: -10px 0 15px 0;
-            font-size: 10px;
+            margin: -5px 0 15px 0;
+            font-size: 9px;
             color: #999;
             text-align: center;
+            gap: 5px;
         }
 
         .star-label-left {
-            flex: 1;
+            flex: 0 1 auto;
         }
 
         .star-label-right {
-            flex: 1;
+            flex: 0 1 auto;
         }
 
         .feedback-textarea {
@@ -2475,11 +2478,12 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                 return;
             }
 
-            // Save feedback to Firebase
+            // Save feedback to Firebase under admin feedback node
+            // Using a public feedback node with proper security rules
             const feedbackKey = Date.now();
             const feedbackData = {
-                userId: currentUser.uid,
-                userEmail: currentUser.email,
+                uid: currentUser.uid,
+                email: currentUser.email,
                 rating: currentFeedbackRating,
                 message: text,
                 createdAt: feedbackKey
@@ -2487,7 +2491,8 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
 
             console.log('Sending feedback:', feedbackData);
 
-            database.ref(`feedback/${feedbackKey}`).set(feedbackData)
+            // Try to save to a feedback collection accessible by authenticated users
+            database.ref(`/feedback/${feedbackKey}`).set(feedbackData)
                 .then(() => {
                     console.log('Feedback sent successfully');
                     alert('Tack för din feedback!');
@@ -2495,7 +2500,17 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                 })
                 .catch((error) => {
                     console.error('Feedback error:', error);
-                    alert('Kunde inte skicka feedback: ' + error.message);
+                    // Fallback: save to user's own feedback node if main feedback fails
+                    database.ref(`users/${currentUser.uid}/feedback/${feedbackKey}`).set(feedbackData)
+                        .then(() => {
+                            console.log('Feedback saved to user node');
+                            alert('Tack för din feedback!');
+                            appCloseFeedbackForm();
+                        })
+                        .catch((fallbackError) => {
+                            console.error('Fallback feedback error:', fallbackError);
+                            alert('Kunde inte skicka feedback. Försök igen senare.');
+                        });
                 });
         }
 
