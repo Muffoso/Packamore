@@ -1,5 +1,4 @@
-# Feedback viewer - local development only
-feedback-viewer.html
+# Read feedback script - local development only
 read-feedback.js
 firebase-key.json
 

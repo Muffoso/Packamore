@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feedback Viewer - Packamore</title>
+    <link href="https://fonts.googleapis.com/css2?family=Righteous:wght@400;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #045149 0%, #003a37 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #045149;
+        }
+
+        .auth-screen {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #045149 0%, #003a37 100%);
+        }
+
+        .auth-container {
+            background: #f2f0e4;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 350px;
+        }
+
+        .auth-container h1 {
+            text-align: center;
+            font-family: 'Righteous', sans-serif;
+            color: #045149;
+            margin-bottom: 10px;
+            font-size: 24px;
+        }
+
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .auth-form button {
+            transition: all 0.2s ease;
+        }
+
+        .auth-form button:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .app-screen {
+            display: block;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: #f2f0e4;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-family: 'Righteous', sans-serif;
+            font-size: 32px;
+            margin-bottom: 10px;
+            color: #045149;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: #e6eaef;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #045149;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .loading {
+            background: #f2f0e4;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            color: #666;
+        }
+
+        .error {
+            background: #f2f0e4;
+            padding: 20px;
+            border-radius: 10px;
+            color: #d97176;
+            border-left: 4px solid #d97176;
+        }
+
+        .feedback-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .feedback-card {
+            background: #f2f0e4;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .feedback-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .feedback-rating {
+            font-size: 20px;
+            color: #045149;
+            font-weight: 700;
+        }
+
+        .feedback-email {
+            font-size: 13px;
+            color: #666;
+            word-break: break-all;
+        }
+
+        .feedback-date {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .feedback-message {
+            color: #333;
+            line-height: 1.6;
+            font-size: 14px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            border-left: 3px solid #bfdbdd;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .empty-state {
+            background: #f2f0e4;
+            padding: 60px 20px;
+            border-radius: 10px;
+            text-align: center;
+            color: #999;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+
+        .refresh-btn {
+            background: #045149;
+            color: #f2f0e4;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .refresh-btn:hover {
+            background: #003a37;
+        }
+
+        .button-container {
+            margin-bottom: 20px;
+        }
+
+        .rating-breakdown {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .rating-item {
+            text-align: center;
+            padding: 10px;
+            background: #e6eaef;
+            border-radius: 5px;
+        }
+
+        .rating-item-count {
+            font-size: 18px;
+            font-weight: 700;
+            color: #045149;
+        }
+
+        .rating-item-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 600px) {
+            .feedback-card {
+                padding: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="authScreen" class="auth-screen">
+        <div class="auth-container">
+            <h1>Feedback Viewer</h1>
+            <p style="text-align: center; color: #666; margin-bottom: 20px; font-size: 14px;">Endast för administratörer</p>
+            <div class="auth-form">
+                <button id="googleSignInBtn" style="background: #fff; color: #333; border: 2px solid #ddd; padding: 12px; border-radius: 5px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 16v-4M12 8h.01"></path>
+                    </svg>
+                    Logga in med Google
+                </button>
+                <p style="text-align: center; color: #999; font-size: 12px; margin-top: 15px;">Eller öppna denna sida i samma webbläsare där du är inloggad i Packamore</p>
+                <div id="authError" style="color: #d97176; font-size: 13px; margin-top: 10px; text-align: center;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="appScreen" class="app-screen" style="display: none;">
+        <div class="container">
+            <div class="header">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <h1>📋 Feedback Viewer</h1>
+                        <p>Packamore - All user feedback</p>
+                    </div>
+                    <button class="logout-btn" onclick="logout()" style="background: #d97176; color: #f2f0e4; border: none; padding: 10px 16px; border-radius: 5px; cursor: pointer; font-weight: 600;">Logga ut</button>
+                </div>
+            </div>
+
+        <div class="button-container">
+            <button class="refresh-btn" onclick="loadFeedback()">🔄 Uppdatera</button>
+        </div>
+
+        <div id="statsContainer" style="display: none;">
+            <div class="stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="totalCount">0</div>
+                    <div class="stat-label">Total Feedback</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="avgRating">0</div>
+                    <div class="stat-label">Genomsnittlig Rating</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="highestRating">0</div>
+                    <div class="stat-label">Högsta Rating</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="lowestRating">0</div>
+                    <div class="stat-label">Lägsta Rating</div>
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <h3 style="color: #f2f0e4; margin-bottom: 10px;">Rating fördelning</h3>
+                <div class="rating-breakdown" id="ratingBreakdown"></div>
+            </div>
+        </div>
+
+        <div id="loadingContainer" class="loading" style="margin-top: 30px;">
+            Laddar feedback...
+        </div>
+
+        <div id="errorContainer" class="error" style="display: none; margin-top: 30px;"></div>
+
+        <div id="feedbackContainer" class="feedback-list" style="margin-top: 30px; display: none;"></div>
+
+        <div id="emptyContainer" class="empty-state" style="display: none; margin-top: 30px;">
+            <p>Ingen feedback ännu</p>
+            <p style="font-size: 12px;">Feedback kommer att visas här när användare skickar in det</p>
+        </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyB0H8p6i8-ygCsTdMnY6Aj5yMCLPNVG-84",
+            authDomain: "packarizer.firebaseapp.com",
+            databaseURL: "https://packarizer-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "packarizer",
+            storageBucket: "packarizer.firebasestorage.app",
+            messagingSenderId: "81001000065",
+            appId: "1:81001000065:web:59987941208afe5aff3180"
+        };
+
+        // Initialize Firebase
+        let maxWait = 0;
+        let database = null;
+        let auth = null;
+        let currentUser = null;
+
+        const waitForFirebase = setInterval(() => {
+            maxWait++;
+            if (typeof firebase !== 'undefined' && firebase.app) {
+                clearInterval(waitForFirebase);
+                firebase.initializeApp(firebaseConfig);
+                auth = firebase.auth();
+                database = firebase.database();
+
+                // Check if user is already logged in
+                auth.onAuthStateChanged(user => {
+                    if (user && user.email === 'stallberg.anders@gmail.com') {
+                        currentUser = user;
+                        console.log('Admin logged in as:', user.email);
+                        document.getElementById('authScreen').style.display = 'none';
+                        document.getElementById('appScreen').style.display = 'block';
+                        loadFeedback();
+                    } else if (user) {
+                        // User logged in but not authorized
+                        console.log('User logged in but not authorized:', user.email);
+                        auth.signOut();
+                        document.getElementById('authScreen').style.display = 'flex';
+                        document.getElementById('appScreen').style.display = 'none';
+                        document.getElementById('authError').textContent = 'Endast stallberg.anders@gmail.com har tillgång';
+                    } else {
+                        // User not logged in
+                        console.log('No user logged in');
+                        document.getElementById('authScreen').style.display = 'flex';
+                        document.getElementById('appScreen').style.display = 'none';
+                    }
+                });
+
+                // Handle redirect result
+                auth.getRedirectResult().then(result => {
+                    if (result.user) {
+                        console.log('Redirect result:', result.user.email);
+                        if (result.user.email === 'stallberg.anders@gmail.com') {
+                            currentUser = result.user;
+                            document.getElementById('authScreen').style.display = 'none';
+                            document.getElementById('appScreen').style.display = 'block';
+                            document.getElementById('authError').textContent = '';
+                            loadFeedback();
+                        } else {
+                            auth.signOut();
+                            document.getElementById('authError').textContent = 'Endast stallberg.anders@gmail.com har tillgång';
+                        }
+                    }
+                }).catch(error => {
+                    console.error('Redirect error:', error);
+                });
+            } else if (maxWait > 50) {
+                clearInterval(waitForFirebase);
+                showError('Firebase failed to load');
+            }
+        }, 100);
+
+        function loadFeedback() {
+            if (!database && typeof firebase !== 'undefined') {
+                database = firebase.database();
+            }
+
+            document.getElementById('loadingContainer').style.display = 'block';
+            document.getElementById('feedbackContainer').style.display = 'none';
+            document.getElementById('emptyContainer').style.display = 'none';
+            document.getElementById('errorContainer').style.display = 'none';
+            document.getElementById('statsContainer').style.display = 'none';
+
+            if (!database) {
+                showError('Database not initialized');
+                return;
+            }
+
+            // First try to read from /feedback (if permissions allow)
+            database.ref('/feedback').once('value')
+                .then(snapshot => {
+                    const feedback = snapshot.val();
+                    document.getElementById('loadingContainer').style.display = 'none';
+
+                    if (feedback && Object.keys(feedback).length > 0) {
+                        // Convert to array and sort by date (newest first)
+                        const feedbackArray = Object.entries(feedback)
+                            .map(([key, data]) => ({
+                                key,
+                                ...data
+                            }))
+                            .sort((a, b) => b.createdAt - a.createdAt);
+
+                        // Calculate statistics
+                        const stats = calculateStats(feedbackArray);
+                        displayStats(stats);
+
+                        // Display feedback cards
+                        displayFeedback(feedbackArray);
+
+                        document.getElementById('feedbackContainer').style.display = 'grid';
+                        document.getElementById('statsContainer').style.display = 'block';
+                    } else {
+                        // No feedback in /feedback, try users' feedback nodes
+                        loadFeedbackFromUsers();
+                    }
+                })
+                .catch(error => {
+                    console.warn('Cannot access /feedback node, trying user nodes:', error.message);
+                    // If /feedback is not accessible, try reading from users' feedback nodes
+                    loadFeedbackFromUsers();
+                });
+        }
+
+        function loadFeedbackFromUsers() {
+            database.ref('/users').once('value')
+                .then(snapshot => {
+                    const users = snapshot.val();
+                    document.getElementById('loadingContainer').style.display = 'none';
+
+                    if (!users) {
+                        document.getElementById('emptyContainer').style.display = 'block';
+                        return;
+                    }
+
+                    const feedbackArray = [];
+
+                    // Collect feedback from all users
+                    Object.entries(users).forEach(([userId, userData]) => {
+                        if (userData.feedback && typeof userData.feedback === 'object') {
+                            Object.entries(userData.feedback).forEach(([key, feedback]) => {
+                                feedbackArray.push({
+                                    key,
+                                    ...feedback
+                                });
+                            });
+                        }
+                    });
+
+                    if (feedbackArray.length === 0) {
+                        document.getElementById('emptyContainer').style.display = 'block';
+                        return;
+                    }
+
+                    // Sort by date (newest first)
+                    feedbackArray.sort((a, b) => b.createdAt - a.createdAt);
+
+                    // Calculate statistics
+                    const stats = calculateStats(feedbackArray);
+                    displayStats(stats);
+
+                    // Display feedback cards
+                    displayFeedback(feedbackArray);
+
+                    document.getElementById('feedbackContainer').style.display = 'grid';
+                    document.getElementById('statsContainer').style.display = 'block';
+                })
+                .catch(error => {
+                    document.getElementById('loadingContainer').style.display = 'none';
+                    console.error('Error loading feedback from users:', error);
+                    showError('Kunde inte ladda feedback: ' + error.message);
+                });
+        }
+
+        function calculateStats(feedbackArray) {
+            const ratings = feedbackArray.map(f => f.rating);
+            const total = ratings.length;
+            const sum = ratings.reduce((a, b) => a + b, 0);
+            const avg = (sum / total).toFixed(1);
+            const highest = Math.max(...ratings);
+            const lowest = Math.min(...ratings);
+
+            // Rating breakdown
+            const breakdown = {};
+            for (let i = 1; i <= 6; i++) {
+                breakdown[i] = ratings.filter(r => r === i).length;
+            }
+
+            return { total, avg, highest, lowest, breakdown };
+        }
+
+        function displayStats(stats) {
+            document.getElementById('totalCount').textContent = stats.total;
+            document.getElementById('avgRating').textContent = stats.avg;
+            document.getElementById('highestRating').textContent = stats.highest + '/6';
+            document.getElementById('lowestRating').textContent = stats.lowest + '/6';
+
+            // Display rating breakdown
+            const breakdownContainer = document.getElementById('ratingBreakdown');
+            breakdownContainer.innerHTML = '';
+            for (let i = 1; i <= 6; i++) {
+                const count = stats.breakdown[i];
+                const div = document.createElement('div');
+                div.className = 'rating-item';
+                div.innerHTML = `
+                    <div class="rating-item-count">${count}</div>
+                    <div class="rating-item-label">${'★'.repeat(i)}</div>
+                `;
+                breakdownContainer.appendChild(div);
+            }
+        }
+
+        function displayFeedback(feedbackArray) {
+            const container = document.getElementById('feedbackContainer');
+            container.innerHTML = '';
+
+            feedbackArray.forEach(feedback => {
+                const date = new Date(feedback.createdAt).toLocaleString('sv-SE');
+                const stars = '★'.repeat(feedback.rating) + '☆'.repeat(6 - feedback.rating);
+                const message = feedback.message || '(ingen text)';
+
+                const card = document.createElement('div');
+                card.className = 'feedback-card';
+                card.innerHTML = `
+                    <div class="feedback-header">
+                        <div class="feedback-rating">${stars}</div>
+                        <div>
+                            <div class="feedback-email">${feedback.email || 'anonymous'}</div>
+                            <div class="feedback-date">${date}</div>
+                        </div>
+                    </div>
+                    ${message !== '(ingen text)' ? `<div class="feedback-message">${escapeHtml(message)}</div>` : ''}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function showError(message) {
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.textContent = '❌ ' + message;
+            errorContainer.style.display = 'block';
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function loginWithGoogle() {
+            const provider = new firebase.auth.GoogleAuthProvider();
+            const errorDiv = document.getElementById('authError');
+            const btn = document.getElementById('googleSignInBtn');
+
+            // Disable button during login
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            errorDiv.textContent = 'Öppnar Google-inloggning...';
+
+            auth.signInWithPopup(provider)
+                .then(result => {
+                    console.log('Google auth result:', result.user.email);
+                    if (result.user.email === 'stallberg.anders@gmail.com') {
+                        currentUser = result.user;
+                        console.log('Admin logged in as:', result.user.email);
+                        document.getElementById('authScreen').style.display = 'none';
+                        document.getElementById('appScreen').style.display = 'block';
+                        errorDiv.textContent = '';
+                        loadFeedback();
+                    } else {
+                        errorDiv.textContent = 'Endast stallberg.anders@gmail.com har tillgång';
+                        auth.signOut();
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                    }
+                })
+                .catch(error => {
+                    console.error('Auth error:', error.code, error.message);
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+
+                    // Better error messages
+                    if (error.code === 'auth/popup-blocked') {
+                        errorDiv.textContent = 'Pop-up blockerades. Tillåt pop-ups och försök igen.';
+                    } else if (error.code === 'auth/popup-closed-by-user') {
+                        errorDiv.textContent = 'Inloggning avbröts.';
+                    } else if (error.code === 'auth/operation-not-allowed') {
+                        errorDiv.textContent = 'Google Sign-In är inte aktiverat. Kontakta admin.';
+                    } else {
+                        errorDiv.textContent = 'Kunde inte logga in: ' + error.message;
+                    }
+                });
+        }
+
+        function logout() {
+            auth.signOut().then(() => {
+                currentUser = null;
+                document.getElementById('authScreen').style.display = 'flex';
+                document.getElementById('appScreen').style.display = 'none';
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
+                console.log('Logged out');
+            });
+        }
+
+        // Setup Google Sign-In button
+        document.addEventListener('DOMContentLoaded', () => {
+            const googleBtn = document.getElementById('googleSignInBtn');
+            if (googleBtn) {
+                googleBtn.addEventListener('click', loginWithGoogle);
+            }
+        });
+    </script>
+</body>
+</html>
