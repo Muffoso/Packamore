@@ -1716,6 +1716,7 @@
                         <button class="intro-dot active" onclick="appGoToSlide(0)" data-slide="0"></button>
                         <button class="intro-dot" onclick="appGoToSlide(1)" data-slide="1"></button>
                         <button class="intro-dot" onclick="appGoToSlide(2)" data-slide="2"></button>
+                        <button class="intro-dot" onclick="appGoToSlide(3)" data-slide="3"></button>
                     </div>
                     <div class="intro-controls">
                         <button class="intro-prev-btn" onclick="appPrevSlide()">← Föregående</button>
@@ -2851,7 +2852,7 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
 
         // Intro slideshow state
         let currentIntroSlide = 0;
-        const totalIntroSlides = 3;
+        const totalIntroSlides = 4;
 
         function appShowIntroSlideshow() {
             document.getElementById('introModal').classList.add('show');
