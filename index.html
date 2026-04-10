@@ -356,6 +356,39 @@
             background: #15543c;
         }
 
+        #introBtn {
+            font-size: 16px;
+            font-weight: 700;
+            color: #f2f0e4;
+            line-height: 1;
+        }
+
+        .intro-tip {
+            background: #f2f0e4;
+            padding: 12px 20px;
+            border-bottom: 1px solid #bfdbdd;
+            text-align: center;
+            font-size: 13px;
+            color: #045149;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .intro-tip p {
+            margin: 0;
+            padding: 0;
+        }
+
+        .intro-tip a {
+            color: #21664d;
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .intro-tip a:hover {
+            color: #045149;
+        }
+
         .menu-btn:hover {
             background: #15543c;
         }
@@ -990,6 +1023,183 @@
             cursor: not-allowed;
         }
 
+        .intro-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 1000;
+        }
+
+        .intro-modal.show {
+            display: flex;
+        }
+
+        .intro-slideshow {
+            position: relative;
+            margin: auto;
+            background: #f2f0e4;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            padding: 30px;
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .intro-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #045149;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .intro-close-btn:hover {
+            background: #bfdbdd;
+            border-radius: 50%;
+        }
+
+        .intro-slides-container {
+            min-height: 250px;
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .intro-slide {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .intro-slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .intro-slide h2 {
+            color: #045149;
+            font-family: 'Righteous', sans-serif;
+            font-size: 22px;
+            margin: 0 0 15px 0;
+        }
+
+        .intro-slide p {
+            color: #045149;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            line-height: 1.5;
+            margin: 10px 0;
+        }
+
+        .intro-slide ul {
+            list-style-position: inside;
+            color: #045149;
+        }
+
+        .intro-slide ul li {
+            margin: 8px 0;
+        }
+
+        .intro-navigation {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .intro-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .intro-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            border: 2px solid #bfdbdd;
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0;
+        }
+
+        .intro-dot.active {
+            background: #045149;
+            border-color: #045149;
+        }
+
+        .intro-dot:hover {
+            background: #21664d;
+            border-color: #21664d;
+        }
+
+        .intro-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .intro-prev-btn, .intro-next-btn {
+            padding: 10px 16px;
+            border: 2px solid #045149;
+            border-radius: 5px;
+            background: transparent;
+            color: #045149;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .intro-prev-btn:hover, .intro-next-btn:hover {
+            background: #045149;
+            color: #f2f0e4;
+        }
+
+        .intro-prev-btn:disabled, .intro-next-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .intro-close-final-btn {
+            padding: 10px 20px;
+            background: #045149;
+            color: #f2f0e4;
+            border: none;
+            border-radius: 5px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .intro-close-final-btn:hover {
+            background: #003a37;
+        }
+
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -1381,8 +1591,16 @@
                     <button class="feedback-btn" id="feedbackBtn" onclick="appOpenFeedbackForm()" title="Ge feedback">
                         <img src="feedback.png" alt="Feedback" />
                     </button>
+
+                    <button class="feedback-btn" id="introBtn" onclick="appShowIntroSlideshow()" title="Intro">
+                        ?
+                    </button>
                 </div>
             </div>
+        </div>
+
+        <div class="intro-tip" id="introTip">
+            <p>Tryck och håll för att editera. Mer intro <a href="#" onclick="appShowIntroSlideshow(); return false;">här</a>.</p>
         </div>
 
         <div class="container" id="container"></div>
@@ -1454,6 +1672,57 @@
                 <div class="feedback-actions">
                     <button class="feedback-cancel-btn" onclick="appCloseFeedbackForm()">Nej tack</button>
                     <button class="feedback-submit-btn" onclick="appSubmitFeedback()">Skicka</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="intro-modal" id="introModal">
+            <div class="modal-overlay"></div>
+            <div class="intro-slideshow">
+                <button class="intro-close-btn" onclick="appCloseIntroSlideshow()">✕</button>
+                <div class="intro-slides-container">
+                    <div class="intro-slide active">
+                        <h2>Strukturen</h2>
+                        <p>Packamore är byggt på grupper/platser som innehåller saker.</p>
+                        <p style="margin-top: 20px; font-size: 12px; color: #666;">Exempel: "Sovrum" innehåller "Pyjamas", "Tofflor", etc.</p>
+                    </div>
+                    <div class="intro-slide">
+                        <h2>Lägg till saker i packlistan</h2>
+                        <p>Tryck på en sak för att lägga till den i din packlista.</p>
+                        <p style="margin-top: 20px; font-size: 12px; color: #666;">Saken blir färgad för att visa att den är vald.</p>
+                    </div>
+                    <div class="intro-slide">
+                        <h2>Redigera allt</h2>
+                        <p>Tryck och håll på en grupp eller sak för att:</p>
+                        <ul style="margin: 15px 0; padding-left: 20px; font-size: 14px;">
+                            <li>Byta namn</li>
+                            <li>Flytta upp/ner</li>
+                            <li>Flytta till annan grupp (bara saker)</li>
+                            <li>Ta bort</li>
+                        </ul>
+                    </div>
+                    <div class="intro-slide">
+                        <h2>Spara och dela</h2>
+                        <p>Använd "Listor"-menyn för att:</p>
+                        <ul style="margin: 15px 0; padding-left: 20px; font-size: 14px;">
+                            <li>Spara din packlista</li>
+                            <li>Ladda tidigare packlistor</li>
+                            <li>Dela med andra via email</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="intro-navigation">
+                    <div class="intro-dots">
+                        <button class="intro-dot active" onclick="appGoToSlide(0)" data-slide="0"></button>
+                        <button class="intro-dot" onclick="appGoToSlide(1)" data-slide="1"></button>
+                        <button class="intro-dot" onclick="appGoToSlide(2)" data-slide="2"></button>
+                        <button class="intro-dot" onclick="appGoToSlide(3)" data-slide="3"></button>
+                    </div>
+                    <div class="intro-controls">
+                        <button class="intro-prev-btn" onclick="appPrevSlide()">← Föregående</button>
+                        <button class="intro-next-btn" onclick="appNextSlide()">Nästa →</button>
+                    </div>
+                    <button class="intro-close-final-btn" id="introCloseFinalBtn" onclick="appCloseIntroSlideshow()">Stäng</button>
                 </div>
             </div>
         </div>
@@ -1541,6 +1810,7 @@
 
                     initializeNewUserData(user);
                     listenToDataChanges(user);
+                    checkAndShowIntro(user);
                     editMode = false;
                     filterActive = false;
                     document.getElementById('filterAllBtn').classList.add('active');
@@ -1563,14 +1833,21 @@
 
         function initializeNewUserData(user) {
             const uid = user.uid;
-            const email = user.email;
             database.ref(`users/${uid}/locations`).once('value', snapshot => {
                 if (!snapshot.exists()) {
-                    if (email === 'stallberg.anders@gmail.com') {
-                        database.ref(`users/${uid}/locations`).set(DEFAULT_LOCATIONS);
-                    } else {
-                        database.ref(`users/${uid}/locations`).set({});
-                    }
+                    // Create welcome data for new users
+                    const welcomeData = {
+                        "En grupp, plats eller liknande": {
+                            order: 0,
+                            items: {
+                                "En sak": { active: false, order: 0, quantity: 1 },
+                                "En annan sak": { active: false, order: 1, quantity: 1 }
+                            }
+                        }
+                    };
+                    database.ref(`users/${uid}/locations`).set(welcomeData);
+                    database.ref(`users/${uid}/hasSeenIntro`).set(false);
+                    database.ref(`users/${uid}/welcomeGroupName`).set("En grupp, plats eller liknande");
                 }
             });
         }
@@ -1593,6 +1870,19 @@
                     locations = [];
                 }
                 render();
+            });
+        }
+
+        function checkAndShowIntro(user) {
+            const uid = user.uid;
+            database.ref(`users/${uid}/hasSeenIntro`).once('value', snapshot => {
+                const hasSeenIntro = snapshot.val();
+                if (hasSeenIntro === false || hasSeenIntro === null || hasSeenIntro === undefined) {
+                    // User hasn't seen intro yet, show it
+                    setTimeout(() => {
+                        appShowIntroSlideshow();
+                    }, 500);
+                }
             });
         }
 
@@ -2197,6 +2487,18 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
 
         function appShowAddLocationDialog(insertIndex = null) {
             dialogCallback = (name) => {
+                // Check if this is the first user-created group (remove welcome group)
+                const hasOnlyWelcomeGroup = locations.length === 1 &&
+                    locations[0].name === "En grupp, plats eller liknande" &&
+                    locations[0].items.length === 2 &&
+                    locations[0].items.some(i => i.name === "En sak") &&
+                    locations[0].items.some(i => i.name === "En annan sak");
+
+                if (hasOnlyWelcomeGroup) {
+                    // Remove welcome group
+                    locations = [];
+                }
+
                 const newLocation = {
                     name,
                     order: insertIndex !== null ? insertIndex : locations.length,
@@ -2546,6 +2848,78 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                             alert('Kunde inte skicka feedback. Försök igen senare.');
                         });
                 });
+        }
+
+        // Intro slideshow state
+        let currentIntroSlide = 0;
+        const totalIntroSlides = 4;
+
+        function appShowIntroSlideshow() {
+            document.getElementById('introModal').classList.add('show');
+            currentIntroSlide = 0;
+            appUpdateIntroSlide();
+        }
+
+        function appCloseIntroSlideshow() {
+            document.getElementById('introModal').classList.remove('show');
+            // Save hasSeenIntro flag to Firebase
+            if (currentUser) {
+                database.ref(`users/${currentUser.uid}/hasSeenIntro`).set(true);
+            }
+        }
+
+        function appNextSlide() {
+            if (currentIntroSlide < totalIntroSlides - 1) {
+                currentIntroSlide++;
+                appUpdateIntroSlide();
+            }
+        }
+
+        function appPrevSlide() {
+            if (currentIntroSlide > 0) {
+                currentIntroSlide--;
+                appUpdateIntroSlide();
+            }
+        }
+
+        function appGoToSlide(slideIndex) {
+            currentIntroSlide = slideIndex;
+            appUpdateIntroSlide();
+        }
+
+        function appUpdateIntroSlide() {
+            // Update slide visibility
+            document.querySelectorAll('.intro-slide').forEach((slide, index) => {
+                if (index === currentIntroSlide) {
+                    slide.classList.add('active');
+                } else {
+                    slide.classList.remove('active');
+                }
+            });
+
+            // Update dot indicators
+            document.querySelectorAll('.intro-dot').forEach((dot, index) => {
+                if (index === currentIntroSlide) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+
+            // Update navigation buttons
+            const prevBtn = document.querySelector('.intro-prev-btn');
+            const nextBtn = document.querySelector('.intro-next-btn');
+            const closeFinalBtn = document.getElementById('introCloseFinalBtn');
+
+            prevBtn.disabled = currentIntroSlide === 0;
+            nextBtn.disabled = currentIntroSlide === totalIntroSlides - 1;
+
+            // Show close button only on last slide
+            if (currentIntroSlide === totalIntroSlides - 1) {
+                closeFinalBtn.style.display = 'block';
+            } else {
+                closeFinalBtn.style.display = 'none';
+            }
         }
 
         // Share dialog state
