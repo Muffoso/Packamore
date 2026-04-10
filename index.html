@@ -1436,7 +1436,7 @@
         <div class="feedback-modal" id="feedbackModal">
             <div class="modal-overlay"></div>
             <div class="feedback-form">
-                <h2>Berätta vad du tycker om Packamore!<br>Pleease.</h2>
+                <h2>Berätta vad du tycker!<br>Pleease.</h2>
                 <p style="text-align: center; color: #666; font-size: 14px; margin-bottom: 15px;">Hur funkar Packamore för dig?</p>
                 <div class="feedback-stars" id="starRating">
                     <button class="star-btn" data-rating="1" onclick="appSetRating(1)" title="Gav mig huvudvärk">★</button>
@@ -2116,6 +2116,17 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
                 }
                 saveAllData();
 
+                // Check feedback trigger - show on every 3rd deselection from 1 to 0 items
+                const currentSelectedCount = locations.reduce((sum, loc) => sum + loc.items.filter(i => i.active).length, 0);
+
+                if (lastSelectedCount === 1 && currentSelectedCount === 0) {
+                    deselectionCounter++;
+                    if (deselectionCounter % 3 === 0) {
+                        appOpenFeedbackForm();
+                    }
+                }
+                lastSelectedCount = currentSelectedCount;
+
                 if (!filterActive) {
                     setTimeout(() => {
                         const items = document.querySelectorAll('.item');
@@ -2433,6 +2444,8 @@ function appMoveItemToLocation(fromLocIndex, itemIndex, toLocIndex) {
 
         // Feedback form state
         let currentFeedbackRating = 0;
+        let deselectionCounter = 0;
+        let lastSelectedCount = 0;
 
         function appOpenFeedbackForm() {
             document.getElementById('feedbackModal').classList.add('show');
