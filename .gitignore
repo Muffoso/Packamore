@@ -13,3 +13,6 @@ npm-debug.log
 # OS files
 .DS_Store
 Thumbs.db
+
+# Private guidelines (synced to separate private repo)
+DESIGN_GUIDELINES_PRIVATE/
