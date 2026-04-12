@@ -1,1 +1,0 @@
-# Packamore Private Guidelines
