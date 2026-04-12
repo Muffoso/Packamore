@@ -1,11 +1,10 @@
 #!/bin/bash
 
 # Push to Packamore repo with auto-generated commit messages
-# For pushing to Packamore_private (separate repo), run push.sh in that directory
 #
 # Usage:
-#   ./push-all.sh                      # Auto-generate commit message from changes
-#   ./push-all.sh "Custom message"     # Use custom commit message
+#   ./push.sh                      # Auto-generate commit message from changes
+#   ./push.sh "Custom message"     # Use custom commit message
 
 set -e  # Exit on error
 
@@ -95,4 +94,4 @@ fi
 
 echo ""
 echo -e "${GREEN}✅ Done! Pushed to Packamore.${NC}"
-echo -e "${YELLOW}ℹ️  To push private guidelines, run: cd ../Packamore_private && ./push.sh${NC}"
+echo -e "${YELLOW}ℹ️  To push both repos, run: ./push-all.sh${NC}"
