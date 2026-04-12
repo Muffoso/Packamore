@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# Push to both public and private repos simultaneously with auto-generated commit messages
-# Public repo: Packamore (code only)
-# Private repo: Packamore_private (DESIGN_GUIDELINES_PRIVATE, Research, workflows)
+# Push to Packamore repo with auto-generated commit messages
+# For pushing to Packamore_private (separate repo), run push.sh in that directory
 #
 # Usage:
 #   ./push-all.sh                      # Auto-generate commit message from changes
@@ -18,12 +17,6 @@ RED='\033[0;31m'
 NC='\033[0m' # No Color
 
 # Check if there are any changes
-if ! git diff-index --quiet HEAD --; then
-  STAGED=true
-else
-  STAGED=false
-fi
-
 if [ -z "$(git status -s)" ]; then
   echo -e "${RED}❌ No changes to commit. Exiting.${NC}"
   exit 0
@@ -86,30 +79,20 @@ fi
 echo -e "${BLUE}🔄 Staging all changes...${NC}"
 git add -A
 
-# Create commit with footer
+# Create commit
 echo -e "${BLUE}💾 Creating commit...${NC}"
 COMMIT_BODY="$COMMIT_MSG"$'\n\nCo-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>'
 git commit -m "$COMMIT_BODY"
 
-# Push to public repo
-echo -e "${BLUE}📤 Pushing to public repo (master)...${NC}"
+# Push to Packamore repo
+echo -e "${BLUE}📤 Pushing to Packamore repo (master)...${NC}"
 if git push origin master; then
-  echo -e "${GREEN}✅ Public repo pushed successfully${NC}"
+  echo -e "${GREEN}✅ Packamore repo pushed successfully${NC}"
 else
-  echo -e "${RED}❌ Failed to push to public repo${NC}"
-  exit 1
-fi
-
-# Push to private repo
-echo -e "${BLUE}🔒 Pushing to private repo (DESIGN_GUIDELINES_PRIVATE)...${NC}"
-if git subtree push --prefix DESIGN_GUIDELINES_PRIVATE https://github.com/Muffoso/Packamore_private.git main; then
-  echo -e "${GREEN}✅ Private repo pushed successfully${NC}"
-else
-  echo -e "${RED}❌ Failed to push to private repo${NC}"
+  echo -e "${RED}❌ Failed to push to Packamore repo${NC}"
   exit 1
 fi
 
 echo ""
-echo -e "${GREEN}✅ All done! Pushed to both repos.${NC}"
-echo -e "${GREEN}   Public: Packamore (code only)${NC}"
-echo -e "${GREEN}   Private: Packamore_private (guidelines, research, workflows)${NC}"
+echo -e "${GREEN}✅ Done! Pushed to Packamore.${NC}"
+echo -e "${YELLOW}ℹ️  To push private guidelines, run: cd ../Packamore_private && ./push.sh${NC}"
