@@ -14,5 +14,7 @@ npm-debug.log
 .DS_Store
 Thumbs.db
 
-# Private guidelines (synced to separate private repo)
+# Private guidelines and documentation (synced to separate private repo)
 DESIGN_GUIDELINES_PRIVATE/
+Research/
+workflows/
