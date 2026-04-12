@@ -33,11 +33,11 @@ fi
 if [ -z "$1" ]; then
   echo -e "${BLUE}📊 Analyzing changes...${NC}"
 
-  # Get list of changed files
+  # Get list of changed files (including untracked)
   CHANGED_FILES=$(git status -s | cut -c 4-)
 
   # Categorize changes
-  ADDED=$(git status -s | grep "^A" | wc -l)
+  ADDED=$(git status -s | grep -E "^(A|\?\?)" | wc -l)
   MODIFIED=$(git status -s | grep "^M" | wc -l)
   DELETED=$(git status -s | grep "^D" | wc -l)
 
