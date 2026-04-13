@@ -14,5 +14,8 @@ npm-debug.log
 .DS_Store
 Thumbs.db
 
+# Firebase setup - moved to private repo (../Packamore_private)
+FIREBASE_SETUP.md
+
 # Private guidelines in separate repo (../Packamore_private)
 # These directories are NOT part of this repo
