@@ -580,7 +580,7 @@
                     <div class="feedback-header">
                         <div class="feedback-rating">${stars}</div>
                         <div>
-                            <div class="feedback-email">${feedback.email || 'anonymous'}</div>
+                            <div class="feedback-email">${escapeHtml(feedback.email || 'anonymous')}</div>
                             <div class="feedback-date">${date}</div>
                         </div>
                     </div>
