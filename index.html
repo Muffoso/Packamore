@@ -1763,6 +1763,13 @@
             setupFirebaseListeners();
         }
 
+        // Escape HTML special characters to prevent XSS
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
         // State
         let editMode = false;
         let filterActive = false;
@@ -2022,7 +2029,7 @@
                 header.className = `location-header ${editMode ? 'edit-mode' : ''}`;
 
                 header.innerHTML = `
-                    <span>${location.name}</span>
+                    <span>${escapeHtml(location.name)}</span>
                     <div class="location-controls ${editMode ? '' : 'edit-hidden'}">
                         <button class="arrow-btn" onclick="appMoveLocation(${locIndex}, -1)" ${locIndex === 0 ? 'disabled' : ''}>⬆️</button>
                         <button class="arrow-btn" onclick="appMoveLocation(${locIndex}, 1)" ${locIndex === locations.length - 1 ? 'disabled' : ''}>⬇️</button>
@@ -2056,7 +2063,7 @@
 
                     itemDiv.innerHTML = `
                         ${qtyHtml}
-                        <button class="item-button" onclick="appToggleItem(${locIndex}, ${itemIndex})">${item.name}</button>
+                        <button class="item-button" onclick="appToggleItem(${locIndex}, ${itemIndex})">${escapeHtml(item.name)}</button>
                         <div class="item-controls edit-hidden">
                             <button class="item-arrow-btn" onclick="appMoveItem(${locIndex}, ${itemIndex}, -1)" ${itemIndex === 0 ? 'disabled' : ''}>⬆️</button>
                             <button class="item-arrow-btn" onclick="appMoveItem(${locIndex}, ${itemIndex}, 1)" ${itemIndex === location.items.length - 1 ? 'disabled' : ''}>⬇️</button>
