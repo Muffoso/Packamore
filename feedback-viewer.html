@@ -346,6 +346,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
 
     <script>
         const firebaseConfig = {
@@ -369,6 +370,10 @@
             if (typeof firebase !== 'undefined' && firebase.app) {
                 clearInterval(waitForFirebase);
                 firebase.initializeApp(firebaseConfig);
+                firebase.appCheck().activate(
+                    new firebase.appCheck.ReCaptchaV3Provider('6Lcj9LQsAAAAAHQ4cBBg7ljA7dPssBPms81Kylx_'),
+                    true
+                );
                 auth = firebase.auth();
                 database = firebase.database();
 

@@ -1732,6 +1732,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-check-compat.js"></script>
 
     <script>
         // Firebase configuration
@@ -1760,6 +1761,10 @@
 
         function initializeApp() {
             firebase.initializeApp(firebaseConfig);
+            firebase.appCheck().activate(
+                new firebase.appCheck.ReCaptchaV3Provider('6Lcj9LQsAAAAAHQ4cBBg7ljA7dPssBPms81Kylx_'),
+                true
+            );
             setupFirebaseListeners();
         }
 
