@@ -2135,17 +2135,31 @@
         // Long touch and context menu variables
         let longTouchTimeout;
         let touchStartTime;
+        let touchStartX;
+        let touchStartY;
 
         function appSetupLongTouchListeners() {
             const container = document.getElementById('container');
 
             // Remove old listeners
             container.removeEventListener('touchstart', appOnTouchStart);
+            container.removeEventListener('touchmove', appOnTouchMove);
             container.removeEventListener('touchend', appOnTouchEnd);
 
             // Add new listeners
             container.addEventListener('touchstart', appOnTouchStart, false);
+            container.addEventListener('touchmove', appOnTouchMove, { passive: true });
             container.addEventListener('touchend', appOnTouchEnd, false);
+        }
+
+        function appOnTouchMove(e) {
+            if (!longTouchTimeout) return;
+            const dx = e.touches[0].clientX - touchStartX;
+            const dy = e.touches[0].clientY - touchStartY;
+            if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
+                clearTimeout(longTouchTimeout);
+                longTouchTimeout = null;
+            }
         }
 
         function appOnTouchStart(e) {
@@ -2153,6 +2167,8 @@
             if (!target) return;
 
             touchStartTime = Date.now();
+            touchStartX = e.touches[0].clientX;
+            touchStartY = e.touches[0].clientY;
             longTouchTimeout = setTimeout(() => {
                 if (editMode) return;
 
